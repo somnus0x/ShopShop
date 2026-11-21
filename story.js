@@ -64,9 +64,11 @@ function displayPhoto(url,credit){
   $('photoCredit').textContent=credit;$('sourceMedia').hidden=false;
 }
 async function showPostPhoto(){
-  const summary=index===-1, {file_id:ref,image_url:remotePhoto}=imageRefs[index]||{};
-  const local=localPhotos.get(index);
-  const key=JSON.stringify([index,ref,remotePhoto,local?.version]);
+  const summary = index === -1;
+  const photoIndex = summary ? output.stories.findIndex((_, i) => imageRefs[i]?.image_url) : index;
+  const {file_id:ref,image_url:remotePhoto} = imageRefs[photoIndex] || {};
+  const local = localPhotos.get(photoIndex);
+  const key = JSON.stringify([index,photoIndex,ref,remotePhoto,local?.version]);
   if(showingPhoto===key)return;
   showingPhoto=key;
   const token=++photoRequest;
@@ -75,7 +77,10 @@ async function showPostPhoto(){
   const link=output.stories[index]?.source_url;
   $('sourceLink').hidden=!link;
   if(link)$('sourceLink').href=link;else $('sourceLink').removeAttribute('href');
-  if(summary)return;
+  if(summary){
+    if(remotePhoto)displayPhoto(remotePhoto,'ภาพจากโพสต์ Instagram');
+    return;
+  }
   $('attachPhoto').textContent=local || ref || remotePhoto?'เปลี่ยนภาพของโพสต์นี้':'เพิ่มภาพของโพสต์นี้ ＋';
   if(local){displayPhoto(local.url,'ภาพที่แนบกับโพสต์ '+(index+1));return;}
   if(ref && window.openai?.getFileDownloadUrl){

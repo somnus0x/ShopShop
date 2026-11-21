@@ -1,7 +1,7 @@
 // Each supplied post contributes once. Race and gym belong to the same fitness topic.
 const topics = {
   race: ['ฟิตเนส', '#dfff69'], gym: ['ฟิตเนส', '#dfff69'],
-  travel: ['เดินทาง', '#c4afff'], dogs: ['น้องหมา', '#ffb899'],
+  travel: ['เดินทาง', '#c4afff'], trip: ['เดินทาง', '#c4afff'], dogs: ['น้องหมา', '#ffb899'],
   plaid: ['แฟชั่น', '#88dce4'], flowers: ['ดอกไม้', '#ffb2d6'], place: ['สถานที่', '#fff0ba']
 };
 const placeLabels = {favorite:'ชอบไป', visited:'เคยไป', planned:'อยากไป'};

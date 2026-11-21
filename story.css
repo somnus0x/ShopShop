@@ -126,3 +126,5 @@
 #merchantDemo p,#merchantDemo label{font-size:.86rem}
 #merchantCode{max-width:100%;font:inherit;padding:6px;border:1px solid var(--line);border-radius:5px}
 #merchantReplies img{display:block;width:min(180px,100%);height:auto;margin-top:6px}
+
+.story[data-tone="summary"] #postPhoto{max-height:180px;object-fit:cover}
