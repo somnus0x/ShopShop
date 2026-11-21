@@ -339,7 +339,11 @@ function render(){
   if(overage)$('price').textContent+=' · '+overage;
   $('reason').textContent=s.reason;$('equip').disabled=!s.eligible && !demoInquiry;
   $('equip').textContent=s.eligible?(equipped?'✓ Gift selected · Edit note':'Choose this gift ＋'):(demoInquiry?'Try demo inquiry ↗':overage);
-  $('notePanel').hidden=!equipped||!showGift;$('note').value=drafts[giftSlot()]??s.note;
+  const note=drafts[giftSlot()]??s.note??'';
+  $('notePanel').hidden=!equipped||!showGift;
+  $('note').value=note;
+  $('notePreview').hidden=!showGift || equipped || !note.trim();
+  $('noteLine').textContent=note;
   renderInquiry();
   $('status').textContent=sent[giftSlot()]?'Gift saved for this session.':'';
 }

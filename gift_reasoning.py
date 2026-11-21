@@ -20,9 +20,10 @@ _SCHEMA = {
     "type": "object", "additionalProperties": False, "required": ["gifts"],
     "properties": {"gifts": {"type": "array", "items": {
         "type": "object", "additionalProperties": False,
-        "required": ["item", "summary", "reason", "posts", "score"],
+        "required": ["item", "summary", "reason", "note", "posts", "score"],
         "properties": {"item": {"type": "string"}, "summary": {"type": "string"},
                        "reason": {"type": "string"}, "score": {"type": "integer"},
+                       "note": {"type": "string"},
                        "posts": {"type": "array", "items": {"type": "integer"}}},
     }}},
 }
@@ -30,9 +31,17 @@ _INSTRUCTIONS = """
 Explain gift recommendations using only the supplied post evidence and product facts.
 Return one entry per supplied item ID. Score each item's personal fit from 0 to 100.
 Reserve high scores for a clear connection to this person's posts, give generic
-options low scores, and ignore price when scoring. Write one concise summary and a distinct,
-concrete two-sentence reason. Start with the distinct activity or a visible style cue
-from a specific post, then explain how the gift could be used or styled. Distinguish
+options low scores, and ignore price when scoring. Sound like a friend helping someone
+pick a thoughtful first-date gift. Keep it warm, lightly playful, and low-pressure.
+Write a short summary about the gesture and a distinct, concrete two-sentence reason.
+Show how one specific detail they shared makes the gift feel personal, then give a
+plausible way they could use or style it. Avoid phrases such as "the user's posts
+highlight", "suggesting regular trips", or "this aligns with their lifestyle".
+Write a short note the giver can say out loud. Use "I" and "you", one detail from a
+supporting post where natural, and everyday words. Avoid sales language, claims about
+the relationship, pressure, and references to analyzing their profile. Keep the note
+under 120 characters. If there's little evidence, make a simple, honest note.
+Distinguish
 studio recording, playing on stage, and traveling on tour. A release announcement
 does not establish that they pack gear, carry sheet music, rehearse frequently, or need
 a new bag. Prefer travel products when the evidence itself mentions travel. A suggested outfit is
@@ -83,7 +92,7 @@ async def _explain(model, api_key, payload, photos):
                 headers={"Authorization": f"Bearer {api_key}"}, json={
                     "model": model, "store": False, "instructions": _INSTRUCTIONS,
                     "input": [{"role": "user", "content": content}],
-                    "max_output_tokens": 2200,
+                    "max_output_tokens": 2600,
                     "text": {"format": {"type": "json_schema", "name": "gift_reasons",
                                         "strict": True, "schema": _SCHEMA}},
                 })
@@ -149,16 +158,19 @@ async def enrich(card, post_images):
             continue
         try:
             item, summary, reason = entry["item"], entry["summary"].strip(), entry["reason"].strip()
+            note = entry["note"].strip()
             score = entry["score"]
             indices = list(dict.fromkeys(i for i in entry["posts"] if type(i) is int and 0 <= i < len(stories)))
             if item in candidates and 8 <= len(summary) <= 150 and 20 <= len(reason) <= 360 and type(score) is int:
-                suggestions[item] = (summary, reason, indices[:2], max(0, min(100, score)))
+                suggestions[item] = (summary, reason, indices[:2], max(0, min(100, score)), note)
         except (AttributeError, KeyError, TypeError):
             continue
     for gift in gifts:
         if gift["item"] in suggestions:
-            summary, reason, indices, score = suggestions[gift["item"]]
+            summary, reason, indices, score, note = suggestions[gift["item"]]
             gift.update(short_reason=summary, reason=reason, evidence=indices, catalog_fallback=not indices)
+            if 5 <= len(note) <= 240:
+                gift["note"] = note
             if "_gift_candidates" in card["overview"]:
                 gift["_fit_score"] = score if indices else 0
     if suggestions:

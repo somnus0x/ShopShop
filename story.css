@@ -126,6 +126,11 @@
 }
 
 #note{color:var(--ink);caret-color:var(--ink)}
+#notePreview{margin:10px 0 0;padding:9px 12px;border-radius:8px;background:#f5edfc;color:var(--ink)}
+#notePreview figcaption{font-size:.72rem;font-weight:750}
+#noteLine{margin:2px 0 0;font-size:.88rem;line-height:1.45;overflow-wrap:anywhere;quotes:"“" "”"}
+#noteLine:before{content:open-quote}
+#noteLine:after{content:close-quote}
 #inquiryDetails,#inquiryFeedback{font-size:.82rem;color:var(--jade);margin-top:7px}
 #inquiryReceipt{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;gap:12px;margin-top:14px;padding:14px;background:var(--acid);color:var(--ink);border-radius:12px;overflow:hidden}
 #inquiryReceipt h2{font-size:1.04rem;line-height:1.25}

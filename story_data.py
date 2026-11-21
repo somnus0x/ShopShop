@@ -253,6 +253,15 @@ _LIVE_REASONS = {"race": _TRAINING_REASONS, "gym": _TRAINING_REASONS,
                      "overhills-airmatte-tee": "A spare tee for a long rehearsal day.",
                  }}
 
+_LIVE_NOTES = {
+    "trip": "Your trip made me think of this. Maybe it can come along on the next one.",
+    "travel": "For your next one-bag trip. I’d love to hear where you take it.",
+    "place": "This made me think of the places you’ve shared. Here’s to the next one.",
+    "race": "This made me think of race day. I’m cheering for you.",
+    "gym": "I saw this and thought of your after-work workouts. Hope it comes in handy.",
+    "music": "This made me think of the music you’ve been sharing. Hope you get some use out of it.",
+}
+
 
 def _gift_rank(gift, post_index=None):
     evidence = gift.get("evidence", [])
@@ -290,16 +299,19 @@ def apply_live_catalog(result, products, budget_thb):
             evidence = [i for i, reason in matches if reason]
             summary = next((reason for _, reason in matches if reason), "Another option near the budget.")
             reason = summary
+            note = "Saw this and thought of you."
             if evidence:
-                topic = VIBE_TOPICS.get(result["stories"][evidence[0]]["cue"], "places they shared").lower()
-                reason = f"The posts highlight {topic}. {summary}"
+                cue = result["stories"][evidence[0]]["cue"]
+                topic = VIBE_TOPICS.get(cue, "the places they shared").lower()
+                reason = f"It’s a way to show you noticed {topic}. {summary}"
+                note = _LIVE_NOTES.get(cue, note)
             else:
                 reason = "This pick is based on price. The posts give little evidence about how it fits their style or activities."
             choices.append({
                 "item": item, "product": product["name"], "brand": product["brand"] or "",
                 "price": price, "eligible": not overage, "over_budget_thb": overage,
                 "image_url": product.get("image_url"), "reason": reason, "short_reason": summary,
-                "note": "Saw this and thought of you.", "evidence": evidence, "catalog_fallback": not evidence,
+                "note": note, "evidence": evidence, "catalog_fallback": not evidence,
             })
         return sorted(choices, key=_gift_rank)[:8]
 
