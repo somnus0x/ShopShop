@@ -4,6 +4,27 @@ Shopshop suggests a first-date gift from the interests someone has shared on Ins
 
 Open `index.html` for a standalone design preview. To see the card inside a conversation and send the chosen gift and note back to ChatGPT, connect the MCP server below.
 
+## Hackathon setup on Railway
+
+1. In Railway, choose **New Project → Deploy from GitHub repo → somnus0x/ShopShop**. The repository root contains the Dockerfile and `railway.toml`. Railway injects `PORT`, and `/healthz` checks startup. In the service settings, generate a public domain. With the CLI, run `railway up` from the application directory, then `railway domain`. [Railway deployment](https://docs.railway.com/cli/up) · [Railway domains](https://docs.railway.com/cli/domain)
+2. In [ChatGPT Plugins](https://chatgpt.com/plugins), choose **+ → Add custom MCP server**. Enter the Railway HTTPS URL with `/mcp` appended, name it **ShopShop**, and use **No authentication** for the demo server. Create and install the plugin. [OpenAI connection guide](https://developers.openai.com/plugins/deploy/connect-chatgpt)
+3. In a new conversation, mention `@shopshop` and send `เปิดเดโม shopshop ของจูน งบ 600 บาท`. Check the visual recap, product and gift note.
+4. For the public Instagram test, add `APIFY_TOKEN` in Railway Variables. Mention `@shopshop` with a public Instagram profile URL you control and ask it to find a gift. The scraper accepts one profile per lookup, returns up to six recent posts, and applies a $0.03 Apify charge cap per run. Successful and empty results are cached for five minutes in the server process. Set a usage limit in Apify for the demo. Private or unreadable profiles prompt for screenshots. [Apify Actor](https://apify.com/gatherworks/instagram-profile-scraper) · [Apify API](https://docs.apify.com/api/v2/actor-run-sync-get-dataset-items)
+
+### Connect the merchant inquiry demo
+
+The inquiry panel appears on the fictional June overview when the buyer bridge is configured. It submits the separate Supason demo product `demo-supasonk`; the Clover remains a visual gift recommendation. The operator uses the existing shopping queue to send and record the reply. The widget refreshes the original inquiry using a signed ticket and reuses its request ID if the initial button click needs retrying.
+
+| Railway variable | Value |
+| --- | --- |
+| `SHOPSHOP_BUYER_URL` | Private route from Railway to the shopping Mac’s `/buyer/mcp` endpoint |
+| `SHOPSHOP_BUYER_TOKEN` | The buyer-only bearer credential from the shopping operator |
+| `SHOPSHOP_INQUIRY_SECRET` | Random server-only key for signing inquiry tickets |
+| `SHOPSHOP_BUYER_DEMO_CODE` | Separate high-entropy demo code to enter in the widget before sending |
+| `SHOPSHOP_QR_ORIGIN` | HTTPS origin of the operator-approved sample QR host, if testing QR replies |
+
+The shopping Mac’s loopback address is only reachable from that Mac. Test the private route from Railway before enabling the bridge. Use the buyer endpoint credentials for this integration. Use sample QR images without payment details.
+
 ## Connect a private demo to ChatGPT
 
 1. In the directory containing `server.py`, install the dependencies.

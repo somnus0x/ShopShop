@@ -94,3 +94,35 @@
 #mediaActions{display:flex;align-items:center;flex-wrap:wrap;gap:4px 12px;padding-bottom:5px}
 #attachPhoto,#sourceLink{background:transparent;color:inherit;border:0;font-size:.77rem;text-decoration:underline;text-underline-offset:3px}
 #photoStatus:not(:empty){width:100%}.story:has(#sourceMedia:not([hidden])) #surface{min-height:0}
+
+#likes button{grid-template-columns:52px 1fr auto;gap:2px 8px;padding:5px;text-align:start}
+.interest-thumb{grid-column:1;grid-row:1/3;width:52px;height:50px;display:grid;place-items:center;font-size:1.5rem;border-radius:5px;background:#2a4940 center/cover}
+.interest-thumb.race{background-image:url("CI_RACE")}
+.interest-thumb.travel{background-image:url("CI_TRAVEL")}
+.interest-thumb.gym{background-image:url("CI_GYM")}
+#likes b{grid-column:2;align-self:end}#likes small{grid-column:3;grid-row:1;align-self:end}
+#likes .post-meter{grid-column:2/-1;align-self:start;margin-top:4px}
+.place-tile{border-radius:10px;background:#e6eddd;overflow:hidden}
+#places .place-tile button{width:100%;border:0}
+#places .chiangmai button{min-height:120px;background:linear-gradient(0deg,#0b211ef0,transparent 90%),url("CI_CITY") center/cover;color:white;display:flex;flex-direction:column;justify-content:end;align-items:start}
+#places .chiangmai button:before{display:none}
+.place-tile a{display:block;padding:8px 12px;color:var(--jade);font-size:.8rem;font-weight:700}
+#giftVisual img+img{aspect-ratio:2/1;object-fit:cover;margin-top:3px}
+.story[data-tone="summary"] #quote{font-size:clamp(1.08rem,3.3vw,1.55rem)}
+.story[data-tone="summary"] #surface{padding:7px 0 3px}
+#breakdown{gap:1px;padding-bottom:5px}
+#mixLegend button,#recapDetail{min-height:34px}
+#profileTop.with-model .story{align-self:center;width:100%}
+@media(max-width:500px){
+ #summary{grid-template-columns:minmax(0,1fr) minmax(0,.77fr)}
+ #likes button{grid-template-columns:37px minmax(0,1fr)}
+ .interest-thumb{width:37px;height:48px;grid-row:1/4}
+ #likes b,#likes small,#likes .post-meter{grid-column:2}
+ #likes small{grid-row:2}#likes .post-meter{margin:0}
+}
+
+#merchantDemo{margin:14px 0;padding:16px;border:1px solid var(--line);border-radius:12px}
+#merchantDemo h2{font-size:1rem}
+#merchantDemo p,#merchantDemo label{font-size:.86rem}
+#merchantCode{max-width:100%;font:inherit;padding:6px;border:1px solid var(--line);border-radius:5px}
+#merchantReplies img{display:block;width:min(180px,100%);height:auto;margin-top:6px}

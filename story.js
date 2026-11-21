@@ -2,6 +2,7 @@ const $ = id => document.getElementById(id);
 const embedded = window.parent !== window;
 let output = null, index = 0, expanded = false, equipped = false, sending = false;
 let drafts = {}, sent = {}, signature = '';
+let inquiry = {}, inquiryPending = false;
 const pending = new Map();
 let serial = 0;
 let posterFile = null, posterData = null;
@@ -52,7 +53,7 @@ function request(method,params) {
   });
 }
 function persist(){
-  window.openai?.setWidgetState?.({signature,index,expanded,equipped,drafts,sent});
+  window.openai?.setWidgetState?.({signature,index,expanded,equipped,drafts,sent,inquiry});
 }
 let imageRefs={}, localPhotos=new Map(), showingPhoto='', photoRequest=0;
 function hostImages(meta){
@@ -125,12 +126,14 @@ function receive(data,meta){
     return;
   }
   imageRefs=refs||{};localPhotos.clear();showingPhoto='';photoRequest++;
-  signature=key;output=data;index=data.overview?-1:0;expanded=false;equipped=false;drafts={};sent={};
+  signature=key;output=data;index=data.overview?-1:0;expanded=false;equipped=false;drafts={};sent={};inquiry={};
   const state=window.openai?.widgetState;
   if(state?.signature===key && (data.stories?.[state.index] || (data.overview && state.index===-1))){
-    index=state.index;expanded=!!state.expanded;equipped=!!state.equipped;drafts=state.drafts||{};sent=state.sent||{};
+    index=state.index;expanded=!!state.expanded;equipped=!!state.equipped;drafts=state.drafts||{};sent=state.sent||{};inquiry=state.inquiry||{};
   }
   $('ready').hidden=data.status!=='ready';$('waiting').hidden=!$('ready').hidden;
+  $('merchantStatus').textContent='';
+  $('merchantReplies').replaceChildren();
   clearShare();$('shareCard').disabled=true;
   if($('ready').hidden){$('message').textContent=data.message;return;}
   render();
@@ -152,6 +155,7 @@ function evidenceButton(label, indices){
 function render(){
   const overview=output.overview, summary=index===-1, total=output.stories.length;
   const s=activePick(), source=output.stories[index];
+  renderInquiry();
   showPostPhoto();
   $('meta').textContent=output.demo?'โปรไฟล์สมมติ · เดโม':(output.from_instagram?'จากบัญชี Instagram ที่เชื่อมไว้':'จากโพสต์ที่แชร์ในแชต');
   $('handle').textContent=output.demo?'จูน · '+output.network:output.network+' · ข้อความจากโพสต์';
@@ -178,7 +182,12 @@ function render(){
         if(like.posts.includes(i))part.style.background=topics[output.stories[i].cue][1];
         bar.append(part);
       }
-      button.textContent=like.label;button.append(count,bar);
+      const cue=output.stories[like.posts[0]].cue;
+      const thumb=document.createElement('span');thumb.className='interest-thumb '+cue;
+      thumb.setAttribute('aria-hidden','true');
+      if(!['race','travel','gym'].includes(cue))thumb.textContent=output.stories[like.posts[0]].glyph;
+      const name=document.createElement('b');name.textContent=like.label;
+      button.textContent='';button.append(thumb,name,count,bar);
       return button;
     }));
     $('likesTitle').hidden=!overview.likes.length;
@@ -205,13 +214,21 @@ function render(){
       const button=evidenceButton(place.name,place.posts);
       const tag=document.createElement('small');
       tag.textContent=placeLabels[place.relation]+' · '+place.posts.length+' โพสต์ ↗';
-      button.textContent=place.name;button.append(tag);return button;
+      const tile=document.createElement('div');tile.className='place-tile';
+      if(place.name==='เชียงใหม่')tile.classList.add('chiangmai');
+      button.textContent=place.name;button.append(tag);
+      const map=document.createElement('a');
+      map.href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(place.name);
+      map.target='_blank';map.rel='noopener noreferrer';map.textContent='เปิดแผนที่ ↗';
+      map.onclick=e=>{if(embedded && window.openai?.openExternal){e.preventDefault();window.openai.openExternal({href:map.href});}};
+      tile.append(button,map);return tile;
     }));
   }
   const hasGift=!!s?.product;
   $('open').textContent=hasGift?'เห็นโพสต์นี้แล้ว ให้อะไรดี? ↗':(summary?'ยังไม่มีของที่เข้ากับโพสต์และงบนี้':'โพสต์นี้ให้เบาะแสเรื่องสถานที่');
   $('open').disabled=!hasGift;
   const showGift=expanded || (summary && hasGift);
+  $('makeGiftImage').hidden=!(embedded && showGift && hasGift);
   $('giftVisual').hidden=s?.item!=='clover';
   $('giftLayout').classList.toggle('with-photo',s?.item==='clover');
   $('open').hidden=showGift;$('expanded').hidden=!showGift;
@@ -233,6 +250,58 @@ function render(){
   $('save').disabled=sending||!!sent[index];$('save').textContent=sent[index]?'✓ เก็บแล้ว':'ส่งของที่เลือกกับโน้ตเข้าแชต ↗';
   $('status').textContent=sent[index]?(embedded?'ส่งตัวเลือกนี้เข้าแชตแล้ว':'ตัวอย่างข้อความในแชต · '+sent[index]):'';
 }
+function renderInquiry(){
+  $('merchantDemo').hidden=!(embedded && output?.merchant_demo && index===-1);
+  $('merchantForm').hidden=!!inquiry.ticket;
+  $('merchantRefresh').hidden=!inquiry.ticket;
+}
+const merchantStatus = {
+  queued:'รอร้านตอบ',claimed:'กำลังดำเนินการ',sent:'ส่งคำถามแล้ว · รอร้านตอบ',
+  needs_attention:'ให้ผู้ดูแลตรวจสอบ',expired:'ลิงก์ทดสอบหมดอายุ',
+  denied:'รหัสทดสอบไม่ถูกต้อง',unavailable:'เชื่อมต่อคิวร้านไม่ได้ ลองอีกครั้ง'
+};
+async function callInquiryTool(name, args){
+  if(inquiryPending)return;
+  inquiryPending=true;
+  const current=inquiry;
+  $('merchantStatus').textContent='กำลังเชื่อมต่อร้าน…';
+  try{
+    const response=window.openai?.callTool
+      ? await window.openai.callTool(name,args)
+      : await request('tools/call',{name,arguments:args});
+    if(current!==inquiry)return;
+    const result=response?.structuredContent;
+    if(response?.isError || !result?.status)throw new Error('Missing inquiry status');
+    if(result.ticket){inquiry.ticket=result.ticket;persist();}
+    const replies=result.replies||[];
+    $('merchantStatus').textContent=replies.length?'ร้านตอบแล้ว':(merchantStatus[result.status]||result.status);
+    $('merchantReplies').replaceChildren(...replies.map(reply=>{
+      const card=document.createElement('div');
+      const message=document.createElement('p');
+      message.textContent=reply.text;
+      card.append(message);
+      if(reply.qr_image_url){
+        const qr=document.createElement('img');
+        qr.src=reply.qr_image_url;qr.alt='ตัวอย่าง QR จากร้าน';
+        card.append(qr);
+      }
+      return card;
+    }));
+    renderInquiry();
+  }catch{
+    if(current===inquiry)$('merchantStatus').textContent=merchantStatus.unavailable;
+  }finally{inquiryPending=false;}
+}
+$('merchantForm').onsubmit=event=>{
+  event.preventDefault();
+  if(inquiryPending || inquiry.ticket || !output?.merchant_demo)return;
+  inquiry.requestId ||= crypto.randomUUID();
+  persist();
+  const code=$('merchantCode').value;
+  $('merchantCode').value='';
+  callInquiryTool('start_demo_inquiry',{request_id:inquiry.requestId,demo_code:code});
+};
+$('merchantRefresh').onclick=()=>{if(inquiry.ticket)callInquiryTool('refresh_demo_inquiry',{ticket:inquiry.ticket});};
 function move(by){
   if(sending)return;
   const length=output.stories.length+(output.overview?1:0);
@@ -250,6 +319,21 @@ $('open').onclick=()=>{
 $('close').onclick=()=>{
   expanded=false;render();persist();$('open').focus();
   if(embedded)request('ui/request-display-mode',{mode:'inline'}).catch(()=>{});
+};
+$('makeGiftImage').onclick=async()=>{
+  const gift=activePick();
+  if(!embedded || !gift?.product)return;
+  const button=$('makeGiftImage');
+  button.disabled=true;
+  const prompt='ช่วยสร้างภาพการ์ดของขวัญแนวตั้ง โทนเขียวหยกและลาเวนเดอร์ ได้แรงบันดาลใจจาก '+gift.product+' ของ '+gift.brand+' ใช้ภาพประกอบแบบคอนเซปต์ ไม่ใช้ภาพบุคคลหรือข้อความจากโพสต์';
+  try{
+    if(window.openai?.sendFollowUpMessage)await window.openai.sendFollowUpMessage({prompt});
+    else{
+      const reply=await request('ui/message',{role:'user',content:[{type:'text',text:prompt}]});
+      if(reply?.isError)throw new Error('Host declined');
+    }
+  }catch{$('status').textContent='ส่งคำขอไม่ได้ ลองขอให้ ChatGPT สร้างภาพการ์ดในแชต';}
+  finally{button.disabled=false;}
 };
 $('equip').onclick=()=>{equipped=true;render();persist();$('note').focus();};
 $('note').oninput=()=>{drafts[index]=$('note').value;delete sent[index];$('save').disabled=sending;$('save').textContent='ส่งของที่เลือกกับโน้ตเข้าแชต ↗';$('status').textContent='';persist();};

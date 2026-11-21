@@ -25,12 +25,16 @@ def preview_image(media):
     return None
 
 
-def instagram_posts(profile_url):
+def instagram_posts(profile_url, *, cached_only=False):
     if platform(profile_url) != "Instagram":
         return {"status": "need_instagram_profile", "message": "ส่งลิงก์โปรไฟล์ Instagram เพื่อเลือกโพสต์"}
     username = urlsplit(profile_url).path.strip("/").lower()
     if not re.fullmatch(r"[a-z0-9._]{1,30}", username) or username in {"p", "reel", "stories", "explore"}:
         return {"status": "need_instagram_profile", "message": "ใช้ลิงก์หน้าโปรไฟล์ Instagram " + IMPORT_HELP}
+    apify_token = os.getenv("APIFY_TOKEN")
+    if apify_token:
+        from public_instagram import public_posts
+        return public_posts(username, apify_token, cached_only=cached_only)
     account_id = os.getenv("SHOPSHOP_IG_ACCOUNT_ID", "")
     token = os.getenv("SHOPSHOP_IG_ACCESS_TOKEN", "")
     if not token or not account_id.isascii() or not account_id.isdecimal():

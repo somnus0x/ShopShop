@@ -19,11 +19,24 @@
 <button class="plain" id="overviewBack" hidden>← กลับไปดูภาพรวม</button><button class="cta" id="open">เห็นโพสต์นี้แล้ว ให้อะไรดี? <b>↗</b></button>
 <section id="expanded" aria-label="ของขวัญที่เลือกให้" hidden>
 <div class="gift-layout" id="giftLayout">
-<figure id="giftVisual" hidden><img id="cloverArt" src="CI_CLOVER" alt="ภาพจำลองแท็กกระเป๋าหนังทรงโคลเวอร์"><figcaption>ภาพจำลองสินค้า</figcaption></figure>
+<figure id="giftVisual" hidden><img id="cloverArt" src="CI_CLOVER" alt="ภาพจำลองแท็กกระเป๋าหนังทรงโคลเวอร์"><img src="CI_ON_BAG" alt="ภาพจำลองโคลเวอร์เมื่อห้อยกับซิปเป้"><figcaption>ภาพจำลอง · เมื่อห้อยกับเป้</figcaption></figure>
 <div class="gift"><span id="giftLabel" hidden>ของขวัญที่เลือกให้</span><span id="brand"></span><h1 id="product"></h1><strong id="price"></strong><p id="shortReason" hidden></p><details id="reasonDetail"><summary>ทำไมถึงเลือกชิ้นนี้</summary><p id="reason"></p><div id="citations" aria-label="โพสต์ที่ใช้เลือกของ"></div></details><button class="cta" id="equip">ใส่ช่องของขวัญ ＋</button></div></div>
+<button id="makeGiftImage" type="button" class="plain" hidden>ขอให้ ChatGPT ทำภาพการ์ดของขวัญ ↗</button>
 <section id="notePanel" hidden><label for="note">ตอนยื่นให้ อยากบอกว่า…</label><textarea id="note" rows="2" maxlength="240"></textarea><button class="cta" id="save">ส่งของที่เลือกกับโน้ตเข้าแชต ↗</button></section>
 <button class="plain" id="close">← กลับไปดูโพสต์</button></section>
 <section id="sharing" hidden><p id="shareStatus" role="status"></p><figure id="sharePreview" hidden><img id="saveImage" alt="การ์ดสรุปสำหรับบันทึก"><figcaption>กดค้างหรือคลิกขวาที่รูปเพื่อบันทึก</figcaption><a id="downloadCard" download="shopshop-gift-mix.png">ดาวน์โหลด PNG ↓</a></figure></section>
 <section id="summary" hidden><h2 id="likesTitle">ความสนใจในโพสต์</h2><div id="likes"></div><h2 id="whereTitle">พิกัดที่เธอพูดถึง</h2><div id="places"></div></section>
-<img id="juneArt" src="CI_JUNE" alt="" hidden><p class="status" id="status" role="status"></p></div></main>
+<img id="juneArt" src="CI_JUNE" alt="" hidden><section id="merchantDemo" hidden>
+  <h2>ทดสอบสอบถามร้านค้า</h2>
+  <p>สินค้าเดโมจาก Supason</p>
+  <form id="merchantForm">
+    <label for="merchantCode">รหัสทดสอบ</label>
+    <input id="merchantCode" type="password" maxlength="256" required autocomplete="off">
+    <button type="submit" class="cta">ส่งคำถามทดสอบถึงร้าน ↗</button>
+  </form>
+  <button id="merchantRefresh" type="button" class="plain" hidden>ตรวจคำตอบจากร้าน</button>
+  <p id="merchantStatus" role="status"></p>
+  <div id="merchantReplies"></div>
+</section>
+<p class="status" id="status" role="status"></p></div></main>
 <script>/* RECAP */</script><script>const fixture="DEMO_FIXTURE";/* STORY_APP */</script><script>/* TURNTABLE */</script></body></html>
