@@ -12,7 +12,7 @@ Open `index.html` for a standalone design preview. To see the card inside a conv
 
 ### Try the mock gift flow
 
-Paste a public profile into `@shopshop`. Review real source posts, pick the example gift, add a note, and select **ยืนยันของขวัญตัวอย่าง**. The confirmation stays in the widget and uses the demo catalog.
+Paste a public profile into `@shopshop`. Review real source posts, pick the example gift, add a note, and select **ยืนยันของขวัญตัวอย่าง**. The confirmation stays in the widget and uses the demo catalog. If the relevant items all cost more than the stated budget, the card shows the closest match and its overage. ChatGPT is instructed to show the interactive card without a duplicate text recap.
 
 ### Adjust the Instagram scan
 
@@ -39,7 +39,7 @@ The inquiry panel appears on the profile overview when the buyer bridge is confi
 | `SHOPSHOP_BUYER_DEMO_CODE` | Separate high-entropy demo code to enter in the widget before sending |
 | `SHOPSHOP_QR_ORIGIN` | HTTPS origin of the operator-approved sample QR host, if testing QR replies |
 
-The shopping Mac’s loopback address is only reachable from that Mac. After configuring the private route, call `merchant_bridge_status` to verify authenticated tool discovery before sending a test inquiry. `list_products` and `get_product` advertise the Supason test item and whether the merchant action is enabled. Use the buyer endpoint credentials for this integration. Use sample QR images without payment details.
+The shopping Mac’s loopback address is only reachable from that Mac. After configuring the private route, call `merchant_bridge_status` to verify authenticated tool discovery before sending a test inquiry. `list_products` and `get_product` use the connected merchant catalog when both tools are advertised. Otherwise they identify the demo catalog as their source. The Supason inquiry action remains limited to `demo-supasonk`. Use the buyer endpoint credentials for this integration. Use sample QR images without payment details.
 
 ## Connect a private demo to ChatGPT
 

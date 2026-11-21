@@ -50,9 +50,26 @@ async def check_connection():
         async with _session() as session:
             advertised = {tool.name for tool in (await session.list_tools()).tools}
         required = {"submit_product_inquiry", "get_product_inquiry"}
-        return {"status": "ready" if required <= advertised else "missing_buyer_tools"}
+        return {"status": "ready" if required <= advertised else "missing_buyer_tools",
+                "catalog": "available" if {"list_products", "get_product"} <= advertised else "absent"}
     except Exception:
         return {"status": "buyer_unreachable"}
+
+
+async def read_catalog(tool_name, arguments):
+    if not configured():
+        return None
+    try:
+        async with _session() as session:
+            advertised = {tool.name for tool in (await session.list_tools()).tools}
+            if not {"list_products", "get_product"} <= advertised:
+                return None
+            result = await session.call_tool(tool_name, arguments)
+        if not result.isError and isinstance(result.structuredContent, dict):
+            return result.structuredContent
+    except Exception:
+        return None
+    return None
 
 
 async def _call(name, arguments):

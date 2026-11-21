@@ -240,19 +240,20 @@ function render(){
   $('expanded').classList.toggle('featured',summary);
   $('close').hidden=summary;
   $('giftLabel').hidden=!summary && !output.mock_gifts;
-  $('giftLabel').textContent=output.mock_gifts?'ของขวัญตัวอย่าง':'ของขวัญที่เลือกให้';
+  $('giftLabel').textContent=s?.over_budget_thb?'ของขวัญตัวอย่างที่ใกล้งบที่สุด':(output.mock_gifts?'ของขวัญตัวอย่าง':'ของขวัญที่เลือกให้');
   $('shortReason').hidden=!summary;
   $('shortReason').textContent=summary && s ? s.short_reason : '';
   if($('reasonDetail').dataset.pick!==String(index)){
     $('reasonDetail').open=!summary;$('reasonDetail').dataset.pick=String(index);
   }
-  $('portrait').hidden=!output.demo||!summary;
-  $('profileTop').classList.toggle('with-model',output.demo && summary);
+  $('portrait').hidden=!summary;
+  $('pin').textContent=output.demo?'สไตล์ของจูน':'โมเดลสไตล์ตัวอย่าง';
+  $('profileTop').classList.toggle('with-model',summary);
   if(!hasGift){$('expanded').hidden=true;$('notePanel').hidden=true;$('status').textContent='';return;}
   $('brand').textContent=s.brand;$('product').textContent=s.product;$('price').textContent='฿'+s.price.toLocaleString('th-TH')+(output.mock_gifts?' · ราคาตัวอย่าง':' · ราคาในแคตตาล็อก');
   $('citations').replaceChildren(...(summary?s.evidence:[]).map(i=>evidenceButton('โพสต์ '+(i+1),[i])));
   $('reason').textContent=s.reason;$('equip').disabled=!s.eligible;
-  $('equip').textContent=s.eligible?(equipped?'✓ อยู่ในช่องของขวัญ · แก้โน้ต':'ใส่ช่องของขวัญ ＋'):'เกินงบ ฿'+output.budget;
+  $('equip').textContent=s.eligible?(equipped?'✓ อยู่ในช่องของขวัญ · แก้โน้ต':'ใส่ช่องของขวัญ ＋'):'เกินงบ ฿'+(s.price-output.budget).toLocaleString('th-TH');
   $('notePanel').hidden=!equipped||!showGift;$('note').value=drafts[index]??s.note;
   $('save').disabled=sending||!!sent[index];
   $('save').textContent=sent[index]?'✓ เก็บแล้ว':saveLabel();

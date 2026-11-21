@@ -39,7 +39,7 @@ CROSSOVER = {
     "flower": {"gym":"ห้อยกับกระเป๋าไปยิมให้จำใบของตัวเองง่ายขึ้น"},
 }
 
-def profile_read(stories):
+def profile_read(stories, budget_thb=None):
     groups = {}
     for index, story in enumerate(stories):
         groups.setdefault(story["cue"], []).append(index)
@@ -60,7 +60,7 @@ def profile_read(stories):
 
     options = []
     for primary, story in enumerate(stories):
-        if not story["eligible"]:
+        if "item" not in story:
             continue
         item = story["item"]
         supporting = [primary]
@@ -74,11 +74,17 @@ def profile_read(stories):
             elif cue in CROSSOVER.get(item, {}):
                 supporting.append(indices[0])
                 reasons.append(CROSSOVER[item][cue])
-        options.append((len(supporting), -story["price"], -primary, supporting, reasons))
+        options.append((story["eligible"], len(supporting), -story["price"], -primary, supporting, reasons))
     pick = None
     if options:
-        _, _, negative_primary, supporting, reasons = max(options)
+        # Within budget, favor evidence strength. Otherwise minimize the overage.
+        _, _, _, negative_primary, supporting, reasons = max(
+            options, key=lambda option: (option[0], *option[1:4]) if option[0]
+            else (False, option[2], option[1], option[3])
+        )
         pick = dict(stories[-negative_primary], reason=" ".join(reasons), evidence=supporting)
+        if not pick["eligible"] and budget_thb is not None:
+            pick["over_budget_thb"] = pick["price"] - budget_thb
     places = {}
     for i, story in enumerate(stories):
         place = story.get("place")
@@ -159,12 +165,15 @@ def build_story(profile_url="", posts=(), demo=False, budget_thb=None):
         if key in seen:
             continue
         seen.add(key)
-        if p["cue"] == "place":
+        cue = p["cue"]
+        if cue == "place" and re.search(r"\b(?:trip|travel|vacation)\b|ทริป|ไปเที่ยว|เดินทาง", key, re.IGNORECASE):
+            cue = "trip"
+        if cue == "place":
             stories.append({"caption":p["caption"],"cue":"place","title":"สถานที่ในโพสต์","glyph":"📍","eligible":False})
         else:
-            item, title, glyph, reason, note = PAIRINGS[p["cue"]]
+            item, title, glyph, reason, note = PAIRINGS[cue]
             product = PRODUCTS[item]
-            stories.append({"cue":p["cue"],"item":item,"caption":p["caption"],"title":title,"glyph":glyph,"product":product["name"],
+            stories.append({"cue":cue,"item":item,"caption":p["caption"],"title":title,"glyph":glyph,"product":product["name"],
                             "brand":product["brand"],"price":product["price_thb"],"reason":reason,"note":note,
                             "eligible":budget_thb is None or product["price_thb"] <= budget_thb})
         permalink = post_permalink(p.get("source_url"), network)
@@ -177,4 +186,4 @@ def build_story(profile_url="", posts=(), demo=False, budget_thb=None):
     if not stories:
         return {"status":"need_post","message":"ส่งภาพหน้าจอหรือคัดแคปชันจากโพสต์ของเธอลงในแชตนี้ เพื่อให้เราเลือกของจากสิ่งที่เธอโพสต์จริง ๆ"}
     return {"status":"ready","mock_gifts":True,"demo":demo,"profile":"จูน" if demo else (f"@{handle}" if handle else "เธอ"),"network":network,
-            "profile_url":None if demo else profile_url,"budget":budget_thb,"stories":stories,"overview":profile_read(stories)}
+            "profile_url":None if demo else profile_url,"budget":budget_thb,"stories":stories,"overview":profile_read(stories, budget_thb)}

@@ -16,7 +16,7 @@ function draw(){
   if(w>left+dw)ctx.drawImage(sheet,sx+fw-3,sy,2,fh,left+dw-1,0,w-left-dw+1,h);
   ctx.drawImage(sheet,sx,sy,fw,fh,left,0,dw,h);
   $('pin').style.transform='translateX('+(reduce.matches?0:pan*16)+'px)';
-  canvas.setAttribute('aria-label',thaiPortrait?'ตัวละครจูน มุมที่ '+(frame+1)+' จาก 8':'Style portrait, view '+(frame+1)+' of 8');
+  canvas.setAttribute('aria-label',thaiPortrait?'ตัวละครตัวอย่าง มุมที่ '+(frame+1)+' จาก 8':'Style portrait, view '+(frame+1)+' of 8');
 }
 function redraw(){if(!animation)animation=requestAnimationFrame(draw);}
 sheet.onload=redraw;

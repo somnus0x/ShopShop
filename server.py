@@ -87,7 +87,8 @@ def read_instagram_posts(profile_url: Annotated[str, Field(max_length=2048)]) ->
     On ready, call source_gifts with the same profile URL, use_connected_instagram=True,
     and select up to six of the most useful posts for the gift, balancing supported cues
     and recency. Prefer captioned posts with an available photo when equally relevant.
-    Keep exact caption excerpts and permalinks. If there is
+    Keep exact caption excerpts and permalinks. Profile lookup is an intermediate
+    step. Finish with the source_gifts widget before replying. If there is
     a failure, explain the returned message and reason. Ask for screenshots or captions when evidence is unavailable."""
     result = instagram_posts(profile_url)
     if result["status"] == "ready":
@@ -113,13 +114,17 @@ def source_gifts(profile_url: str = "", posts: Annotated[list[Post], Field(max_l
     Supply only verbatim captions or screenshot text available in this conversation or
     actually read from that profile. Never invent posts or infer from a handle.
     race requires a race entry, travel requires a backpack trip, and trip is for any explicit
-    trip or travel caption without backpack evidence. gym requires bringing gym clothes.
+    trip or travel caption without backpack evidence. Prefer trip over place when
+    a caption describes a trip. gym requires bringing gym clothes.
     dogs, plaid and flowers require a positive expressed interest in dogs, wearing plaid, or flowers.
     For an explicitly named destination, supply its exact name and a verbatim excerpt from the caption.
     Use favorite only for expressed liking or returning by preference; distinguish visits and plans.
     Use cue=place for a location-only caption. Use only public destinations, never home, workplace or inferred location.
     Use the overview to explain interests and show an in-budget mock gift from the
-    demo catalog with its supporting captions. The widget confirms it as a mock selection.
+    demo catalog with its supporting captions. If all supported gifts exceed the budget,
+    the widget shows the closest match and the exact overage. Whenever status is ready,
+    present the interactive widget as the entire answer. The card already shows the recap,
+    gift, price, and next action. Do not repeat them in chat or add a separate shopping list.
     When using results from read_instagram_posts, set use_connected_instagram=True and
     preserve each exact caption excerpt and matching source_url. For an inaccessible
     profile or unsupported evidence, omit posts and ask for an applicable post.
@@ -173,8 +178,8 @@ def source_gifts(profile_url: str = "", posts: Annotated[list[Post], Field(max_l
             if file.mime_type and file.mime_type.lower() not in {"image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"}:
                 continue
             images[story_ids[post["caption"].strip()]] = {"file_id": file.file_id}
-    return CallToolResult(structuredContent=result, content=[TextContent(type="text", text=json.dumps(result, ensure_ascii=False))],
-                          _meta={"post_images": images})
+    content = [] if result["status"] == "ready" else [TextContent(type="text", text=json.dumps(result, ensure_ascii=False))]
+    return CallToolResult(structuredContent=result, content=content, _meta={"post_images": images})
 
 @app.custom_route("/healthz", methods=["GET"], include_in_schema=False)
 async def health(_request):
@@ -193,9 +198,22 @@ def catalog_product(product_id):
             "mock": True, "inquiry_available": False}
 
 
-@app.tool(annotations=ToolAnnotations(readOnlyHint=True, openWorldHint=False))
-def list_products(query: Annotated[str, Field(max_length=200)] = "") -> dict[str, Any]:
-    """Search the ShopShop gift catalog by name, brand, or product ID."""
+def public_catalog_item(product):
+    if not isinstance(product, dict) or not isinstance(product.get("product_id"), str) or not isinstance(product.get("name"), str):
+        return None
+    return {**{key: product.get(key) for key in ("product_id", "name", "brand", "price_thb", "image_url")},
+            "mock": False,
+            "inquiry_available": product["product_id"] == buyer_inquiry.PRODUCT_ID and buyer_inquiry.configured()}
+
+
+@app.tool(annotations=ToolAnnotations(readOnlyHint=True, openWorldHint=True))
+async def list_products(query: Annotated[str, Field(max_length=200)] = "") -> dict[str, Any]:
+    """Search merchant products when the live catalog tools are available, or the labeled demo catalog."""
+    remote = await buyer_inquiry.read_catalog("list_products", {"query": query})
+    if remote is not None and isinstance(remote.get("products"), list):
+        matches = [item for product in remote["products"][:15] if (item := public_catalog_item(product))]
+        logger.info("catalog.list source=merchant count=%d", len(matches))
+        return {"products": matches, "source": "merchant"}
     terms = query.casefold().split()
     matches = []
     for product_id in (*PRODUCTS, buyer_inquiry.PRODUCT_ID):
@@ -203,14 +221,22 @@ def list_products(query: Annotated[str, Field(max_length=200)] = "") -> dict[str
         label = " ".join((product_id, product["name"], product["brand"])).casefold()
         if all(term in label for term in terms):
             matches.append(product)
-    return {"products": matches[:15]}
+    logger.info("catalog.list source=demo count=%d", len(matches))
+    return {"products": matches[:15], "source": "demo"}
 
 
-@app.tool(annotations=ToolAnnotations(readOnlyHint=True, openWorldHint=False))
-def get_product(product_id: Annotated[str, Field(max_length=100)]) -> dict[str, Any]:
-    """Return details and available actions for one ShopShop catalog product."""
+@app.tool(annotations=ToolAnnotations(readOnlyHint=True, openWorldHint=True))
+async def get_product(product_id: Annotated[str, Field(max_length=100)]) -> dict[str, Any]:
+    """Return price, image and available actions for one product from the live or demo catalog."""
+    if product_id != buyer_inquiry.PRODUCT_ID:
+        remote = await buyer_inquiry.read_catalog("get_product", {"product_id": product_id})
+        product = public_catalog_item(remote.get("product")) if remote else None
+        if product and product["product_id"] == product_id:
+            logger.info("catalog.get source=merchant found=True")
+            return {"status": "ready", "product": product, "source": "merchant"}
     product = catalog_product(product_id)
-    return {"status": "ready", "product": product} if product else {"status": "not_found"}
+    logger.info("catalog.get source=demo found=%s", bool(product))
+    return {"status": "ready", "product": product, "source": "demo"} if product else {"status": "not_found"}
 
 
 @app.tool(annotations=ToolAnnotations(readOnlyHint=True, openWorldHint=True))
@@ -290,7 +316,14 @@ def story_component() -> str:
 
 resource_domains = ["https://*.oaiusercontent.com", "https://chatgpt.com", "https://*.cdninstagram.com", "https://*.fbcdn.net"]
 resource_domains.extend(origin for origin in (ASSET_ORIGIN, buyer_inquiry.qr_origin()) if origin)
-resource_meta = {"ui": {"prefersBorder": True, "csp": {"connectDomains": [], "resourceDomains": resource_domains}}}
+resource_meta = {
+    "ui": {"prefersBorder": True, "csp": {"connectDomains": [], "resourceDomains": resource_domains}},
+    "openai/widgetDescription": (
+        "The complete ShopShop answer. It shows the Instagram profile recap, supporting posts, "
+        "gift, price and budget gap, and mock confirmation. When the card is ready, present the "
+        "widget alone. Skip duplicate summaries, shopping lists, and follow-up text."
+    ),
+}
 for resource_uri in (URI, *LEGACY_URIS):
     app.resource(resource_uri, mime_type=MIME, meta=resource_meta)(story_component)
 
