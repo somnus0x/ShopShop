@@ -14,6 +14,7 @@ from story_data import post_permalink
 
 ACTOR_URL = "https://api.apify.com/v2/actors/apify~instagram-post-scraper/run-sync-get-dataset-items"
 CACHE_TTL = 300
+PRESENTATION_TTL = 4 * 60 * 60
 logger = logging.getLogger(__name__)
 _cache = {}
 _lock = Lock()
@@ -135,5 +136,8 @@ def public_posts(username, token, *, cached_only=False):
         if len(_cache) >= 64:
             del _cache[min(_cache, key=lambda key: _cache[key][0])]
         result = _lookup(username, token)
-        _cache[username] = (time.monotonic() + CACHE_TTL, result)
+        presentation_profiles = {handle.strip().casefold() for handle in
+                                 os.getenv("SHOPSHOP_PRESENTATION_PROFILES", "").split(",")}
+        ttl = PRESENTATION_TTL if username in presentation_profiles and result["status"] == "ready" else CACHE_TTL
+        _cache[username] = (time.monotonic() + ttl, result)
         return result

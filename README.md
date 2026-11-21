@@ -88,6 +88,8 @@ In the service’s active deployment logs, search for `mcp.tool.finish` to see t
 
 On Railway the widget loads artwork from the service’s public origin and delivers a smaller HTML response. When running locally without `RAILWAY_PUBLIC_DOMAIN`, the HTML uses embedded images.
 
+For the presentation, successful Instagram reads for the handles in `SHOPSHOP_PRESENTATION_PROFILES` are cached for four hours. The Railway image defaults to John Mayer and Olivia Dean. Warm a profile with `read_instagram_posts` and `prepare_profile_avatar` after the final deploy. The cache is cleared when the process restarts.
+
 ## Where the evidence and photos come from
 
 For a personal profile, supply its URL and up to six captions or post screenshots. The URL identifies the profile. ChatGPT passes the supported cues and caption text to `source_gifts`. Topic counts reflect the supplied posts. Place labels distinguish a favorite from a past visit or future plan. A bare profile URL prompts for evidence.

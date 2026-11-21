@@ -16,6 +16,7 @@ THEMES = {
     "travel": "one-bag travel with a daypack", "trip": "practical travel layers",
     "dogs": "casual park-walk style", "plaid": "a subtle plaid layer",
     "flowers": "muted botanical accents", "place": "understated everyday city style",
+    "music": "contemporary musician offstage style with practical layers",
 }
 DAY_SECONDS = 86400
 _jobs = {}

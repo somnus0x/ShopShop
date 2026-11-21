@@ -23,9 +23,9 @@ from instagram import instagram_posts
 from public_instagram import profile_log_id
 from story_data import PRODUCTS, ROOT, apply_live_catalog, build_story, instagram_handle, post_permalink
 
-URI = "ui://shopshop/profile-gifts-v12.html"
+URI = "ui://shopshop/profile-gifts-v13.html"
 LEGACY_URIS = ("ui://shopshop/profile-gifts.html", *(
-    f"ui://shopshop/profile-gifts-v{version}.html" for version in range(7, 12)
+    f"ui://shopshop/profile-gifts-v{version}.html" for version in range(7, 13)
 ))
 ASSET_NAMES = {
     "june-recap.webp", "turntable.webp", "interest-race.webp", "interest-travel.webp",
@@ -72,7 +72,7 @@ class Place(BaseModel):
     excerpt: Annotated[str, Field(min_length=1, max_length=240)]
 
 class Post(BaseModel):
-    cue: Literal["race", "travel", "trip", "gym", "dogs", "plaid", "flowers", "place"]
+    cue: Literal["race", "travel", "trip", "gym", "dogs", "plaid", "flowers", "place", "music"]
     caption: Annotated[str, Field(min_length=1,max_length=480)]
     place: Place | None = None
     source_url: Annotated[str, Field(max_length=2048)] = ""
@@ -125,6 +125,7 @@ async def source_gifts(profile_url: str = "", posts: Annotated[list[Post], Field
     trip or travel caption without backpack evidence. Prefer trip over place when
     a caption describes a trip. gym requires bringing gym clothes.
     dogs, plaid and flowers require a positive expressed interest in dogs, wearing plaid, or flowers.
+    Use music for explicit posts about recording, releasing songs, rehearsing or performing live.
     For an explicitly named destination, supply its exact name and a verbatim excerpt from the caption.
     Use favorite only for expressed liking or returning by preference; distinguish visits and plans.
     Use cue=place for a location-only caption. Use only public destinations, never home, workplace or inferred location.
@@ -158,7 +159,7 @@ async def source_gifts(profile_url: str = "", posts: Annotated[list[Post], Field
         return CallToolResult(structuredContent=result,
                               content=[TextContent(type="text", text=json.dumps(result, ensure_ascii=False))])
     if not demo and use_connected_instagram:
-        feed = instagram_posts(profile_url, cached_only=True)
+        feed = await asyncio.to_thread(instagram_posts, profile_url, cached_only=True)
         if feed["status"] != "ready":
             result = {**feed, "status": "need_post"}
             return CallToolResult(structuredContent=result, content=[TextContent(type="text", text=result["message"])])
@@ -309,7 +310,7 @@ async def refresh_demo_inquiry(ticket: Annotated[str, Field(max_length=250)]) ->
     return result
 
 
-AvatarCue = Literal["race", "gym", "travel", "trip", "dogs", "plaid", "flowers", "place"]
+AvatarCue = Literal["race", "gym", "travel", "trip", "dogs", "plaid", "flowers", "place", "music"]
 
 
 @app.tool(annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False,
