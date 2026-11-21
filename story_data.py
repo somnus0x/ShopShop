@@ -131,6 +131,16 @@ DEMO_POSTS = [
     {"cue":"gym","caption":"เลิกงานแล้วไปยิมต่อ วันนี้ลืมหยิบชุดมาเปลี่ยนอีกแล้ว 🫠"},
 ]
 
+PRESENTATION_QUERIES = {"johnmayer": "johnmayer", "oliviadean": "oliviadeano",
+                        "oliviadeano": "oliviadeano"}
+
+
+def resolve_profile_query(query):
+    lookup = "".join(query.casefold().split()).removeprefix("@")
+    handle = PRESENTATION_QUERIES.get(lookup)
+    return f"https://www.instagram.com/{handle}/" if handle else query
+
+
 def platform(url):
     try:
         parsed = urlsplit(url)

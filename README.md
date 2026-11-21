@@ -88,7 +88,7 @@ In the service’s active deployment logs, search for `mcp.tool.finish` to see t
 
 On Railway the widget loads artwork from the service’s public origin and delivers a smaller HTML response. When running locally without `RAILWAY_PUBLIC_DOMAIN`, the HTML uses embedded images.
 
-For the presentation, successful Instagram reads for the handles in `SHOPSHOP_PRESENTATION_PROFILES` are cached for four hours. The Railway image defaults to John Mayer and Olivia Dean. Warm a profile with `read_instagram_posts` and `prepare_profile_avatar` after the final deploy. The cache is cleared when the process restarts.
+For the presentation, type `johnmayer` or `oliviadean` in ChatGPT with ShopShop enabled. These queries resolve to the official Instagram profiles `@johnmayer` and `@oliviadeano`. The server ships with short public post excerpts for both handles when they are listed in `SHOPSHOP_PRESENTATION_PROFILES`. Each card labels these as cached posts and links to the original Instagram posts. Warm the character with `prepare_profile_avatar` after the final deploy. The generated avatar cache is cleared when the process restarts.
 
 ## Where the evidence and photos come from
 
