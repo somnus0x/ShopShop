@@ -1,0 +1,1247 @@
+{
+  "capture_date": "2026-11-21",
+  "products": [
+    {
+      "product_id": "aman-bowie-backpack",
+      "name": "Bowie backpack",
+      "name_source": "caption",
+      "merchant": "aman.leather",
+      "description": "Leather backpack with a rounded zip opening, front zip pocket, top handle and shoulder straps. Brown and black versions are shown in the saved posts.",
+      "price": null,
+      "currency": null,
+      "variants": [
+        "Color shown: Brown",
+        "Color shown: Black"
+      ],
+      "post_url": "https://www.instagram.com/aman.leather/p/B0w_ejKHoJs/",
+      "post_date": "2019-08-05T02:26:58.000Z",
+      "notes": [
+        "Historical price conflict in the August 5, 2019 post: caption states THB 5,600; a merchant comment states 5,900 without explanation. Price is left blank pending confirmation.",
+        "The July 23, 2017 Bowie post separately lists a THB 4,900 LINE promotion against a THB 5,600 regular price. This is historical and is not treated as a current offer.",
+        "Construction and colors are visual observations; model name and historical prices are from merchant captions.",
+        "All 117 indexed post-grid thumbnails were visually reviewed. Only three distinct product models were verified; repeated posts, color variants, detail shots and promotions were not counted as separate models."
+      ],
+      "price_status": "conflicting",
+      "images": [
+        {
+          "local_path": "pictures/aman.leather-B0w_ejKHoJs-1.jpg",
+          "alt": "Brown Bowie leather backpack, front view",
+          "post_url": "https://www.instagram.com/aman.leather/p/B0w_ejKHoJs/"
+        },
+        {
+          "local_path": "pictures/aman.leather-BW4m2IyhD6c-1.jpg",
+          "alt": "Black Bowie backpack beside a seated model",
+          "post_url": "https://www.instagram.com/aman.leather/p/BW4m2IyhD6c/"
+        },
+        {
+          "local_path": "pictures/aman.leather-BW4m2IyhD6c-2.jpg",
+          "alt": "Brown Bowie backpack worn on the shoulder",
+          "post_url": "https://www.instagram.com/aman.leather/p/BW4m2IyhD6c/"
+        }
+      ]
+    },
+    {
+      "product_id": "aman-jekel-h-messenger",
+      "name": "Jekel.H 14-inch Messenger Bag",
+      "name_source": "caption",
+      "merchant": "aman.leather",
+      "description": "Leather messenger bag with a front flap, two buckle straps, top handle and a shoulder strap with a shoulder pad. The caption identifies the bag as 14 inches.",
+      "price": 5900,
+      "currency": "THB",
+      "variants": [
+        "Color shown: Brown",
+        "Color shown: Black"
+      ],
+      "post_url": "https://www.instagram.com/aman.leather/p/BOj6X0DgE-N/",
+      "post_date": "2016-12-28T12:39:15.000Z",
+      "notes": [
+        "THB 5,900 is the historical listing price from December 28, 2016; current price and availability were not confirmed.",
+        "Model name Jekel.H is explicitly stated in the January 2, 2017 giveaway caption for a 14-inch messenger with the same THB 5,900 value. The product image comes from the ordinary product listing.",
+        "Brown is shown in the main product listing. A black version with the same construction appears in the February 28, 2019 carousel and multiple archive thumbnails. Colors are visually observed, not a current stock list.",
+        "All 117 indexed post-grid thumbnails were visually reviewed. Only three distinct product models were verified; repeated posts, color variants, detail shots and promotions were not counted as separate models."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/aman.leather-BOj6X0DgE-N-1.jpg",
+          "alt": "Brown Jekel.H 14-inch messenger bag with shoulder strap",
+          "post_url": "https://www.instagram.com/aman.leather/p/BOj6X0DgE-N/"
+        },
+        {
+          "local_path": "pictures/aman.leather-Bthh3GAAbEN-1.jpg",
+          "alt": "Brown two-buckle messenger bag in a product display",
+          "post_url": "https://www.instagram.com/aman.leather/p/Bthh3GAAbEN/"
+        }
+      ]
+    },
+    {
+      "product_id": "aman-fames-classic-duffle",
+      "name": "Fame's – The Classic Duffle Leather Bag",
+      "name_source": "caption",
+      "merchant": "aman.leather",
+      "description": "Brown leather barrel duffle with a zip closure, twin carry handles and a detachable shoulder strap with a shoulder pad.",
+      "price": 6400,
+      "currency": "THB",
+      "variants": [
+        "Color shown: Brown"
+      ],
+      "post_url": "https://www.instagram.com/aman.leather/p/BOJZJpbAG6C/",
+      "post_date": "2016-12-18T05:28:42.000Z",
+      "notes": [
+        "THB 6,400 is the historical listing price from December 18, 2016; current price and availability were not confirmed.",
+        "Model name and price are from the product caption. Color and construction details are visual observations.",
+        "All 117 indexed post-grid thumbnails were visually reviewed. Only three distinct product models were verified; repeated posts, color variants, detail shots and promotions were not counted as separate models."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/aman.leather-BOJZJpbAG6C-1.jpg",
+          "alt": "Fame's classic brown leather duffle, studio front view",
+          "post_url": "https://www.instagram.com/aman.leather/p/BOJZJpbAG6C/"
+        },
+        {
+          "local_path": "pictures/aman.leather-Bthh3GAAbEN-2.jpg",
+          "alt": "Fame's brown leather duffle held by the handles",
+          "post_url": "https://www.instagram.com/aman.leather/p/Bthh3GAAbEN/"
+        },
+        {
+          "local_path": "pictures/aman.leather-Bte3K0NgwW2-1.jpg",
+          "alt": "Fame's brown leather duffle beside a traveler",
+          "post_url": "https://www.instagram.com/aman.leather/p/Bte3K0NgwW2/"
+        }
+      ]
+    },
+    {
+      "product_id": "overhills-loadlite-5-shorts",
+      "name": "Loadlite 5” Shorts",
+      "name_source": "caption",
+      "merchant": "overhills.th",
+      "description": "7-pocket straight-cut running shorts. Lightweight UV-protective outer fabric, with a cooling, quick-drying, four-way-stretch liner.",
+      "price": 1090,
+      "currency": "THB",
+      "variants": [
+        "Color shown: Ironvy",
+        "Also observed: Taro"
+      ],
+      "post_url": "https://www.instagram.com/overhills.th/p/Det-Tq7D5Lh/",
+      "post_date": "2026-10-20T13:46:48.000Z",
+      "notes": [
+        "Price is the LINE OA price stated in the post; current stock and price were not independently confirmed.",
+        "Shared outfit photo: other garments are pictured alongside this product."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/overhills.th-Det-Tq7D5Lh-1.jpg",
+          "alt": "Loadlite 5” Shorts",
+          "post_url": "https://www.instagram.com/overhills.th/p/Det-Tq7D5Lh/"
+        },
+        {
+          "local_path": "pictures/overhills.th-Det-Tq7D5Lh-2.jpg",
+          "alt": "Loadlite 5” Shorts",
+          "post_url": "https://www.instagram.com/overhills.th/p/Det-Tq7D5Lh/"
+        }
+      ]
+    },
+    {
+      "product_id": "overhills-grit-pace-45-shorts",
+      "name": "Grit Pace 4.5” Shorts",
+      "name_source": "caption",
+      "merchant": "overhills.th",
+      "description": "Wide-leg shorts with four pockets: two side and two back. Structured fabric; side openings allow phone access. Designed for running and gym training.",
+      "price": 1090,
+      "currency": "THB",
+      "variants": [
+        "Colors: Black, Storm, Mocha, Choc, Plum, Sky Blue, Thai-Tangerine, Thai-Black",
+        "Sizes: S, M, L, XL"
+      ],
+      "post_url": "https://www.instagram.com/overhills.th/p/Det8U8CD3V_/",
+      "post_date": "2026-10-20T13:29:29.000Z",
+      "notes": [
+        "Price is the LINE OA price stated in the post; current stock and price were not independently confirmed."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/overhills.th-Det8U8CD3V_-1.jpg",
+          "alt": "Grit Pace 4.5” Shorts",
+          "post_url": "https://www.instagram.com/overhills.th/p/Det8U8CD3V_/"
+        },
+        {
+          "local_path": "pictures/overhills.th-Det8U8CD3V_-2.jpg",
+          "alt": "Grit Pace 4.5” Shorts",
+          "post_url": "https://www.instagram.com/overhills.th/p/Det8U8CD3V_/"
+        }
+      ]
+    },
+    {
+      "product_id": "overhills-motif-windbreaker-jacket",
+      "name": "Motif Windbreaker Jacket",
+      "name_source": "caption",
+      "merchant": "overhills.th",
+      "description": "Retro sportswear windbreaker with a subtle grid texture. The brand lists UPF 50+, lightweight, abrasion-resistant, water-repellent and quick-drying fabric with a soft feel.",
+      "price": 2390,
+      "currency": "THB",
+      "variants": [
+        "Colors: Toffee Brown, Sage Green, Cream",
+        "Sizes: S, M, L"
+      ],
+      "post_url": "https://www.instagram.com/overhills.th/p/Det9Bw8D6yH/",
+      "post_date": "2026-10-20T13:35:37.000Z",
+      "notes": [
+        "Price is the LINE OA price stated in the post; current stock and price were not independently confirmed."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/overhills.th-Det9Bw8D6yH-1.jpg",
+          "alt": "Motif Windbreaker Jacket",
+          "post_url": "https://www.instagram.com/overhills.th/p/Det9Bw8D6yH/"
+        },
+        {
+          "local_path": "pictures/overhills.th-Det9Bw8D6yH-2.jpg",
+          "alt": "Motif Windbreaker Jacket",
+          "post_url": "https://www.instagram.com/overhills.th/p/Det9Bw8D6yH/"
+        }
+      ]
+    },
+    {
+      "product_id": "overhills-rover-pants",
+      "name": "Rover Pants",
+      "name_source": "caption",
+      "merchant": "overhills.th",
+      "description": "Barrel utility pants for climbing and hiking. The brand lists UPF 50+ and three adjustable lengths.",
+      "price": 1890,
+      "currency": "THB",
+      "variants": [
+        "Color shown: Storm",
+        "Also observed: Black, Mocha"
+      ],
+      "post_url": "https://www.instagram.com/overhills.th/p/Det_cSUD2xr/",
+      "post_date": "2026-10-20T13:56:42.000Z",
+      "notes": [
+        "Price is the LINE OA price stated in the post; current stock and price were not independently confirmed.",
+        "Shared outfit photo: other garments are pictured alongside this product."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/overhills.th-Det_cSUD2xr-1.jpg",
+          "alt": "Rover Pants",
+          "post_url": "https://www.instagram.com/overhills.th/p/Det_cSUD2xr/"
+        },
+        {
+          "local_path": "pictures/overhills.th-Det_cSUD2xr-2.jpg",
+          "alt": "Rover Pants",
+          "post_url": "https://www.instagram.com/overhills.th/p/Det_cSUD2xr/"
+        }
+      ]
+    },
+    {
+      "product_id": "overhills-track-long-sleeve",
+      "name": "Track Long Sleeve",
+      "name_source": "caption",
+      "merchant": "overhills.th",
+      "description": "Lightweight, cooling, quick-drying long-sleeve top with subtle vertical texture. The brand says the fabric blocks 98% of UV rays. Thumbholes and a left wristwatch opening help keep sleeves in place.",
+      "price": 1090,
+      "currency": "THB",
+      "variants": [
+        "Colors: Black, Ash blue, Brown olive, Sand",
+        "Sizes: S, M, L, XL"
+      ],
+      "post_url": "https://www.instagram.com/overhills.th/p/Det_PJQj5RL/",
+      "post_date": "2026-10-20T13:54:55.000Z",
+      "notes": [
+        "Price is the LINE OA price stated in the post; current stock and price were not independently confirmed."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/overhills.th-Det_PJQj5RL-1.jpg",
+          "alt": "Track Long Sleeve",
+          "post_url": "https://www.instagram.com/overhills.th/p/Det_PJQj5RL/"
+        }
+      ]
+    },
+    {
+      "product_id": "overhills-bop-taper-tee",
+      "name": "Bop Taper Tee",
+      "name_source": "caption",
+      "merchant": "overhills.th",
+      "description": "Permanent rolled sleeves extend the shoulder line. Soft, breathable, stretchy fabric designed to hold its shape.",
+      "price": 890,
+      "currency": "THB",
+      "variants": [
+        "Color shown: Faded Blue",
+        "Also observed: Faded Black"
+      ],
+      "post_url": "https://www.instagram.com/overhills.th/p/Det_Fr2j2JQ/",
+      "post_date": "2026-10-20T13:53:37.000Z",
+      "notes": [
+        "Price is the LINE OA price stated in the post; current stock and price were not independently confirmed.",
+        "Shared outfit photo: other garments are pictured alongside this product."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/overhills.th-Det_Fr2j2JQ-1.jpg",
+          "alt": "Bop Taper Tee",
+          "post_url": "https://www.instagram.com/overhills.th/p/Det_Fr2j2JQ/"
+        },
+        {
+          "local_path": "pictures/overhills.th-Det_Fr2j2JQ-2.jpg",
+          "alt": "Bop Taper Tee",
+          "post_url": "https://www.instagram.com/overhills.th/p/Det_Fr2j2JQ/"
+        }
+      ]
+    },
+    {
+      "product_id": "overhills-trim-polo",
+      "name": "Trim Polo",
+      "name_source": "caption",
+      "merchant": "overhills.th",
+      "description": "Lightweight, non-see-through polo with broader shoulders and tailored armholes. Relaxed, structured fit.",
+      "price": 1090,
+      "currency": "THB",
+      "variants": [
+        "Color shown: Olive Green"
+      ],
+      "post_url": "https://www.instagram.com/overhills.th/p/Det8DmUjxGy/",
+      "post_date": "2026-10-20T13:27:07.000Z",
+      "notes": [
+        "Price is the LINE OA price stated in the post; current stock and price were not independently confirmed.",
+        "Shared outfit photo: other garments are pictured alongside this product."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/overhills.th-Det8DmUjxGy-1.jpg",
+          "alt": "Trim Polo",
+          "post_url": "https://www.instagram.com/overhills.th/p/Det8DmUjxGy/"
+        },
+        {
+          "local_path": "pictures/overhills.th-Det8DmUjxGy-2.jpg",
+          "alt": "Trim Polo",
+          "post_url": "https://www.instagram.com/overhills.th/p/Det8DmUjxGy/"
+        }
+      ]
+    },
+    {
+      "product_id": "overhills-cool-pace-singlet",
+      "name": "Cool Pace Singlet",
+      "name_source": "caption",
+      "merchant": "overhills.th",
+      "description": "Designed for high-intensity training and running. The brand describes ultra-lightweight, cooling fabric with all-over ventilation and quick-drying comfort.",
+      "price": 990,
+      "currency": "THB",
+      "variants": [
+        "Color shown: Latte"
+      ],
+      "post_url": "https://www.instagram.com/overhills.th/p/Det-Tq7D5Lh/",
+      "post_date": "2026-10-20T13:46:48.000Z",
+      "notes": [
+        "Price is the LINE OA price stated in the post; current stock and price were not independently confirmed.",
+        "Shared outfit photo: other garments are pictured alongside this product."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/overhills.th-Det-Tq7D5Lh-1.jpg",
+          "alt": "Cool Pace Singlet",
+          "post_url": "https://www.instagram.com/overhills.th/p/Det-Tq7D5Lh/"
+        },
+        {
+          "local_path": "pictures/overhills.th-Det-Tq7D5Lh-2.jpg",
+          "alt": "Cool Pace Singlet",
+          "post_url": "https://www.instagram.com/overhills.th/p/Det-Tq7D5Lh/"
+        }
+      ]
+    },
+    {
+      "product_id": "overhills-airmatte-tee",
+      "name": "AirMatte Tee",
+      "name_source": "caption",
+      "merchant": "overhills.th",
+      "description": "Nylon-spandex athleisure tee with a matte, cotton-like finish and small ventilation holes. Intended for workouts and everyday wear.",
+      "price": 890,
+      "currency": "THB",
+      "variants": [
+        "Color shown: Off-white"
+      ],
+      "post_url": "https://www.instagram.com/overhills.th/p/Det8iaSD9_4/",
+      "post_date": "2026-10-20T13:31:20.000Z",
+      "notes": [
+        "Price is the LINE OA price stated in the post; current stock and price were not independently confirmed.",
+        "Shared outfit photo: other garments are pictured alongside this product."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/overhills.th-Det8iaSD9_4-1.jpg",
+          "alt": "AirMatte Tee",
+          "post_url": "https://www.instagram.com/overhills.th/p/Det8iaSD9_4/"
+        },
+        {
+          "local_path": "pictures/overhills.th-Det8iaSD9_4-2.jpg",
+          "alt": "AirMatte Tee",
+          "post_url": "https://www.instagram.com/overhills.th/p/Det8iaSD9_4/"
+        }
+      ]
+    },
+    {
+      "product_id": "overhills-resorts-7-shorts",
+      "name": "Resorts 7” Shorts",
+      "name_source": "caption",
+      "merchant": "overhills.th",
+      "description": "Stretch shorts with an elastic drawstring waist and two tennis-ball-sized side pockets. Designed for racket sports and everyday athleisure.",
+      "price": 990,
+      "currency": "THB",
+      "variants": [
+        "Color shown: Neutral"
+      ],
+      "post_url": "https://www.instagram.com/overhills.th/p/Det8DmUjxGy/",
+      "post_date": "2026-10-20T13:27:07.000Z",
+      "notes": [
+        "Price is the LINE OA price stated in the post; current stock and price were not independently confirmed.",
+        "Shared outfit photo: other garments are pictured alongside this product."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/overhills.th-Det8DmUjxGy-1.jpg",
+          "alt": "Resorts 7” Shorts",
+          "post_url": "https://www.instagram.com/overhills.th/p/Det8DmUjxGy/"
+        },
+        {
+          "local_path": "pictures/overhills.th-Det8DmUjxGy-2.jpg",
+          "alt": "Resorts 7” Shorts",
+          "post_url": "https://www.instagram.com/overhills.th/p/Det8DmUjxGy/"
+        }
+      ]
+    },
+    {
+      "product_id": "flog_polo_df06kaxdwen",
+      "name": "FLOG Polo",
+      "name_source": "caption",
+      "merchant": "flog.thailand",
+      "description": "Short-sleeve collared polo. The images show a dark body, pale blue collar and shoulder panels, white piping, button placket, and FLOG logos.",
+      "price": null,
+      "currency": null,
+      "variants": [],
+      "post_url": "https://www.instagram.com/flog.thailand/p/Df06kAXDweN/",
+      "post_date": "2026-11-17T03:00:09.000Z",
+      "notes": [
+        "The caption names this item FLOG Polo but does not provide a model code. Color details are visual descriptions; no official color or size options were stated.",
+        "No product price or size list was stated in the captured caption or image text."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/flog.thailand-Df06kAXDweN-1.jpg",
+          "alt": "FLOG Polo, product photograph 1 from @flog.thailand.",
+          "post_url": "https://www.instagram.com/flog.thailand/p/Df06kAXDweN/"
+        },
+        {
+          "local_path": "pictures/flog.thailand-Df06kAXDweN-2.jpg",
+          "alt": "FLOG Polo, product photograph 2 from @flog.thailand.",
+          "post_url": "https://www.instagram.com/flog.thailand/p/Df06kAXDweN/"
+        }
+      ]
+    },
+    {
+      "product_id": "flog_p6019w",
+      "name": "FLOG-P6019W Shorts",
+      "name_source": "image_text",
+      "merchant": "flog.thailand",
+      "description": "White golf shorts shown from the front and back, with front patch pockets, a dark back waistband panel, and FLOG lettering at the rear.",
+      "price": null,
+      "currency": null,
+      "variants": [
+        "White"
+      ],
+      "post_url": "https://www.instagram.com/flog.thailand/p/Dfi4_5yiHrB/",
+      "post_date": "2026-11-10T03:00:10.000Z",
+      "notes": [
+        "Model code and White are printed in the image. Shorts is a visual category label.",
+        "The image also shows a visor and an athlete wearing a complete outfit. OUT OF STOCK labels the visor panel, not these shorts.",
+        "No product price or size list was stated in the captured caption or image text."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/flog.thailand-Dfi4_5yiHrB-1.jpg",
+          "alt": "FLOG-P6019W white shorts front and back, in a collage with an athlete and a separate visor panel.",
+          "post_url": "https://www.instagram.com/flog.thailand/p/Dfi4_5yiHrB/"
+        }
+      ]
+    },
+    {
+      "product_id": "flog_t6040w",
+      "name": "T6040w Sleeveless Top",
+      "name_source": "image_text",
+      "merchant": "flog.thailand",
+      "description": "Sleeveless top with a striped high neckline and small FLOG lettering across the chest. The post introduces a three-color collection.",
+      "price": null,
+      "currency": null,
+      "variants": [
+        "White",
+        "Navy",
+        "Black"
+      ],
+      "post_url": "https://www.instagram.com/flog.thailand/p/DdnS2Y5jeRI/",
+      "post_date": "2026-09-23T03:00:14.000Z",
+      "notes": [
+        "Model code T6040w and the three color names are printed in the image. Sleeveless Top is a visual category label.",
+        "No product price or size list was stated in the captured caption or image text."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/flog.thailand-DdnS2Y5jeRI-1.jpg",
+          "alt": "T6040w Sleeveless Top, product photograph 1 from @flog.thailand.",
+          "post_url": "https://www.instagram.com/flog.thailand/p/DdnS2Y5jeRI/"
+        }
+      ]
+    },
+    {
+      "product_id": "flog_fg_t6027m",
+      "name": "FG-T6027M Polo",
+      "name_source": "image_text",
+      "merchant": "flog.thailand",
+      "description": "Short-sleeve collared polo shown with dark and light contrasting panels.",
+      "price": null,
+      "currency": null,
+      "variants": [],
+      "post_url": "https://www.instagram.com/flog.thailand/p/DdSsezUFN2c/",
+      "post_date": "2026-09-15T03:00:08.000Z",
+      "notes": [
+        "Model code is printed next to the shirt in the photograph. Polo is a visual category label.",
+        "Shared outfit photograph: FG-T6027M shirt, FG-BELT01 belt, and FG-P5723 pants are separately labelled.",
+        "No product price or size list was stated in the captured caption or image text."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/flog.thailand-DdSsezUFN2c-2.jpg",
+          "alt": "Shared outfit photograph showing the labelled FG-T6027M polo, FG-BELT01 belt, and FG-P5723 pants.",
+          "post_url": "https://www.instagram.com/flog.thailand/p/DdSsezUFN2c/"
+        }
+      ]
+    },
+    {
+      "product_id": "flog_fg_belt01",
+      "name": "FG-BELT01 Belt",
+      "name_source": "image_text",
+      "merchant": "flog.thailand",
+      "description": "Dark belt with a rectangular buckle bearing the FLOG logo.",
+      "price": null,
+      "currency": null,
+      "variants": [],
+      "post_url": "https://www.instagram.com/flog.thailand/p/DdSsezUFN2c/",
+      "post_date": "2026-09-15T03:00:08.000Z",
+      "notes": [
+        "Model code is printed next to the belt in the photograph. Belt is a visual category label.",
+        "Shared outfit photograph: FG-T6027M shirt, FG-BELT01 belt, and FG-P5723 pants are separately labelled.",
+        "No product price or size list was stated in the captured caption or image text."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/flog.thailand-DdSsezUFN2c-2.jpg",
+          "alt": "Shared outfit photograph with the FG-BELT01 label pointing to the dark FLOG belt.",
+          "post_url": "https://www.instagram.com/flog.thailand/p/DdSsezUFN2c/"
+        }
+      ]
+    },
+    {
+      "product_id": "flog_fg_p5723",
+      "name": "FG-P5723 Pants",
+      "name_source": "image_text",
+      "merchant": "flog.thailand",
+      "description": "Dark full-length pants with a small FLOG logo near the front hip, shown worn for golf.",
+      "price": null,
+      "currency": null,
+      "variants": [],
+      "post_url": "https://www.instagram.com/flog.thailand/p/DdSsezUFN2c/",
+      "post_date": "2026-09-15T03:00:08.000Z",
+      "notes": [
+        "Model code is printed next to the pants in the photograph. Pants is a visual category label.",
+        "Shared outfit photograph: FG-T6027M shirt, FG-BELT01 belt, and FG-P5723 pants are separately labelled.",
+        "No product price or size list was stated in the captured caption or image text."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/flog.thailand-DdSsezUFN2c-2.jpg",
+          "alt": "Shared outfit photograph with the FG-P5723 label pointing to the dark pants.",
+          "post_url": "https://www.instagram.com/flog.thailand/p/DdSsezUFN2c/"
+        }
+      ]
+    },
+    {
+      "product_id": "flog_fg_t6027w",
+      "name": "FG-T6027W Polo",
+      "name_source": "image_text",
+      "merchant": "flog.thailand",
+      "description": "Short-sleeve polo shown with a white center, contrasting dark and beige panels, a rounded collar, and a small round chest logo. The image advertises Cool Tech Technology.",
+      "price": null,
+      "currency": null,
+      "variants": [],
+      "post_url": "https://www.instagram.com/flog.thailand/p/DbHpkqKDyx6/",
+      "post_date": "2026-07-23T03:00:17.000Z",
+      "notes": [
+        "Model code is printed in the first image. Polo and colors in the description are visual labels.",
+        "Three unlabeled swatches appear in the image; official color names and sizes were not stated.",
+        "Cool Tech Technology and dry comfort are brand claims in the image, not independently tested properties.",
+        "No product price or size list was stated in the captured caption or image text."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/flog.thailand-DbHpkqKDyx6-1.jpg",
+          "alt": "FG-T6027W Polo, product photograph 1 from @flog.thailand.",
+          "post_url": "https://www.instagram.com/flog.thailand/p/DbHpkqKDyx6/"
+        },
+        {
+          "local_path": "pictures/flog.thailand-DbHpkqKDyx6-2.jpg",
+          "alt": "FG-T6027W Polo, product photograph 2 from @flog.thailand.",
+          "post_url": "https://www.instagram.com/flog.thailand/p/DbHpkqKDyx6/"
+        }
+      ]
+    },
+    {
+      "product_id": "flog_fg_t5095m",
+      "name": "FG-T5095M Polo",
+      "name_source": "image_text",
+      "merchant": "flog.thailand",
+      "description": "Short-sleeve polo with a contrast collar and striped sleeve cuffs. Image text describes it as lightweight with Cool Tech Technology.",
+      "price": null,
+      "currency": null,
+      "variants": [
+        "White",
+        "Navy Blue",
+        "Black"
+      ],
+      "post_url": "https://www.instagram.com/flog.thailand/p/Da_7LkqgcSI/",
+      "post_date": "2026-07-20T03:00:14.000Z",
+      "notes": [
+        "Model code and color names are printed in the image. Polo is a visual category label.",
+        "Shared outfit photograph; the model also wears other garments and accessories. Performance wording is a brand claim.",
+        "No product price or size list was stated in the captured caption or image text."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/flog.thailand-Da_7LkqgcSI-1.jpg",
+          "alt": "FG-T5095M Polo, product photograph 1 from @flog.thailand.",
+          "post_url": "https://www.instagram.com/flog.thailand/p/Da_7LkqgcSI/"
+        }
+      ]
+    },
+    {
+      "product_id": "flog_fg_t6013w",
+      "name": "FG-T6013W Top",
+      "name_source": "image_text",
+      "merchant": "flog.thailand",
+      "description": "Short-sleeve crew-neck top shown in olive with a dark neckline. Image text describes it as lightweight with UV protection.",
+      "price": null,
+      "currency": null,
+      "variants": [
+        "White",
+        "Black",
+        "Olive"
+      ],
+      "post_url": "https://www.instagram.com/flog.thailand/p/Da_7LkqgcSI/",
+      "post_date": "2026-07-20T03:00:14.000Z",
+      "notes": [
+        "Model code and color names are printed in the image. Top is a visual category label.",
+        "The source inconsistently says 2 COLORS while listing White, Black, and Olive; all three printed names are retained without resolving the discrepancy.",
+        "Shared outfit photograph; the dark arm coverings and pants are separate pieces. UV protection is a brand claim; no rating is provided.",
+        "No product price or size list was stated in the captured caption or image text."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/flog.thailand-Da_7LkqgcSI-2.jpg",
+          "alt": "FG-T6013W Top, product photograph 2 from @flog.thailand.",
+          "post_url": "https://www.instagram.com/flog.thailand/p/Da_7LkqgcSI/"
+        }
+      ]
+    },
+    {
+      "product_id": "flog_fg_p5608w",
+      "name": "FG-P5608W Pants",
+      "name_source": "image_text",
+      "merchant": "flog.thailand",
+      "description": "Full-length pants with slightly flared hems, belt loops, slanted front pockets, and a small FLOG logo near the hip.",
+      "price": null,
+      "currency": null,
+      "variants": [
+        "White",
+        "Black",
+        "Grey"
+      ],
+      "post_url": "https://www.instagram.com/flog.thailand/p/DazDM0mmvGU/",
+      "post_date": "2026-07-15T03:00:10.000Z",
+      "notes": [
+        "Model code appears in image 2 and the color names appear in image 1. Pants is a visual category label.",
+        "No product price or size list was stated in the captured caption or image text."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/flog.thailand-DazDM0mmvGU-1.jpg",
+          "alt": "FG-P5608W Pants, product photograph 1 from @flog.thailand.",
+          "post_url": "https://www.instagram.com/flog.thailand/p/DazDM0mmvGU/"
+        },
+        {
+          "local_path": "pictures/flog.thailand-DazDM0mmvGU-2.jpg",
+          "alt": "FG-P5608W Pants, product photograph 2 from @flog.thailand.",
+          "post_url": "https://www.instagram.com/flog.thailand/p/DazDM0mmvGU/"
+        }
+      ]
+    },
+    {
+      "product_id": "theremin-katie-sister",
+      "name": "Katie Sister blouse",
+      "name_source": "caption",
+      "merchant": "theremin.official",
+      "description": "Cotton-muslin blouse in aqua. The photo shows a lace-trimmed square neckline, short sleeves and a gathered waist.",
+      "price": null,
+      "currency": null,
+      "variants": [
+        "Color: Aqua"
+      ],
+      "post_url": "https://www.instagram.com/theremin.official/p/De6ylj1mq90/",
+      "post_date": "2026-10-25T13:14:30.000Z",
+      "notes": [
+        "Neckline, sleeve and waist details are visual observations; the caption confirms the name, color and cotton muslin."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/theremin.official-De6ylj1mq90-1.jpg",
+          "alt": "",
+          "post_url": "https://www.instagram.com/theremin.official/p/De6ylj1mq90/"
+        },
+        {
+          "local_path": "pictures/theremin.official-De6ylj1mq90-2.jpg",
+          "alt": "",
+          "post_url": "https://www.instagram.com/theremin.official/p/De6ylj1mq90/"
+        }
+      ]
+    },
+    {
+      "product_id": "theremin-babydoll-blouse",
+      "name": "Babydoll blouse",
+      "name_source": "caption",
+      "merchant": "theremin.official",
+      "description": "Floral cotton blouse with intermittent raised woven texture. A shallow round neckline adjusts with a back bow; puff sleeves use fine elastic, with gathered trim below the bust.",
+      "price": null,
+      "currency": null,
+      "variants": [
+        "Pattern: Floral"
+      ],
+      "post_url": "https://www.instagram.com/theremin.official/p/Dd_d5A5j-W4/",
+      "post_date": "2026-10-02T12:18:28.000Z",
+      "notes": [
+        "Photographs show the blouse together with the separately cataloged Pumpkin skort."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/theremin.official-Dd_d5A5j-W4-1.jpg",
+          "alt": "",
+          "post_url": "https://www.instagram.com/theremin.official/p/Dd_d5A5j-W4/"
+        },
+        {
+          "local_path": "pictures/theremin.official-Dd_d5A5j-W4-2.jpg",
+          "alt": "",
+          "post_url": "https://www.instagram.com/theremin.official/p/Dd_d5A5j-W4/"
+        }
+      ]
+    },
+    {
+      "product_id": "theremin-pumpkin-skort",
+      "name": "Pumpkin skort",
+      "name_source": "caption",
+      "merchant": "theremin.official",
+      "description": "Skort with pumpkin-shaped inner shorts, a regular-rise waist and a softly voluminous silhouette. Presented with the Babydoll blouse.",
+      "price": null,
+      "currency": null,
+      "variants": [],
+      "post_url": "https://www.instagram.com/theremin.official/p/Dd_d5A5j-W4/",
+      "post_date": "2026-10-02T12:18:28.000Z",
+      "notes": [
+        "Shares outfit photographs with the Babydoll blouse; the skort is the lower garment."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/theremin.official-Dd_d5A5j-W4-1.jpg",
+          "alt": "",
+          "post_url": "https://www.instagram.com/theremin.official/p/Dd_d5A5j-W4/"
+        },
+        {
+          "local_path": "pictures/theremin.official-Dd_d5A5j-W4-2.jpg",
+          "alt": "",
+          "post_url": "https://www.instagram.com/theremin.official/p/Dd_d5A5j-W4/"
+        }
+      ]
+    },
+    {
+      "product_id": "theremin-faye-blouse",
+      "name": "Faye blouse",
+      "name_source": "caption",
+      "merchant": "theremin.official",
+      "description": "Taro-colored seersucker blouse with a lightly crinkled texture and pastel purple checks crossed by light-green lines. The caption says it can be washed, shaken out and hung dry without ironing.",
+      "price": null,
+      "currency": null,
+      "variants": [
+        "Color: Taro",
+        "Sizes: S, M"
+      ],
+      "post_url": "https://www.instagram.com/theremin.official/p/Ddyzx0iD0m7/",
+      "post_date": "2026-09-27T14:19:36.000Z",
+      "notes": [],
+      "images": [
+        {
+          "local_path": "pictures/theremin.official-Ddyzx0iD0m7-1.jpg",
+          "alt": "",
+          "post_url": "https://www.instagram.com/theremin.official/p/Ddyzx0iD0m7/"
+        },
+        {
+          "local_path": "pictures/theremin.official-Ddyzx0iD0m7-2.jpg",
+          "alt": "",
+          "post_url": "https://www.instagram.com/theremin.official/p/Ddyzx0iD0m7/"
+        }
+      ]
+    },
+    {
+      "product_id": "theremin-merma-blouse",
+      "name": "Merma blouse",
+      "name_source": "caption",
+      "merchant": "theremin.official",
+      "description": "Merma blouse in butter yellow. The photo shows short puff sleeves, a round neckline and a decorative horizontal trim across the chest.",
+      "price": null,
+      "currency": null,
+      "variants": [
+        "Color: Butter yellow"
+      ],
+      "post_url": "https://www.instagram.com/theremin.official/p/DclcsNYD_Yc/",
+      "post_date": "2026-08-28T13:16:20.000Z",
+      "notes": [
+        "The caption explicitly says the shorts shown are not for sale.",
+        "Sleeve, neckline and trim details are visual observations."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/theremin.official-DclcsNYD_Yc-1.jpg",
+          "alt": "",
+          "post_url": "https://www.instagram.com/theremin.official/p/DclcsNYD_Yc/"
+        },
+        {
+          "local_path": "pictures/theremin.official-DclcsNYD_Yc-2.jpg",
+          "alt": "",
+          "post_url": "https://www.instagram.com/theremin.official/p/DclcsNYD_Yc/"
+        }
+      ]
+    },
+    {
+      "product_id": "theremin-betty-top",
+      "name": "Betty top",
+      "name_source": "caption",
+      "merchant": "theremin.official",
+      "description": "Cotton top in grey floral. The photo shows an elasticated off-shoulder neckline and short sleeves.",
+      "price": null,
+      "currency": null,
+      "variants": [
+        "Color/pattern: Grey floral",
+        "Sizes: S, M"
+      ],
+      "post_url": "https://www.instagram.com/theremin.official/p/Dacyostj6IG/",
+      "post_date": "2026-07-06T11:32:08.000Z",
+      "notes": [
+        "Off-shoulder neckline and sleeve details are visual observations."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/theremin.official-Dacyostj6IG-1.jpg",
+          "alt": "",
+          "post_url": "https://www.instagram.com/theremin.official/p/Dacyostj6IG/"
+        },
+        {
+          "local_path": "pictures/theremin.official-Dacyostj6IG-2.jpg",
+          "alt": "",
+          "post_url": "https://www.instagram.com/theremin.official/p/Dacyostj6IG/"
+        }
+      ]
+    },
+    {
+      "product_id": "theremin-romy-blouse",
+      "name": "Romy blouse",
+      "name_source": "caption",
+      "merchant": "theremin.official",
+      "description": "An evolution of the brand’s Rome top. Soft patterned woven fabric, elastic shaping, an adjustable back tie and shaped sleeves with elastic cuffs; the caption describes easy care without ironing.",
+      "price": null,
+      "currency": null,
+      "variants": [],
+      "post_url": "https://www.instagram.com/theremin.official/p/DaaknTwD0gH/",
+      "post_date": "2026-07-05T14:51:08.000Z",
+      "notes": [
+        "The July 2026 caption said limited stock; current availability has not been verified."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/theremin.official-DaaknTwD0gH-1.jpg",
+          "alt": "",
+          "post_url": "https://www.instagram.com/theremin.official/p/DaaknTwD0gH/"
+        },
+        {
+          "local_path": "pictures/theremin.official-DaaknTwD0gH-2.jpg",
+          "alt": "",
+          "post_url": "https://www.instagram.com/theremin.official/p/DaaknTwD0gH/"
+        }
+      ]
+    },
+    {
+      "product_id": "theremin-pom-top",
+      "name": "Pom top",
+      "name_source": "caption",
+      "merchant": "theremin.official",
+      "description": "Top made with embroidered fabric and a vertical woven pattern. The caption describes it as suitable for relaxed wear and requiring little ironing.",
+      "price": null,
+      "currency": null,
+      "variants": [],
+      "post_url": "https://www.instagram.com/theremin.official/p/DaDRjdND8sz/",
+      "post_date": "2026-06-26T13:42:03.000Z",
+      "notes": [],
+      "images": [
+        {
+          "local_path": "pictures/theremin.official-DaDRjdND8sz-1.jpg",
+          "alt": "",
+          "post_url": "https://www.instagram.com/theremin.official/p/DaDRjdND8sz/"
+        },
+        {
+          "local_path": "pictures/theremin.official-DaDRjdND8sz-2.jpg",
+          "alt": "",
+          "post_url": "https://www.instagram.com/theremin.official/p/DaDRjdND8sz/"
+        }
+      ]
+    },
+    {
+      "product_id": "theremin-katie-blouse",
+      "name": "Katie blouse",
+      "name_source": "caption",
+      "merchant": "theremin.official",
+      "description": "100% cotton blouse. The photo shows a white cold-shoulder design with lace edging and a gathered body. Presented with the Pumpkin skort.",
+      "price": null,
+      "currency": null,
+      "variants": [],
+      "post_url": "https://www.instagram.com/theremin.official/p/DZPE8KzD05p/",
+      "post_date": "2026-06-06T07:11:19.000Z",
+      "notes": [
+        "Outfit photos include the separately cataloged Pumpkin skort.",
+        "White color, cold-shoulder shape and lace details are visual observations.",
+        "Katie blouse and Katie Sister blouse are separately named and visually distinct styles."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/theremin.official-DZPE8KzD05p-1.jpg",
+          "alt": "",
+          "post_url": "https://www.instagram.com/theremin.official/p/DZPE8KzD05p/"
+        },
+        {
+          "local_path": "pictures/theremin.official-DZPE8KzD05p-2.jpg",
+          "alt": "",
+          "post_url": "https://www.instagram.com/theremin.official/p/DZPE8KzD05p/"
+        }
+      ]
+    },
+    {
+      "product_id": "theremin-butterfly-set",
+      "name": "Butterfly set",
+      "name_source": "caption",
+      "merchant": "theremin.official",
+      "description": "Coordinated set shown in a dark plaid fabric, with a short-sleeved tie-neck top and matching gathered-waist shorts.",
+      "price": null,
+      "currency": null,
+      "variants": [],
+      "post_url": "https://www.instagram.com/theremin.official/p/DX9XBnsj_QD/",
+      "post_date": "2026-05-05T13:31:38.000Z",
+      "notes": [
+        "The caption names the set; plaid, tie-neck, sleeve and shorts details are visual observations.",
+        "Cataloged as one set, matching the caption. Material and sizes were not listed."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/theremin.official-DX9XBnsj_QD-1.jpg",
+          "alt": "",
+          "post_url": "https://www.instagram.com/theremin.official/p/DX9XBnsj_QD/"
+        },
+        {
+          "local_path": "pictures/theremin.official-DX9XBnsj_QD-2.jpg",
+          "alt": "",
+          "post_url": "https://www.instagram.com/theremin.official/p/DX9XBnsj_QD/"
+        }
+      ]
+    },
+    {
+      "product_id": "sretsis_golden_pikul_brocade_jacket",
+      "name": "Golden Pikul Brocade Jacket",
+      "name_source": "caption",
+      "merchant": "sretsisofficial",
+      "description": "Brocade jacket from Sretsis Fall–Winter 2026. Images show long sleeves, a fitted waist, a small bow near the neckline, covered front buttons, and a pastel floral pattern.",
+      "price": null,
+      "currency": null,
+      "variants": [],
+      "post_url": "https://www.instagram.com/sretsisofficial/p/DfvdHNkkzsp/",
+      "post_date": "2026-11-15T00:06:36.000Z",
+      "notes": [
+        "Caption provides the product name.",
+        "Shared outfit photographs show this jacket styled with Jagger Pants. The matching mermaid midi skirt mentioned in the caption is not catalogued because it is not visible in the collected photographs.",
+        "No product price or size list was stated in the captured caption or image text."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/sretsisofficial-DfvdHNkkzsp-1.jpg",
+          "alt": "Golden Pikul Brocade Jacket, product photograph 1 from @sretsisofficial.",
+          "post_url": "https://www.instagram.com/sretsisofficial/p/DfvdHNkkzsp/"
+        },
+        {
+          "local_path": "pictures/sretsisofficial-DfvdHNkkzsp-2.jpg",
+          "alt": "Golden Pikul Brocade Jacket, product photograph 2 from @sretsisofficial.",
+          "post_url": "https://www.instagram.com/sretsisofficial/p/DfvdHNkkzsp/"
+        }
+      ]
+    },
+    {
+      "product_id": "sretsis_jagger_pants",
+      "name": "Jagger Pants",
+      "name_source": "caption",
+      "merchant": "sretsisofficial",
+      "description": "Rusty brown pants with heart-shaped lace inserts, identified in the caption. Images show full-length loose legs and large lace hearts around the knees.",
+      "price": null,
+      "currency": null,
+      "variants": [
+        "Rusty Brown"
+      ],
+      "post_url": "https://www.instagram.com/sretsisofficial/p/DfvdHNkkzsp/",
+      "post_date": "2026-11-15T00:06:36.000Z",
+      "notes": [
+        "Caption provides the product name and color.",
+        "Shared outfit photographs show the pants styled with Golden Pikul Brocade Jacket.",
+        "No product price or size list was stated in the captured caption or image text."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/sretsisofficial-DfvdHNkkzsp-1.jpg",
+          "alt": "Jagger Pants, product photograph 1 from @sretsisofficial.",
+          "post_url": "https://www.instagram.com/sretsisofficial/p/DfvdHNkkzsp/"
+        },
+        {
+          "local_path": "pictures/sretsisofficial-DfvdHNkkzsp-2.jpg",
+          "alt": "Jagger Pants, product photograph 2 from @sretsisofficial.",
+          "post_url": "https://www.instagram.com/sretsisofficial/p/DfvdHNkkzsp/"
+        }
+      ]
+    },
+    {
+      "product_id": "sretsis_dao_dara_jacket",
+      "name": "Dao Dara Jacket",
+      "name_source": "caption",
+      "merchant": "sretsisofficial",
+      "description": "Printed cotton velveteen jacket from Sretsis Fall–Winter 2026. Images show a leopard pattern, long sleeves, a collar, front pockets, and dark heart-shaped buttons.",
+      "price": null,
+      "currency": null,
+      "variants": [],
+      "post_url": "https://www.instagram.com/sretsisofficial/p/Dfjt8m5mmGO/",
+      "post_date": "2026-11-10T10:42:49.000Z",
+      "notes": [
+        "Caption calls the two-piece look Dao Dara Jacket and Skirt; the clearly visible jacket and skirt are catalogued separately.",
+        "Shared outfit photographs show both Dao Dara pieces. No separate-sale price is stated.",
+        "No product price or size list was stated in the captured caption or image text."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/sretsisofficial-Dfjt8m5mmGO-1.jpg",
+          "alt": "Dao Dara Jacket, product photograph 1 from @sretsisofficial.",
+          "post_url": "https://www.instagram.com/sretsisofficial/p/Dfjt8m5mmGO/"
+        },
+        {
+          "local_path": "pictures/sretsisofficial-Dfjt8m5mmGO-2.jpg",
+          "alt": "Dao Dara Jacket, product photograph 2 from @sretsisofficial.",
+          "post_url": "https://www.instagram.com/sretsisofficial/p/Dfjt8m5mmGO/"
+        }
+      ]
+    },
+    {
+      "product_id": "sretsis_dao_dara_skirt",
+      "name": "Dao Dara Skirt",
+      "name_source": "caption",
+      "merchant": "sretsisofficial",
+      "description": "Printed cotton velveteen skirt from Sretsis Fall–Winter 2026. Images show a leopard pattern, a fitted knee-length silhouette, belt loops, and front patch pockets.",
+      "price": null,
+      "currency": null,
+      "variants": [],
+      "post_url": "https://www.instagram.com/sretsisofficial/p/Dfjt8m5mmGO/",
+      "post_date": "2026-11-10T10:42:49.000Z",
+      "notes": [
+        "Caption calls the two-piece look Dao Dara Jacket and Skirt; the clearly visible jacket and skirt are catalogued separately.",
+        "Shared outfit photographs show both Dao Dara pieces. No separate-sale price is stated.",
+        "No product price or size list was stated in the captured caption or image text."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/sretsisofficial-Dfjt8m5mmGO-1.jpg",
+          "alt": "Dao Dara Skirt, product photograph 1 from @sretsisofficial.",
+          "post_url": "https://www.instagram.com/sretsisofficial/p/Dfjt8m5mmGO/"
+        },
+        {
+          "local_path": "pictures/sretsisofficial-Dfjt8m5mmGO-2.jpg",
+          "alt": "Dao Dara Skirt, product photograph 2 from @sretsisofficial.",
+          "post_url": "https://www.instagram.com/sretsisofficial/p/Dfjt8m5mmGO/"
+        }
+      ]
+    },
+    {
+      "product_id": "sretsis_mon_rose_sweat_set",
+      "name": "Mon Rose Sweat Set",
+      "name_source": "caption",
+      "merchant": "sretsisofficial",
+      "description": "Sweat set with tone-on-tone cotton eyelet trimming and a removable hand-crafted rose pin, as stated in the caption. Image shows a peach-colored long-sleeve sweatshirt and matching pants.",
+      "price": null,
+      "currency": null,
+      "variants": [],
+      "post_url": "https://www.instagram.com/sretsisofficial/p/Dfdh-cZzVXq/",
+      "post_date": "2026-11-08T01:05:26.000Z",
+      "notes": [
+        "Counted as one set, using the caption name.",
+        "Shared outfit photograph includes a leopard coat, boots, and sunglasses; these are not implied to be included in the set. Peach is a visual color description, not an official variant name.",
+        "No product price or size list was stated in the captured caption or image text."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/sretsisofficial-Dfdh-cZzVXq-1.jpg",
+          "alt": "Mon Rose Sweat Set, product photograph 1 from @sretsisofficial.",
+          "post_url": "https://www.instagram.com/sretsisofficial/p/Dfdh-cZzVXq/"
+        }
+      ]
+    },
+    {
+      "product_id": "sretsis_dancing_rosa_chiffon_blouse",
+      "name": "Dancing Rosa Printed Chiffon Pussybow Blouse",
+      "name_source": "caption",
+      "merchant": "sretsisofficial",
+      "description": "Printed chiffon pussybow blouse from Sretsis Fall–Winter 2026. Image shows a pastel rose print, long sleeves, and ruffles across the shoulders and upper chest.",
+      "price": null,
+      "currency": null,
+      "variants": [],
+      "post_url": "https://www.instagram.com/sretsisofficial/p/DfYS6I8TBGJ/",
+      "post_date": "2026-11-06T00:15:55.000Z",
+      "notes": [
+        "Dancing Rosa is the print designation stated in the caption; a separate model code is not supplied.",
+        "Shared outfit photograph includes a skirt and a rose accessory; inclusion of those pieces with the blouse is not stated.",
+        "No product price or size list was stated in the captured caption or image text."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/sretsisofficial-DfYS6I8TBGJ-1.jpg",
+          "alt": "Dancing Rosa Printed Chiffon Pussybow Blouse, product photograph 1 from @sretsisofficial.",
+          "post_url": "https://www.instagram.com/sretsisofficial/p/DfYS6I8TBGJ/"
+        }
+      ]
+    },
+    {
+      "product_id": "sretsis_pink_faux_fur_coat",
+      "name": "Pink Faux-Fur Coat (visual description)",
+      "name_source": "visual_description",
+      "merchant": "sretsisofficial",
+      "description": "Pink coat with a fluffy texture and long sleeves, shown worn open over a lace top and leopard-print shorts. The caption identifies faux fur among the materials in the look.",
+      "price": null,
+      "currency": null,
+      "variants": [],
+      "post_url": "https://www.instagram.com/sretsisofficial/p/Dfn8MAAmu6h/",
+      "post_date": "2026-11-12T02:04:13.000Z",
+      "notes": [
+        "Descriptive title based on the image; an official product name or SKU is not stated.",
+        "Shared outfit photographs include the coat, top, shorts, and accessories. This record refers only to the coat. Pink is a visual description, not a stated color option.",
+        "No product price or size list was stated in the captured caption or image text."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/sretsisofficial-Dfn8MAAmu6h-1.jpg",
+          "alt": "Pink Faux-Fur Coat (visual description), product photograph 1 from @sretsisofficial.",
+          "post_url": "https://www.instagram.com/sretsisofficial/p/Dfn8MAAmu6h/"
+        },
+        {
+          "local_path": "pictures/sretsisofficial-Dfn8MAAmu6h-2.jpg",
+          "alt": "Pink Faux-Fur Coat (visual description), product photograph 2 from @sretsisofficial.",
+          "post_url": "https://www.instagram.com/sretsisofficial/p/Dfn8MAAmu6h/"
+        }
+      ]
+    },
+    {
+      "product_id": "sretsis_floral_brocade_puff_sleeve_jacket",
+      "name": "Floral Brocade Puff-Sleeve Jacket (visual description)",
+      "name_source": "visual_description",
+      "merchant": "sretsisofficial",
+      "description": "Pastel floral brocade jacket with short puff sleeves, square neckline, front buttons, a fitted waist, and two small bow details near the hem. The caption identifies the new styles as brocade.",
+      "price": null,
+      "currency": null,
+      "variants": [],
+      "post_url": "https://www.instagram.com/sretsisofficial/p/DfreWjjGlhA/",
+      "post_date": "2026-11-13T11:00:02.000Z",
+      "notes": [
+        "Descriptive title based on the image; an official product name or SKU is not stated.",
+        "Shared outfit photographs show a clearly separate matching jacket and mini skirt. These are catalogued as distinct pieces; separate-sale availability is not stated.",
+        "No product price or size list was stated in the captured caption or image text."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/sretsisofficial-DfreWjjGlhA-1.jpg",
+          "alt": "Floral Brocade Puff-Sleeve Jacket (visual description), product photograph 1 from @sretsisofficial.",
+          "post_url": "https://www.instagram.com/sretsisofficial/p/DfreWjjGlhA/"
+        },
+        {
+          "local_path": "pictures/sretsisofficial-DfreWjjGlhA-2.jpg",
+          "alt": "Floral Brocade Puff-Sleeve Jacket (visual description), product photograph 2 from @sretsisofficial.",
+          "post_url": "https://www.instagram.com/sretsisofficial/p/DfreWjjGlhA/"
+        }
+      ]
+    },
+    {
+      "product_id": "sretsis_floral_brocade_ruffle_mini_skirt",
+      "name": "Floral Brocade Ruffle Mini Skirt (visual description)",
+      "name_source": "visual_description",
+      "merchant": "sretsisofficial",
+      "description": "Pastel floral brocade mini skirt with a gathered ruffle along the hem. The caption identifies the new styles as brocade.",
+      "price": null,
+      "currency": null,
+      "variants": [],
+      "post_url": "https://www.instagram.com/sretsisofficial/p/DfreWjjGlhA/",
+      "post_date": "2026-11-13T11:00:02.000Z",
+      "notes": [
+        "Descriptive title based on the image; an official product name or SKU is not stated.",
+        "Shared outfit photographs show a clearly separate matching jacket and mini skirt. These are catalogued as distinct pieces; separate-sale availability is not stated.",
+        "No product price or size list was stated in the captured caption or image text."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/sretsisofficial-DfreWjjGlhA-1.jpg",
+          "alt": "Floral Brocade Ruffle Mini Skirt (visual description), product photograph 1 from @sretsisofficial.",
+          "post_url": "https://www.instagram.com/sretsisofficial/p/DfreWjjGlhA/"
+        },
+        {
+          "local_path": "pictures/sretsisofficial-DfreWjjGlhA-2.jpg",
+          "alt": "Floral Brocade Ruffle Mini Skirt (visual description), product photograph 2 from @sretsisofficial.",
+          "post_url": "https://www.instagram.com/sretsisofficial/p/DfreWjjGlhA/"
+        }
+      ]
+    },
+    {
+      "product_id": "sretsis_floral_pink_sleeve_mini_dress",
+      "name": "Floral Mini Dress with Pink Fluffy Sleeves (visual description)",
+      "name_source": "visual_description",
+      "merchant": "sretsisofficial",
+      "description": "Mini dress shown with a pastel floral pattern, pink fluffy short sleeves, a central bow, and a teardrop-shaped opening beneath the bow. The caption identifies the look as Sretsis Fall–Winter 2026.",
+      "price": null,
+      "currency": null,
+      "variants": [],
+      "post_url": "https://www.instagram.com/sretsisofficial/p/Df67EZAmkwA/",
+      "post_date": "2026-11-19T11:00:02.000Z",
+      "notes": [
+        "Descriptive title based on the images; an official product name, fabric composition, or SKU is not stated.",
+        "A visually matching dress also appears in post https://www.instagram.com/sretsisofficial/p/Df1xjoYGky2/ and has not been counted twice.",
+        "No product price or size list was stated in the captured caption or image text."
+      ],
+      "images": [
+        {
+          "local_path": "pictures/sretsisofficial-Df67EZAmkwA-1.jpg",
+          "alt": "Floral Mini Dress with Pink Fluffy Sleeves (visual description), product photograph 1 from @sretsisofficial.",
+          "post_url": "https://www.instagram.com/sretsisofficial/p/Df67EZAmkwA/"
+        },
+        {
+          "local_path": "pictures/sretsisofficial-Df67EZAmkwA-2.jpg",
+          "alt": "Floral Mini Dress with Pink Fluffy Sleeves (visual description), product photograph 2 from @sretsisofficial.",
+          "post_url": "https://www.instagram.com/sretsisofficial/p/Df67EZAmkwA/"
+        }
+      ]
+    }
+  ]
+}

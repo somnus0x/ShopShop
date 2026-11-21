@@ -4,3 +4,13 @@ __pycache__/
 .env
 .env.*
 .railway/
+node_modules/
+
+# operator-server
+operator-server/.data/
+operator-server/artifacts/
+operator-server/output/
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
