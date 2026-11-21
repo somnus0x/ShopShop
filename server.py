@@ -196,7 +196,8 @@ async def source_gifts(profile_url: str = "", posts: Annotated[list[Post], Field
     present the interactive widget as the entire answer. The card already shows the recap,
     gift, price, and next action. Do not repeat them in chat or add a separate shopping list.
     When using results from read_instagram_posts, set use_connected_instagram=True and
-    preserve each exact caption excerpt and matching source_url. For an inaccessible
+    preserve each exact caption excerpt and matching source_url. This tool reloads
+    the profile if the previous Instagram read has expired. For an inaccessible
     profile or unsupported evidence, omit posts and ask for an applicable post.
     Put actual user-attached post screenshots in post_images. For a matching post, set image_index
     to its zero-based position in post_images. Include source_url only when its exact post permalink
@@ -227,7 +228,7 @@ async def source_gifts(profile_url: str = "", posts: Annotated[list[Post], Field
             return CallToolResult(structuredContent=result,
                                   content=[TextContent(type="text", text=json.dumps(result, ensure_ascii=False))])
     if not demo and use_connected_instagram:
-        feed = await asyncio.to_thread(instagram_posts, profile_url, cached_only=True)
+        feed = await asyncio.to_thread(instagram_posts, profile_url)
         if feed["status"] != "ready":
             result = {**feed, "status": "need_post"}
             return CallToolResult(structuredContent=result, content=[TextContent(type="text", text=result["message"])])
