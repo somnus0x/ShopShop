@@ -122,7 +122,8 @@ def source_gifts(profile_url: str = "", posts: Annotated[list[Post], Field(max_l
     Use favorite only for expressed liking or returning by preference; distinguish visits and plans.
     Use cue=place for a location-only caption. Use only public destinations, never home, workplace or inferred location.
     Use the overview to explain interests and show an in-budget mock gift from the
-    demo catalog with its supporting captions. If all supported gifts exceed the budget,
+    demo catalog with its supporting captions. The card shows three selectable gifts
+    on the overview and on each post. If all supported gifts exceed the budget,
     the widget shows the closest match and the exact overage. Whenever status is ready,
     present the interactive widget as the entire answer. The card already shows the recap,
     gift, price, and next action. Do not repeat them in chat or add a separate shopping list.
@@ -281,12 +282,13 @@ AvatarCue = Literal["race", "gym", "travel", "trip", "dogs", "plaid", "flowers",
 @app.tool(meta=BUYER_WIDGET, annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False,
           idempotentHint=True, openWorldHint=True))
 def generate_profile_avatar(profile_url: Annotated[str, Field(max_length=2048)],
-                            cues: Annotated[list[AvatarCue], Field(max_length=6)]) -> dict[str, Any]:
+                            cues: Annotated[list[AvatarCue], Field(max_length=6)],
+                            look: Literal["neutral", "masculine", "feminine"] = "neutral") -> dict[str, Any]:
     """Start one paid OpenAI image generation after the user presses Generate character."""
     username = instagram_handle(profile_url)
     if not username:
         return {"status": "unavailable"}
-    return avatar.start(profile_log_id(username), cues, ASSET_ORIGIN)
+    return avatar.start(profile_log_id(username), username, cues, ASSET_ORIGIN, look)
 
 
 @app.tool(meta=BUYER_WIDGET, annotations=ToolAnnotations(readOnlyHint=True, openWorldHint=False))
@@ -358,7 +360,7 @@ resource_meta = {
     "ui": {"prefersBorder": True, "csp": {"connectDomains": [], "resourceDomains": resource_domains}},
     "openai/widgetDescription": (
         "The complete ShopShop answer. It shows the Instagram profile recap, supporting posts, "
-        "rotatable sample character, vibe summary, gift, price and budget gap, and mock confirmation. Present the "
+        "rotatable sample character, vibe summary, three gift options, prices and budget gaps, and mock confirmation. Present the "
         "widget alone. Skip duplicate summaries, shopping lists, and follow-up text."
     ),
 }

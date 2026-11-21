@@ -3,7 +3,7 @@
 <header><b class="logo"><img class="brandmark" src="CI_MARK" alt="">shopshop</b><span id="meta">ของขวัญจากโปรไฟล์</span></header>
 <section id="waiting"><h1>ของที่เห็นแล้วนึกถึงเธอ</h1><p id="message" role="status">กำลังเปิดในแชต…</p></section>
 <div id="ready" hidden>
-<div id="profileTop"><section id="portrait" aria-label="โมเดลสไตล์ตัวอย่าง หมุนได้"><img crossorigin="anonymous" id="avatarSheet" src="CI_AVATAR" alt="" hidden><canvas id="scene" aria-label="ตัวละครสไตล์สมมติ"></canvas><span id="pin">สไตล์ของจูน</span><div class="spin"><button id="prev" aria-label="หมุนซ้าย">←</button><span id="spinlabel">ลากเพื่อหมุน</span><button id="next" aria-label="หมุนขวา">→</button></div></section>
+<div id="profileTop"><section id="portrait" aria-label="โมเดลสไตล์ตัวอย่าง หมุนได้"><img crossorigin="anonymous" id="avatarSheet" src="CI_AVATAR" alt="" hidden><p id="avatarEmpty" hidden>สร้างตัวละครจากรูปโปรไฟล์</p><canvas id="scene" aria-label="ตัวละครสไตล์สมมติ"></canvas><span id="pin">สไตล์ของจูน</span><div class="spin"><button id="prev" aria-label="หมุนซ้าย">←</button><span id="spinlabel">ลากเพื่อหมุน</span><button id="next" aria-label="หมุนขวา">→</button></div></section>
 <section class="story" aria-label="โพสต์ที่มาของไอเดีย">
 <div class="segments" id="segments" aria-label="เลือกโพสต์"></div>
 <div class="by"><span id="handle"></span><span id="counter"></span></div>
@@ -16,6 +16,8 @@
 <div id="breakdown" hidden>
   <h2>หัวข้อจากโพสต์</h2><div id="mixLegend"></div>
   <button id="recapDetail" hidden></button>
+  <label id="avatarLookLabel" for="avatarLook" hidden>สไตล์สำรองเมื่อไม่มีรูปโปรไฟล์</label>
+  <select id="avatarLook" hidden><option value="neutral">กลาง ๆ</option><option value="masculine">มาสคิวลิน</option><option value="feminine">เฟมินีน</option></select>
   <button id="generateAvatar" type="button" hidden>สร้างตัวละครจาก Vibe ↗</button>
   <p id="avatarStatus" role="status" hidden></p>
   <button id="shareCard" type="button">แชร์การ์ดนี้ ↗</button>
@@ -24,6 +26,7 @@
 <div class="storyfoot"><span id="cue"></span><div><button id="back" aria-label="โพสต์ก่อนหน้า">←</button><button id="forward" aria-label="โพสต์ถัดไป">→</button></div></div></section></div>
 <button class="plain" id="overviewBack" hidden>← กลับไปดูภาพรวม</button><button class="cta" id="open">เห็นโพสต์นี้แล้ว ให้อะไรดี? <b>↗</b></button>
 <section id="expanded" aria-label="ของขวัญที่เลือกให้" hidden>
+<div id="giftOptions" aria-label="ตัวเลือกของขวัญสามชิ้น" hidden></div>
 <div class="gift-layout" id="giftLayout">
 <figure id="giftVisual" hidden><img crossorigin="anonymous" id="cloverArt" src="CI_CLOVER" alt="ภาพจำลองแท็กกระเป๋าหนังทรงโคลเวอร์"><img src="CI_ON_BAG" alt="ภาพจำลองโคลเวอร์เมื่อห้อยกับซิปเป้"><figcaption>ภาพจำลอง · เมื่อห้อยกับเป้</figcaption></figure>
 <div class="gift"><span id="giftLabel" hidden>ของขวัญที่เลือกให้</span><span id="brand"></span><h1 id="product"></h1><strong id="price"></strong><p id="shortReason" hidden></p><details id="reasonDetail"><summary>ทำไมถึงเลือกชิ้นนี้</summary><p id="reason"></p><div id="citations" aria-label="โพสต์ที่ใช้เลือกของ"></div></details><button class="cta" id="equip">ใส่ช่องของขวัญ ＋</button></div></div>

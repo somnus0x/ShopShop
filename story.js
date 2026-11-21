@@ -3,7 +3,7 @@ const embedded = window.parent !== window;
 let output = null, index = 0, expanded = false, equipped = false, sending = false;
 let drafts = {}, sent = {}, signature = '';
 let inquiry = {}, inquiryPending = false;
-let avatarJob = {}, avatarPolling = false;
+let avatarJob = {}, avatarPolling = false, giftChoice = 0;
 const sampleAvatarSource = $('avatarSheet').src;
 const pending = new Map();
 let serial = 0;
@@ -55,7 +55,7 @@ function request(method,params) {
   });
 }
 function persist(){
-  window.openai?.setWidgetState?.({signature,index,expanded,equipped,drafts,sent,inquiry,avatarJob});
+  window.openai?.setWidgetState?.({signature,index,expanded,equipped,drafts,sent,inquiry,avatarJob,giftChoice});
 }
 let imageRefs={}, localPhotos=new Map(), showingPhoto='', photoRequest=0;
 function hostImages(meta){
@@ -133,10 +133,10 @@ function receive(data,meta){
     return;
   }
   imageRefs=refs||{};localPhotos.clear();showingPhoto='';photoRequest++;
-  signature=key;output=data;index=data.overview?-1:0;expanded=false;equipped=false;drafts={};sent={};inquiry={};avatarJob={};avatarPolling=false;
+  signature=key;output=data;index=data.overview?-1:0;expanded=false;equipped=false;drafts={};sent={};inquiry={};avatarJob={};avatarPolling=false;giftChoice=0;
   const state=window.openai?.widgetState;
   if(state?.signature===key && (data.stories?.[state.index] || (data.overview && state.index===-1))){
-    index=state.index;expanded=!!state.expanded;equipped=!!state.equipped;drafts=state.drafts||{};sent=state.sent||{};inquiry=state.inquiry||{};avatarJob=state.avatarJob||{};
+    index=state.index;expanded=!!state.expanded;equipped=!!state.equipped;drafts=state.drafts||{};sent=state.sent||{};inquiry=state.inquiry||{};avatarJob=state.avatarJob||{};giftChoice=state.giftChoice||0;
   }
   $('ready').hidden=data.status!=='ready';$('waiting').hidden=!$('ready').hidden;
   $('merchantStatus').textContent='';
@@ -147,12 +147,43 @@ function receive(data,meta){
   if(avatarJob.status==='pending')updateAvatar(true);
   if(data.overview)preparePoster(data).catch(()=>{$('shareStatus').textContent='สร้างภาพแชร์ไม่ได้ในอุปกรณ์นี้';});
 }
+function giftOptions(){
+  const context=index===-1?output.overview:output.stories[index];
+  return context?.gifts || (context?.pick?[context.pick]:(context?.product?[context]:[]));
+}
 function activePick(){
-  return index===-1 ? output.overview.pick : output.stories[index];
+  const gifts=giftOptions();
+  return gifts[giftChoice] || gifts[0];
+}
+function giftSlot(){
+  return index+':'+(activePick()?.item||'');
+}
+function renderGiftOptions(show){
+  const panel=$('giftOptions');
+  const gifts=giftOptions();
+  panel.hidden=!show || gifts.length<2;
+  if(panel.hidden)return;
+  panel.replaceChildren(...gifts.map((gift, option)=>{
+    const button=document.createElement('button');
+    button.type='button';
+    button.setAttribute('aria-pressed',String(option===giftChoice));
+    const name=document.createElement('strong');
+    name.textContent=gift.product;
+    const price=document.createElement('span');
+    const detail=gift.over_budget_thb?' · เกินงบ ฿'+gift.over_budget_thb:(gift.catalog_fallback?' · ตัวเลือกจากแคตตาล็อก':'');
+    price.textContent='฿'+gift.price.toLocaleString('th-TH')+detail;
+    button.append(name,price);
+    button.onclick=()=>{
+      if(sending || giftChoice===option)return;
+      giftChoice=option;equipped=false;render();persist();
+      $('product').tabIndex=-1;$('product').focus();
+    };
+    return button;
+  }));
 }
 function jump(to){
   if(sending)return;
-  index=to;expanded=false;equipped=false;render();persist();
+  index=to;giftChoice=0;expanded=to>=0 && !!output.stories[to]?.gifts?.length;equipped=false;render();persist();
 }
 function evidenceButton(label, indices){
   const btn=document.createElement('button');
@@ -237,7 +268,8 @@ function render(){
   const hasGift=!!s?.product;
   $('open').textContent=hasGift?'เห็นโพสต์นี้แล้ว ให้อะไรดี? ↗':(summary?'ยังไม่มีของที่เข้ากับโพสต์และงบนี้':'โพสต์นี้ให้เบาะแสเรื่องสถานที่');
   $('open').disabled=!hasGift;
-  const showGift=expanded || (summary && hasGift);
+  const showGift=hasGift && (expanded || summary);
+  renderGiftOptions(showGift);
   $('makeGiftImage').hidden=!(embedded && showGift && hasGift);
   $('giftVisual').hidden=s?.item!=='clover';
   $('giftLayout').classList.toggle('with-photo',s?.item==='clover');
@@ -245,7 +277,7 @@ function render(){
   $('expanded').classList.toggle('featured',summary);
   $('close').hidden=summary;
   $('giftLabel').hidden=!summary && !output.mock_gifts;
-  $('giftLabel').textContent=s?.over_budget_thb?'ของขวัญตัวอย่างที่ใกล้งบที่สุด':(output.mock_gifts?'ของขวัญตัวอย่าง':'ของขวัญที่เลือกให้');
+  $('giftLabel').textContent=s?.catalog_fallback?'ตัวเลือกใกล้เคียงจากแคตตาล็อก':s?.over_budget_thb?'ของขวัญตัวอย่างที่ใกล้งบที่สุด':(output.mock_gifts?'ของขวัญตัวอย่าง':'ของขวัญที่เลือกให้');
   $('shortReason').hidden=!summary;
   $('shortReason').textContent=summary && s ? s.short_reason : '';
   if($('reasonDetail').dataset.pick!==String(index)){
@@ -256,16 +288,16 @@ function render(){
   $('profileTop').classList.toggle('with-model',summary);
   if(!hasGift){$('expanded').hidden=true;$('notePanel').hidden=true;$('status').textContent='';return;}
   $('brand').textContent=s.brand;$('product').textContent=s.product;$('price').textContent='฿'+s.price.toLocaleString('th-TH')+(output.mock_gifts?' · ราคาตัวอย่าง':' · ราคาในแคตตาล็อก');
-  $('citations').replaceChildren(...(summary?s.evidence:[]).map(i=>evidenceButton('โพสต์ '+(i+1),[i])));
+  $('citations').replaceChildren(...(s.evidence||[]).map(i=>evidenceButton('โพสต์ '+(i+1),[i])));
   $('reason').textContent=s.reason;$('equip').disabled=!s.eligible;
   $('equip').textContent=s.eligible?(equipped?'✓ อยู่ในช่องของขวัญ · แก้โน้ต':'ใส่ช่องของขวัญ ＋'):'เกินงบ ฿'+(s.price-output.budget).toLocaleString('th-TH');
-  $('notePanel').hidden=!equipped||!showGift;$('note').value=drafts[index]??s.note;
-  $('save').disabled=sending||!!sent[index];
-  $('save').textContent=sent[index]?'✓ เก็บแล้ว':saveLabel();
+  $('notePanel').hidden=!equipped||!showGift;$('note').value=drafts[giftSlot()]??s.note;
+  $('save').disabled=sending||!!sent[giftSlot()];
+  $('save').textContent=sent[giftSlot()]?'✓ เก็บแล้ว':saveLabel();
   const confirmation=output.mock_gifts
     ? '✓ เลือก '+s.product+' แล้วในโหมดทดลอง'
-    : (embedded?'ส่งตัวเลือกนี้เข้าแชตแล้ว':'ตัวอย่างข้อความในแชต · '+sent[index]);
-  $('status').textContent=sent[index]?confirmation:'';
+    : (embedded?'ส่งตัวเลือกนี้เข้าแชตแล้ว':'ตัวอย่างข้อความในแชต · '+sent[giftSlot()]);
+  $('status').textContent=sent[giftSlot()]?confirmation:'';
 }
 const avatarMessages = {
   pending: 'กำลังสร้างตัวละคร · ดูโพสต์และเลือกของขวัญต่อได้',
@@ -281,11 +313,17 @@ function renderAvatar(){
   const available=embedded && !!output?.avatar_enabled && index===-1;
   const finished=avatarJob.status==='ready';
   $('generateAvatar').hidden=!available || finished;
+  $('avatarLook').hidden=!available || finished;
+  $('avatarLookLabel').hidden=!available || finished;
+  $('avatarLook').disabled=avatarPolling;
+  $('avatarEmpty').hidden=!available || finished;
+  $('scene').hidden=available && !finished;
+  $('prev').parentElement?.toggleAttribute('hidden',available && !finished);
   $('generateAvatar').disabled=avatarPolling;
   $('generateAvatar').textContent=avatarJob.job_id && !finished?'เช็กสถานะตัวละคร ↗':'สร้างตัวละครจาก Vibe ↗';
   $('avatarStatus').hidden=!available || !avatarJob.status;
   $('avatarStatus').textContent=avatarMessages[avatarJob.status]||'';
-  $('pin').textContent=finished?'ตัวละครจาก Vibe · AI':(output.demo?'สไตล์ของจูน':'โมเดลสไตล์ตัวอย่าง');
+  $('pin').textContent=finished?(avatarJob.reference==='profile_photo'?'ตัวละครจากรูปโปรไฟล์ · AI':'ตัวละครจาก Vibe · AI'):(output.demo?'สไตล์ของจูน':(available?'ตัวละครของ '+output.profile:'โมเดลสไตล์ตัวอย่าง'));
   const sheet=$('avatarSheet');
   const src=finished?avatarJob.image_url:sampleAvatarSource;
   if(src && sheet.src!==src)sheet.src=src;
@@ -305,6 +343,7 @@ async function updateAvatar(resume=false){
   try{
     let result=resume?{...avatarJob,status:'pending'}:await avatarTool('generate_profile_avatar',{
       profile_url:current.profile_url,cues:current.stories.map(story=>story.cue),
+      look:$('avatarLook').value||'neutral',
     });
     for(let attempt=0;current===output;attempt++){
       avatarJob=result;renderAvatar();persist();
@@ -410,12 +449,12 @@ $('makeGiftImage').onclick=async()=>{
   finally{button.disabled=false;}
 };
 $('equip').onclick=()=>{equipped=true;render();persist();$('note').focus();};
-$('note').oninput=()=>{drafts[index]=$('note').value;delete sent[index];$('save').disabled=sending;$('save').textContent=saveLabel();$('status').textContent='';persist();};
+$('note').oninput=()=>{drafts[giftSlot()]=$('note').value;delete sent[giftSlot()];$('save').disabled=sending;$('save').textContent=saveLabel();$('status').textContent='';persist();};
 $('save').onclick=async()=>{
-  if(sending || sent[index] || !activePick()?.eligible)return;
-  const s=activePick(), note=$('note').value.trim(), current=signature, selected=index;
-  const citations=(index===-1?s.evidence:[index]).map(i=>'“'+output.stories[i].caption+'”').join(' · ');
-  const message='เลือก '+s.product+' จาก '+s.brand+' (฿'+s.price+') '+s.reason+'\nจากโพสต์ '+citations+(note?'\nโน้ตที่จะให้: '+note:'');
+  if(sending || sent[giftSlot()] || !activePick()?.eligible)return;
+  const s=activePick(), note=$('note').value.trim(), current=signature, selected=giftSlot();
+  const citations=(s.evidence || (index===-1?[]:[index])).map(i=>'“'+output.stories[i].caption+'”').join(' · ');
+  const message='เลือก '+s.product+' จาก '+s.brand+' (฿'+s.price+') '+s.reason+(citations?'\nจากโพสต์ '+citations:'')+(note?'\nโน้ตที่จะให้: '+note:'');
   sending=true;$('save').disabled=true;$('note').disabled=true;
   try{
     if(embedded && !output.mock_gifts){

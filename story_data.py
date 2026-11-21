@@ -169,6 +169,52 @@ def post_permalink(url, network):
         return f"https://www.facebook.com{path}?{urlencode([(k, params[k][0]) for k in keys])}"
     return None
 
+# Alternatives use a concrete product feature and the same evidence as the direct pick.
+TRAVEL_ALTERNATIVES = {
+    "clover": "ใช้ห้อยกระเป๋าเดินทางให้จำใบของตัวเองได้ง่ายขึ้น",
+    "doggo": "แท็กทรงน้องหมาเป็นอีกแบบสำหรับแยกกระเป๋าของตัวเองตอนเดินทาง",
+}
+FITNESS_ALTERNATIVES = {
+    "clover": "แท็กโคลเวอร์ไว้ห้อยกระเป๋าไปซ้อมหรือวันแข่ง",
+    "flower": "แท็กสีสดสำหรับแยกกระเป๋าออกกำลังกาย",
+}
+
+
+def gift_alternatives(stories, primary, budget_thb, indices):
+    options = {}
+    if primary:
+        options[primary["item"]] = primary
+    for i in indices:
+        story = stories[i]
+        cue = story["cue"]
+        if story.get("item") and story["item"] not in options:
+            options[story["item"]] = {**story, "evidence": [i], "short_reason": SHORT_REASONS[cue]}
+        alternatives = (TRAVEL_ALTERNATIVES if cue in {"trip", "travel"} else
+                        FITNESS_ALTERNATIVES if cue in {"race", "gym"} else {})
+        for item, reason in alternatives.items():
+            if item not in options:
+                options[item] = catalog_pick(item, budget_thb, reason, [i])
+    for item in PRODUCTS:
+        if item not in options:
+            options[item] = catalog_pick(item, budget_thb, "ตัวเลือกทั่วไปจากแคตตาล็อก", [])
+    for item in options.values():
+        if budget_thb is not None and item["price"] > budget_thb:
+            item["over_budget_thb"] = item["price"] - budget_thb
+    return sorted(options.values(), key=lambda option: (
+        not option["eligible"], not option.get("evidence"), option.get("over_budget_thb", 0),
+        (budget_thb-option["price"]) if option.get("catalog_fallback") and option["eligible"] and budget_thb is not None else 0,
+    ))[:3]
+
+
+def catalog_pick(item, budget_thb, reason, evidence):
+    product = PRODUCTS[item]
+    price = product["price_thb"]
+    return {"item": item, "product": product["name"], "brand": product["brand"], "price": price,
+            "eligible": budget_thb is None or price <= budget_thb, "reason": reason,
+            "short_reason": reason, "note": "เห็นชิ้นนี้แล้วนึกถึงเธอ", "evidence": evidence,
+            "catalog_fallback": not evidence}
+
+
 def build_story(profile_url="", posts=(), demo=False, budget_thb=None):
     network = "Instagram" if demo else platform(profile_url)
     handle = instagram_handle(profile_url) if network == "Instagram" and not demo else None
@@ -201,5 +247,11 @@ def build_story(profile_url="", posts=(), demo=False, budget_thb=None):
             stories[-1]["place"] = place
     if not stories:
         return {"status":"need_post","message":"ส่งภาพหน้าจอหรือคัดแคปชันจากโพสต์ของเธอลงในแชตนี้ เพื่อให้เราเลือกของจากสิ่งที่เธอโพสต์จริง ๆ"}
+    overview = profile_read(stories, budget_thb)
+    overview["gifts"] = gift_alternatives(stories, overview["pick"], budget_thb, range(len(stories)))
+    overview["pick"] = overview["gifts"][0]
+    post_gifts = [gift_alternatives(stories, None, budget_thb, [i]) for i in range(len(stories))]
+    for story, gifts in zip(stories, post_gifts):
+        story["gifts"] = gifts
     return {"status":"ready","mock_gifts":True,"demo":demo,"profile":"จูน" if demo else (f"@{handle}" if handle else "เธอ"),"network":network,
-            "profile_url":None if demo else profile_url,"budget":budget_thb,"stories":stories,"overview":profile_read(stories, budget_thb)}
+            "profile_url":None if demo else profile_url,"budget":budget_thb,"stories":stories,"overview":overview}

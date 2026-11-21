@@ -140,3 +140,10 @@
 #breakdown #generateAvatar{width:100%;border:1px solid #d4c3ff;color:#e9defe;border-radius:9px;font-size:.82rem;padding:4px 8px}
 #breakdown #generateAvatar:disabled{opacity:.6;cursor:wait}
 #avatarStatus{font-size:.74rem;color:#e9defe;line-height:1.35}
+#giftOptions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:0 0 14px}
+#giftOptions button{display:grid;align-content:space-between;gap:4px;padding:8px;text-align:left;border:1px solid #a493cc;border-radius:7px;background:#f7efff;line-height:1.25;font-size:.78rem;overflow-wrap:anywhere}
+#giftOptions button[aria-pressed="true"]{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+#giftOptions span{font-size:.7rem}
+#avatarEmpty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:12px;color:#174334;font-weight:750;background:linear-gradient(145deg,#e8d9fa,#f7f5e6)}
+#avatarLookLabel{font-size:.72rem;color:#e9defe}
+#avatarLook{max-width:100%;color:var(--ink);background:#f1eafb;border:0;border-radius:6px;padding:6px;font:inherit;font-size:.77rem}
