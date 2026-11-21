@@ -88,7 +88,7 @@ In the service’s active deployment logs, search for `mcp.tool.finish` to see t
 
 On Railway the widget loads artwork from the service’s public origin and delivers a smaller HTML response. When running locally without `RAILWAY_PUBLIC_DOMAIN`, the HTML uses embedded images.
 
-For the presentation, type `johnmayer` or `oliviadean` in ChatGPT with ShopShop enabled. These queries resolve to the official Instagram profiles `@johnmayer` and `@oliviadeano`. The server ships with short public post excerpts for both handles when they are listed in `SHOPSHOP_PRESENTATION_PROFILES`. Each card labels these as cached posts and links to the original Instagram posts. Warm the character with `prepare_profile_avatar` after the final deploy. The generated avatar cache is cleared when the process restarts.
+For the presentation, type `johnmayer` or `oliviadean` in ChatGPT with ShopShop enabled. These queries resolve to `@johnmayer` and `@oliviadeano`. The app ships with avatars generated from their profile photos and short public post excerpts. The cards link to the original Instagram posts and show cached gift rankings for up to four hours. The bundled avatars remain available after a restart.
 
 ## Where the evidence and photos come from
 

@@ -29,9 +29,14 @@ URI = "ui://shopshop/profile-gifts-v13.html"
 LEGACY_URIS = ("ui://shopshop/profile-gifts.html", *(
     f"ui://shopshop/profile-gifts-v{version}.html" for version in range(7, 13)
 ))
+PRESENTATION_AVATARS = {
+    "johnmayer": "presentation-johnmayer.webp",
+    "oliviadeano": "presentation-oliviadeano.webp",
+}
 ASSET_NAMES = {
     "june-recap.webp", "turntable.webp", "interest-race.webp", "interest-travel.webp",
     "interest-gym.webp", "place-chiangmai.webp", "clover-on-bag.webp", "clover-mock.webp", "loop-mark.webp",
+    *PRESENTATION_AVATARS.values(),
 }
 railway_domain = os.getenv("RAILWAY_PUBLIC_DOMAIN", "")
 ASSET_ORIGIN = f"https://{railway_domain}" if re.fullmatch(r"[A-Za-z0-9.-]+", railway_domain) else ""
@@ -44,6 +49,17 @@ logger = logging.getLogger("shopshop")
 MIME = "text/html;profile=mcp-app"
 app = FastMCP("shopshop", host=os.getenv("HOST","127.0.0.1"), port=int(os.getenv("PORT", "8000")),
               stateless_http=True, json_response=True)
+
+
+def prepared_avatar(username):
+    if not ASSET_ORIGIN:
+        return None
+    filename = PRESENTATION_AVATARS.get(username)
+    if filename and (ROOT / "assets" / filename).is_file():
+        return {"status": "ready", "reference": "profile_photo",
+                "image_url": f"{ASSET_ORIGIN}/widget-assets/{filename}"}
+    return None
+
 
 def trace_profile_tool(tool):
     @wraps(tool)
@@ -108,7 +124,8 @@ async def read_instagram_posts(profile_url: Annotated[str, Field(max_length=2048
     a failure, explain the returned message and reason. Ask for screenshots or captions when evidence is unavailable."""
     result = await asyncio.to_thread(instagram_posts, profile_url)
     if result["status"] == "ready":
-        return {"status": "ready", "avatar_enabled": avatar.enabled(ASSET_ORIGIN),
+        avatar_available = bool(prepared_avatar(instagram_handle(profile_url))) or avatar.enabled(ASSET_ORIGIN)
+        return {"status": "ready", "avatar_enabled": avatar_available,
                 "presentation_cached": result.get("presentation_cached", False), "posts": [
             {"caption": post["caption"], "source_url": post["source_url"],
              "has_image": bool(post.get("image_url"))} for post in result["posts"]
@@ -234,11 +251,12 @@ async def source_gifts(profile_url: str = "", posts: Annotated[list[Post], Field
         if presentation_cached:
             result["network"] = "Instagram · โพสต์ที่แคชไว้"
     username = instagram_handle(profile_url)
-    if result["status"] == "ready" and not demo and username and avatar.enabled(ASSET_ORIGIN):
+    prepared = prepared_avatar(username)
+    if result["status"] == "ready" and not demo and username and (prepared or avatar.enabled(ASSET_ORIGIN)):
         result["avatar_enabled"] = True
         cues = sorted({story["cue"] for story in result["stories"]})
         profile = profile_log_id(username)
-        job = avatar.current(profile, ASSET_ORIGIN)
+        job = prepared or avatar.current(profile, ASSET_ORIGIN)
         if use_connected_instagram:
             job = job or avatar.start(profile, username, cues, ASSET_ORIGIN)
             logger.info("avatar.card profile=%s status=%s", profile, job["status"])
@@ -377,6 +395,8 @@ async def prepare_profile_avatar(profile_url: Annotated[str, Field(max_length=20
     ready, failed, busy, limit_reached, or unavailable, call source_gifts to show the
     card. No image URL or text answer is needed here."""
     username = instagram_handle(resolve_profile_query(profile_url))
+    if prepared_avatar(username):
+        return {"status": "ready"}
     if not username or not avatar.enabled(ASSET_ORIGIN):
         return {"status": "unavailable"}
     profile = profile_log_id(username)
@@ -397,7 +417,7 @@ def generate_profile_avatar(profile_url: Annotated[str, Field(max_length=2048)],
     username = instagram_handle(resolve_profile_query(profile_url))
     if not username:
         return {"status": "unavailable"}
-    return avatar.start(profile_log_id(username), username, cues, ASSET_ORIGIN, look)
+    return prepared_avatar(username) or avatar.start(profile_log_id(username), username, cues, ASSET_ORIGIN, look)
 
 
 @app.tool(meta=BUYER_WIDGET, annotations=ToolAnnotations(readOnlyHint=True, openWorldHint=False))
@@ -439,7 +459,7 @@ async def widget_avatar_job(request):
         return respond({"status": "grant_expired"}, 400)
 
     profile = profile_log_id(username)
-    result = avatar.start(profile, username, cues, ASSET_ORIGIN, look)
+    result = prepared_avatar(username) or avatar.start(profile, username, cues, ASSET_ORIGIN, look)
     logger.info("avatar.widget.start profile=%s status=%s", profile, result["status"])
     return respond(result)
 
