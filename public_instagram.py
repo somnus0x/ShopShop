@@ -1,5 +1,8 @@
 """Bounded public Instagram lookup for the hackathon."""
+import logging
+import os
 import time
+from decimal import Decimal, InvalidOperation
 from threading import Lock
 
 import httpx
@@ -9,17 +12,30 @@ from story_data import post_permalink
 
 ACTOR_URL = "https://api.apify.com/v2/actors/gatherworks~instagram-profile-scraper/run-sync-get-dataset-items"
 CACHE_TTL = 300
+logger = logging.getLogger(__name__)
 _cache = {}
 _lock = Lock()
 
 
 def _lookup(username, token):
+    charge_limit = os.getenv("SHOPSHOP_APIFY_MAX_CHARGE_USD", "0.10")
+    try:
+        post_limit = int(os.getenv("SHOPSHOP_APIFY_POST_LIMIT", "30"))
+        charge = Decimal(charge_limit)
+        if not 1 <= post_limit <= 2000 or not charge.is_finite() or charge <= 0:
+            raise ValueError("Instagram scan limits out of range")
+    except (InvalidOperation, ValueError):
+        logger.error("Invalid SHOPSHOP_APIFY_POST_LIMIT or SHOPSHOP_APIFY_MAX_CHARGE_USD")
+        return {"status": "instagram_unavailable", "message": "ยังใช้การค้นหา Instagram ไม่ได้ " + IMPORT_HELP}
+
+    # The Actor returns one account row in addition to the requested posts.
+    row_limit = post_limit + 1
     try:
         response = httpx.post(
             ACTOR_URL,
             headers={"Authorization": f"Bearer {token}"},
-            params={"timeout": 25, "maxTotalChargeUsd": "0.03", "limit": 7},
-            json={"usernames": [username], "includePosts": True, "maxPostsPerAccount": 6},
+            params={"timeout": 25, "maxTotalChargeUsd": charge_limit, "limit": row_limit},
+            json={"usernames": [username], "includePosts": True, "maxPostsPerAccount": post_limit},
             timeout=30,
         )
         rows = response.raise_for_status().json()
@@ -27,7 +43,7 @@ def _lookup(username, token):
         return {"status": "instagram_unavailable", "message": "เปิดโพสต์จาก Instagram ไม่สำเร็จ " + IMPORT_HELP}
     if not isinstance(rows, list):
         rows = []
-    rows = [row for row in rows[:7] if isinstance(row, dict)]
+    rows = [row for row in rows[:row_limit] if isinstance(row, dict)]
     account = next((row for row in rows if row.get("rowType") == "account"
                     and str(row.get("handle", "")).lower() == username), None)
     if not account or account.get("isPrivate") is not False:
@@ -45,7 +61,7 @@ def _lookup(username, token):
         image = row.get("thumbnailUrl") or row.get("displayUrl") or row.get("imageUrl") or first_photo
         posts.append({"caption": caption, "source_url": url, "image_url": preview_image({"media_url": image})})
     if posts:
-        return {"status": "ready", "posts": posts[:6]}
+        return {"status": "ready", "posts": posts[:post_limit]}
     return {"status": "need_posts", "message": "ยังไม่พบแคปชันที่ใช้ได้ " + IMPORT_HELP}
 
 
