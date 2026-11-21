@@ -1,6 +1,7 @@
 """Bounded public Instagram lookup for the hackathon."""
 import logging
 import os
+import re
 import time
 from decimal import Decimal, InvalidOperation
 from threading import Lock
@@ -21,11 +22,12 @@ def _lookup(username, token):
     charge_limit = os.getenv("SHOPSHOP_APIFY_MAX_CHARGE_USD", "0.10")
     try:
         post_limit = int(os.getenv("SHOPSHOP_APIFY_POST_LIMIT", "30"))
+        run_timeout = int(os.getenv("SHOPSHOP_APIFY_TIMEOUT_SECONDS", "50"))
         charge = Decimal(charge_limit)
-        if not 1 <= post_limit <= 2000 or not charge.is_finite() or charge <= 0:
+        if not 1 <= post_limit <= 2000 or not 10 <= run_timeout <= 120 or not charge.is_finite() or charge <= 0:
             raise ValueError("Instagram scan limits out of range")
     except (InvalidOperation, ValueError):
-        logger.error("Invalid SHOPSHOP_APIFY_POST_LIMIT or SHOPSHOP_APIFY_MAX_CHARGE_USD")
+        logger.error("Invalid Apify scan limit, budget, or timeout setting")
         return {"status": "instagram_unavailable", "reason": "invalid_scan_config",
                 "message": "ค่าจำนวนโพสต์หรืองบ Apify บนเซิร์ฟเวอร์ไม่ถูกต้อง " + IMPORT_HELP}
 
@@ -33,24 +35,34 @@ def _lookup(username, token):
         response = httpx.post(
             ACTOR_URL,
             headers={"Authorization": f"Bearer {token}"},
-            params={"timeout": 25, "maxTotalChargeUsd": charge_limit, "limit": post_limit,
+            params={"timeout": run_timeout, "maxTotalChargeUsd": charge_limit, "limit": post_limit,
                     "fields": "ownerUsername,url,caption,displayUrl,images,isPrivate,error,errorDescription"},
             json={"username": [f"https://www.instagram.com/{username}/"],
                   "resultsLimit": post_limit, "skipPinnedPosts": True},
-            timeout=30,
+            timeout=httpx.Timeout(run_timeout + 5, connect=5),
         )
         rows = response.raise_for_status().json()
     except httpx.HTTPStatusError as exc:
         code = exc.response.status_code
-        logger.warning("Apify Instagram lookup returned HTTP %s", code)
+        try:
+            provider_error = exc.response.json().get("error", {})
+            error_type = provider_error.get("type", "")
+        except (ValueError, AttributeError):
+            error_type = ""
+        if not isinstance(error_type, str) or not re.fullmatch(r"[a-zA-Z0-9_-]{1,80}", error_type):
+            error_type = ""
+        logger.warning("Apify Instagram lookup returned HTTP %s (%s)", code, error_type or "unknown")
         if code in {401, 403}:
             return {"status": "instagram_unavailable", "reason": "apify_access_denied",
                     "message": "Apify ปฏิเสธการเข้าถึง ตรวจ APIFY_TOKEN และสิทธิ์ของบัญชี"}
         if code == 402:
             return {"status": "instagram_unavailable", "reason": "apify_budget_exhausted",
                     "message": "Apify แจ้งปัญหาด้านเครดิตหรือวงเงิน ตรวจบัญชี Apify"}
-        return {"status": "instagram_unavailable", "reason": f"apify_http_{code}",
-                "message": f"Apify ดึงโพสต์ไม่สำเร็จ (HTTP {code}) " + IMPORT_HELP}
+        reason = f"apify_http_{code}"
+        if error_type:
+            reason += f":{error_type}"
+        return {"status": "instagram_unavailable", "reason": reason,
+                "message": f"Apify ดึงโพสต์ไม่สำเร็จ ({reason}) " + IMPORT_HELP}
     except httpx.TimeoutException:
         logger.warning("Apify Instagram lookup timed out")
         return {"status": "instagram_unavailable", "reason": "apify_timeout",

@@ -12,12 +12,13 @@ Open `index.html` for a standalone design preview. To see the card inside a conv
 
 ### Adjust the Instagram scan
 
-Set either variable in Railway and deploy the changes. Every lookup uses the configured post limit and charge cap.
+Set these variables in Railway and deploy the changes. Every lookup uses the configured post limit and charge cap.
 
 | Railway variable | Default | What it controls |
 | --- | --- | --- |
 | `SHOPSHOP_APIFY_POST_LIMIT` | `30` | Recent posts requested per public profile. Accepts 1 through 2,000. |
 | `SHOPSHOP_APIFY_MAX_CHARGE_USD` | `0.10` | Positive USD spending cap per Apify run. Increase it alongside the post limit to retrieve more rows. |
+| `SHOPSHOP_APIFY_TIMEOUT_SECONDS` | `50` | Actor runtime cap in seconds. Accepts 10 through 120. |
 
 For example, set the post limit to `100` and the cap to `0.30`. The charge cap, the scraper timeout, and the number of available public posts can reduce the returned count. [Apify Post Scraper pricing](https://apify.com/apify/instagram-post-scraper)
 
