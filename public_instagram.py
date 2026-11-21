@@ -1,4 +1,5 @@
 """Bounded public Instagram lookup for the hackathon."""
+from hashlib import blake2s
 import logging
 import os
 import re
@@ -16,6 +17,12 @@ CACHE_TTL = 300
 logger = logging.getLogger(__name__)
 _cache = {}
 _lock = Lock()
+_trace_key = os.urandom(16)
+
+
+def profile_log_id(username):
+    return blake2s(username.encode(), key=_trace_key, digest_size=6).hexdigest() if username else "-"
+
 
 
 def _lookup(username, token):
@@ -31,6 +38,10 @@ def _lookup(username, token):
         return {"status": "instagram_unavailable", "reason": "invalid_scan_config",
                 "message": "ค่าจำนวนโพสต์หรืองบ Apify บนเซิร์ฟเวอร์ไม่ถูกต้อง " + IMPORT_HELP}
 
+    started = time.monotonic()
+    lookup = profile_log_id(username)
+    logger.info("instagram.apify.start profile=%s requested=%d timeout_s=%d cap_usd=%s",
+                lookup, post_limit, run_timeout, charge)
     try:
         response = httpx.post(
             ACTOR_URL,
@@ -97,8 +108,9 @@ def _lookup(username, token):
         first_photo = images[0] if isinstance(images, list) and images else None
         image = preview_image({"media_url": row.get("displayUrl")}) or preview_image({"media_url": first_photo})
         posts.append({"caption": caption.strip()[:480], "source_url": url, "image_url": image})
-    logger.info("Apify Post Scraper returned %d rows, %d matching posts and %d usable captions",
-                len(rows), matching_posts, len(posts))
+    logger.info("instagram.apify.finish profile=%s elapsed_ms=%d rows=%d matching=%d captions=%d images=%d",
+                lookup, (time.monotonic()-started)*1000, len(rows), matching_posts,
+                len(posts), sum(bool(post["image_url"]) for post in posts))
     if posts:
         return {"status": "ready", "posts": posts}
     if matching_posts:
@@ -115,9 +127,11 @@ def public_posts(username, token, *, cached_only=False):
         now = time.monotonic()
         cached = _cache.get(username)
         if cached and cached[0] > now:
+            logger.info("instagram.cache profile=%s result=hit", profile_log_id(username))
             return cached[1]
+        logger.info("instagram.cache profile=%s result=miss cached_only=%s", profile_log_id(username), cached_only)
         if cached_only:
-            return {"status": "need_posts", "message": "เปิดโพสต์อีกครั้งก่อนเลือกของขวัญ " + IMPORT_HELP}
+            return {"status": "need_posts", "reason": "instagram_cache_miss", "message": "เปิดโพสต์อีกครั้งก่อนเลือกของขวัญ " + IMPORT_HELP}
         if len(_cache) >= 64:
             del _cache[min(_cache, key=lambda key: _cache[key][0])]
         result = _lookup(username, token)

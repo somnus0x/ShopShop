@@ -1,23 +1,63 @@
 """Run the design prototype over Streamable HTTP or stdio."""
 import base64
 import json
+import logging
 import os
+import re
 import sys
+from functools import wraps
+from time import monotonic
+from uuid import uuid4
 from typing import Annotated, Any, Literal
 
 from mcp.server.fastmcp import FastMCP
 from mcp.types import CallToolResult, TextContent, ToolAnnotations
 from pydantic import BaseModel, ConfigDict, Field
-from starlette.responses import JSONResponse
+from starlette.responses import FileResponse, JSONResponse
 
 import buyer_inquiry
 from instagram import instagram_posts
-from story_data import ROOT, build_story, instagram_handle, post_permalink
+from public_instagram import profile_log_id
+from story_data import PRODUCTS, ROOT, build_story, instagram_handle, post_permalink
 
-URI = "ui://shopshop/profile-gifts-v10.html"
+URI = "ui://shopshop/profile-gifts.html"
+LEGACY_URIS = tuple(f"ui://shopshop/profile-gifts-v{version}.html" for version in range(7, 11))
+ASSET_NAMES = {
+    "june-recap.webp", "turntable.webp", "interest-race.webp", "interest-travel.webp",
+    "interest-gym.webp", "place-chiangmai.webp", "clover-on-bag.webp", "clover-mock.webp", "loop-mark.webp",
+}
+railway_domain = os.getenv("RAILWAY_PUBLIC_DOMAIN", "")
+ASSET_ORIGIN = f"https://{railway_domain}" if re.fullmatch(r"[A-Za-z0-9.-]+", railway_domain) else ""
+logger = logging.getLogger("shopshop")
 MIME = "text/html;profile=mcp-app"
 app = FastMCP("shopshop", host=os.getenv("HOST","127.0.0.1"), port=int(os.getenv("PORT", "8000")),
               stateless_http=True, json_response=True)
+
+def trace_profile_tool(tool):
+    @wraps(tool)
+    def timed(profile_url="", *args, **kwargs):
+        request = uuid4().hex[:8]
+        profile = profile_log_id(instagram_handle(profile_url))
+        started = monotonic()
+        logger.info("mcp.tool.start name=%s request=%s profile=%s", tool.__name__, request, profile)
+        try:
+            result = tool(profile_url, *args, **kwargs)
+        except Exception as exc:
+            logger.error("mcp.tool.error name=%s request=%s type=%s elapsed_ms=%d",
+                         tool.__name__, request, type(exc).__name__, (monotonic()-started)*1000)
+            raise
+        data = result.structuredContent if isinstance(result, CallToolResult) else result
+        images = (result.meta or {}).get("post_images", {}) if isinstance(result, CallToolResult) else {}
+        logger.info(
+            "mcp.tool.finish name=%s request=%s profile=%s status=%s reason=%s elapsed_ms=%d posts=%d images=%d gift=%s",
+            tool.__name__, request, profile, data.get("status"), data.get("reason", "-"),
+            (monotonic()-started)*1000, len(data.get("stories", data.get("posts", []))),
+            len(images) or sum(bool(post.get("has_image")) for post in data.get("posts", [])),
+            bool((data.get("overview") or {}).get("pick")),
+        )
+        return result
+    return timed
+
 
 class Place(BaseModel):
     name: Annotated[str, Field(min_length=1, max_length=100)]
@@ -39,6 +79,7 @@ class ChatFile(BaseModel):
     file_name: str = ""
 
 @app.tool(annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, openWorldHint=True))
+@trace_profile_tool
 def read_instagram_posts(profile_url: Annotated[str, Field(max_length=2048)]) -> dict[str, Any]:
     """For a pasted Instagram profile URL with no supplied captions or screenshots,
     call this tool before asking for screenshots. It reads recent captions from a public Instagram profile or an authorized professional
@@ -59,6 +100,7 @@ def read_instagram_posts(profile_url: Annotated[str, Field(max_length=2048)]) ->
 
 @app.tool(meta={"ui":{"resourceUri":URI},"openai/outputTemplate":URI,"openai/fileParams":["post_images"]},
           annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, openWorldHint=True))
+@trace_profile_tool
 def source_gifts(profile_url: str = "", posts: Annotated[list[Post], Field(max_length=6)] = [],
                  demo: bool = False, budget_thb: Annotated[int | None, Field(ge=0)] = None,
                  post_images: Annotated[list[ChatFile], Field(max_length=6)] = [],
@@ -139,6 +181,47 @@ async def health(_request):
     return JSONResponse({"status": "ok"})
 
 
+def catalog_product(product_id):
+    if product_id == buyer_inquiry.PRODUCT_ID:
+        return {"product_id": product_id, "name": "Supason demo item", "brand": "Supason",
+                "price_thb": None, "mock": True, "inquiry_available": buyer_inquiry.configured()}
+    product = PRODUCTS.get(product_id)
+    if product is None:
+        return None
+    return {"product_id": product_id, "name": product["name"], "brand": product["brand"],
+            "price_thb": product["price_thb"], "image_url": product.get("image"),
+            "mock": True, "inquiry_available": False}
+
+
+@app.tool(annotations=ToolAnnotations(readOnlyHint=True, openWorldHint=False))
+def list_products(query: Annotated[str, Field(max_length=200)] = "") -> dict[str, Any]:
+    """Search the ShopShop gift catalog by name, brand, or product ID."""
+    terms = query.casefold().split()
+    matches = []
+    for product_id in (*PRODUCTS, buyer_inquiry.PRODUCT_ID):
+        product = catalog_product(product_id)
+        label = " ".join((product_id, product["name"], product["brand"])).casefold()
+        if all(term in label for term in terms):
+            matches.append(product)
+    return {"products": matches[:15]}
+
+
+@app.tool(annotations=ToolAnnotations(readOnlyHint=True, openWorldHint=False))
+def get_product(product_id: Annotated[str, Field(max_length=100)]) -> dict[str, Any]:
+    """Return details and available actions for one ShopShop catalog product."""
+    product = catalog_product(product_id)
+    return {"status": "ready", "product": product} if product else {"status": "not_found"}
+
+
+@app.tool(annotations=ToolAnnotations(readOnlyHint=True, openWorldHint=True))
+async def merchant_bridge_status() -> dict[str, str]:
+    """Check whether the buyer MCP exposes the expected tools without submitting an inquiry."""
+    started = monotonic()
+    result = await buyer_inquiry.check_connection()
+    logger.info("merchant.bridge.check status=%s elapsed_ms=%d", result["status"], (monotonic()-started)*1000)
+    return result
+
+
 BUYER_WIDGET = {"ui": {"visibility": ["app"]}, "openai/widgetAccessible": True, "openai/visibility": "private"}
 
 
@@ -147,18 +230,27 @@ BUYER_WIDGET = {"ui": {"visibility": ["app"]}, "openai/widgetAccessible": True, 
 async def start_demo_inquiry(request_id: Annotated[str, Field(max_length=36)],
                              demo_code: Annotated[str, Field(max_length=256)]) -> dict[str, Any]:
     """Submit the confirmed demo-product inquiry from the ShopShop widget."""
-    return await buyer_inquiry.submit(request_id, demo_code)
+    started = monotonic()
+    result = await buyer_inquiry.submit(request_id, demo_code)
+    logger.info("merchant.inquiry.submit status=%s elapsed_ms=%d", result["status"], (monotonic()-started)*1000)
+    return result
 
 
 @app.tool(meta=BUYER_WIDGET, annotations=ToolAnnotations(readOnlyHint=True, openWorldHint=True))
 async def refresh_demo_inquiry(ticket: Annotated[str, Field(max_length=250)]) -> dict[str, Any]:
     """Read the status and reply for the widget's existing inquiry ticket."""
-    return await buyer_inquiry.refresh(ticket)
+    started = monotonic()
+    result = await buyer_inquiry.refresh(ticket)
+    logger.info("merchant.inquiry.refresh status=%s replies=%d elapsed_ms=%d", result["status"],
+                len(result.get("replies", [])), (monotonic()-started)*1000)
+    return result
 
 
-def component():
+def component(asset_origin=""):
     html = (ROOT/"story.html").read_text()
     def artwork(filename):
+        if asset_origin:
+            return f"{asset_origin}/widget-assets/{filename}"
         encoded = base64.b64encode((ROOT/"assets"/filename).read_bytes()).decode()
         return "data:image/webp;base64," + encoded
     return (html.replace("/* STORY_STYLE */",(ROOT/"story.css").read_text())
@@ -176,12 +268,32 @@ def component():
             .replace("/* TURNTABLE */",(ROOT/"turntable.js").read_text())
             .replace('"DEMO_FIXTURE"',json.dumps(build_story(demo=True),ensure_ascii=False)))
 
-@app.resource(URI, mime_type=MIME, meta={"ui":{"prefersBorder":True,"csp":{"connectDomains":[],
-              "resourceDomains":["https://*.oaiusercontent.com","https://chatgpt.com",
-                                  "https://*.cdninstagram.com","https://*.fbcdn.net"]
-                                  + ([buyer_inquiry.qr_origin()] if buyer_inquiry.qr_origin() else [])}}})
+@app.custom_route("/widget-assets/{filename}", methods=["GET", "HEAD"], include_in_schema=False)
+async def widget_asset(request):
+    filename = request.path_params["filename"]
+    if filename not in ASSET_NAMES:
+        return JSONResponse({"error": "Asset not found"}, status_code=404)
+    return FileResponse(ROOT / "assets" / filename, media_type="image/webp", headers={
+        "Access-Control-Allow-Origin": "*",
+        "Cross-Origin-Resource-Policy": "cross-origin",
+        "Cache-Control": "public, max-age=3600",
+    })
+
+
 def story_component() -> str:
-    return component()
+    started = monotonic()
+    html = component(ASSET_ORIGIN)
+    logger.info("mcp.resource.read name=shopshop_card bytes=%d elapsed_ms=%d asset_mode=%s",
+                len(html.encode()), (monotonic()-started)*1000, "external" if ASSET_ORIGIN else "inline")
+    return html
+
+
+resource_domains = ["https://*.oaiusercontent.com", "https://chatgpt.com", "https://*.cdninstagram.com", "https://*.fbcdn.net"]
+resource_domains.extend(origin for origin in (ASSET_ORIGIN, buyer_inquiry.qr_origin()) if origin)
+resource_meta = {"ui": {"prefersBorder": True, "csp": {"connectDomains": [], "resourceDomains": resource_domains}}}
+for resource_uri in (URI, *LEGACY_URIS):
+    app.resource(resource_uri, mime_type=MIME, meta=resource_meta)(story_component)
+
 
 if __name__ == "__main__":
     if "--preview" in sys.argv:

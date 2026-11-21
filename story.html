@@ -3,7 +3,7 @@
 <header><b class="logo"><img class="brandmark" src="CI_MARK" alt="">shopshop</b><span id="meta">ของขวัญจากโปรไฟล์</span></header>
 <section id="waiting"><h1>ของที่เห็นแล้วนึกถึงเธอ</h1><p id="message" role="status">กำลังเปิดในแชต…</p></section>
 <div id="ready" hidden>
-<div id="profileTop"><section id="portrait" aria-label="โมเดลสไตล์ของจูน"><img id="avatarSheet" src="CI_AVATAR" alt="" hidden><canvas id="scene" aria-label="ตัวละครสไตล์สมมติ"></canvas><span id="pin">สไตล์ของจูน</span><div class="spin"><button id="prev" aria-label="หมุนซ้าย">←</button><span id="spinlabel">ลากเพื่อหมุน</span><button id="next" aria-label="หมุนขวา">→</button></div></section>
+<div id="profileTop"><section id="portrait" aria-label="โมเดลสไตล์ของจูน"><img crossorigin="anonymous" id="avatarSheet" src="CI_AVATAR" alt="" hidden><canvas id="scene" aria-label="ตัวละครสไตล์สมมติ"></canvas><span id="pin">สไตล์ของจูน</span><div class="spin"><button id="prev" aria-label="หมุนซ้าย">←</button><span id="spinlabel">ลากเพื่อหมุน</span><button id="next" aria-label="หมุนขวา">→</button></div></section>
 <section class="story" aria-label="โพสต์ที่มาของไอเดีย">
 <div class="segments" id="segments" aria-label="เลือกโพสต์"></div>
 <div class="by"><span id="handle"></span><span id="counter"></span></div>
@@ -19,7 +19,7 @@
 <button class="plain" id="overviewBack" hidden>← กลับไปดูภาพรวม</button><button class="cta" id="open">เห็นโพสต์นี้แล้ว ให้อะไรดี? <b>↗</b></button>
 <section id="expanded" aria-label="ของขวัญที่เลือกให้" hidden>
 <div class="gift-layout" id="giftLayout">
-<figure id="giftVisual" hidden><img id="cloverArt" src="CI_CLOVER" alt="ภาพจำลองแท็กกระเป๋าหนังทรงโคลเวอร์"><img src="CI_ON_BAG" alt="ภาพจำลองโคลเวอร์เมื่อห้อยกับซิปเป้"><figcaption>ภาพจำลอง · เมื่อห้อยกับเป้</figcaption></figure>
+<figure id="giftVisual" hidden><img crossorigin="anonymous" id="cloverArt" src="CI_CLOVER" alt="ภาพจำลองแท็กกระเป๋าหนังทรงโคลเวอร์"><img src="CI_ON_BAG" alt="ภาพจำลองโคลเวอร์เมื่อห้อยกับซิปเป้"><figcaption>ภาพจำลอง · เมื่อห้อยกับเป้</figcaption></figure>
 <div class="gift"><span id="giftLabel" hidden>ของขวัญที่เลือกให้</span><span id="brand"></span><h1 id="product"></h1><strong id="price"></strong><p id="shortReason" hidden></p><details id="reasonDetail"><summary>ทำไมถึงเลือกชิ้นนี้</summary><p id="reason"></p><div id="citations" aria-label="โพสต์ที่ใช้เลือกของ"></div></details><button class="cta" id="equip">ใส่ช่องของขวัญ ＋</button></div></div>
 <button id="makeGiftImage" type="button" class="plain" hidden>ขอให้ ChatGPT ทำภาพการ์ดของขวัญ ↗</button>
 <section id="notePanel" hidden><label for="note">ตอนยื่นให้ อยากบอกว่า…</label><textarea id="note" rows="2" maxlength="240"></textarea><button class="cta" id="save">ส่งของที่เลือกกับโน้ตเข้าแชต ↗</button></section>
@@ -32,7 +32,7 @@
   <form id="merchantForm">
     <label for="merchantCode">รหัสทดสอบ</label>
     <input id="merchantCode" type="password" maxlength="256" required autocomplete="off">
-    <button type="submit" class="cta">ส่งคำถามทดสอบถึงร้าน ↗</button>
+    <button type="submit" class="cta">ถามร้านเรื่องสินค้าและราคา ↗</button>
   </form>
   <button id="merchantRefresh" type="button" class="plain" hidden>ตรวจคำตอบจากร้าน</button>
   <p id="merchantStatus" role="status"></p>

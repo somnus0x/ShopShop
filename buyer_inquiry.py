@@ -1,4 +1,5 @@
 """Bridge the demo widget to the shopping Mac's authenticated buyer MCP."""
+from contextlib import asynccontextmanager
 import hashlib
 import hmac
 import os
@@ -30,7 +31,8 @@ def _signature(value):
     return hmac.new(os.environ["SHOPSHOP_INQUIRY_SECRET"].encode(), value.encode(), hashlib.sha256).hexdigest()
 
 
-async def _call(name, arguments):
+@asynccontextmanager
+async def _session():
     url = os.environ["SHOPSHOP_BUYER_URL"]
     token = os.environ["SHOPSHOP_BUYER_TOKEN"]
     with anyio.fail_after(12):
@@ -38,7 +40,24 @@ async def _call(name, arguments):
             async with streamable_http_client(url, http_client=client) as (read, write, _):
                 async with ClientSession(read, write) as session:
                     await session.initialize()
-                    result = await session.call_tool(name, arguments)
+                    yield session
+
+
+async def check_connection():
+    if not configured():
+        return {"status": "not_configured"}
+    try:
+        async with _session() as session:
+            advertised = {tool.name for tool in (await session.list_tools()).tools}
+        required = {"submit_product_inquiry", "get_product_inquiry"}
+        return {"status": "ready" if required <= advertised else "missing_buyer_tools"}
+    except Exception:
+        return {"status": "buyer_unreachable"}
+
+
+async def _call(name, arguments):
+    async with _session() as session:
+        result = await session.call_tool(name, arguments)
     if result.isError or not isinstance(result.structuredContent, dict):
         raise ValueError("No structured buyer result")
     return result.structuredContent

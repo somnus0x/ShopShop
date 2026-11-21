@@ -39,7 +39,7 @@ The inquiry panel appears on the profile overview when the buyer bridge is confi
 | `SHOPSHOP_BUYER_DEMO_CODE` | Separate high-entropy demo code to enter in the widget before sending |
 | `SHOPSHOP_QR_ORIGIN` | HTTPS origin of the operator-approved sample QR host, if testing QR replies |
 
-The shopping Mac’s loopback address is only reachable from that Mac. Test the private route from Railway before enabling the bridge. Use the buyer endpoint credentials for this integration. Use sample QR images without payment details.
+The shopping Mac’s loopback address is only reachable from that Mac. After configuring the private route, call `merchant_bridge_status` to verify authenticated tool discovery before sending a test inquiry. `list_products` and `get_product` advertise the Supason test item and whether the merchant action is enabled. Use the buyer endpoint credentials for this integration. Use sample QR images without payment details.
 
 ## Connect a private demo to ChatGPT
 
@@ -73,6 +73,12 @@ The shopping Mac’s loopback address is only reachable from that Mac. Test the 
    Expect a recap and gift recommendation for the handle you supplied. Tap a graph entry to read the supporting post. Choose **ใส่ช่องของขวัญ**, edit the note, then press **ยืนยันของขวัญตัวอย่าง** to confirm your mock selection. **แชร์การ์ดนี้** opens the phone’s share sheet or a saveable 1080 × 1350 PNG.
 
 For a hosted connection, run `.venv/bin/python server.py` with the HTTP transport and expose its `/mcp` route through your HTTPS ingress. The local default is `http://127.0.0.1:8000/mcp`. The process accepts `HOST` and `PORT` from the environment. In step 4 choose **Server URL** and enter your reachable HTTPS URL including `/mcp`. GitHub hosts the source files. A running MCP endpoint or tunnel is required for interactive ChatGPT use. After changing the tool schema or UI resource, restart the server, choose **Refresh** in the ChatGPT plugin, and start a new conversation. [Connect and test a plugin](https://developers.openai.com/plugins/deploy/connect-chatgpt)
+
+## Read the Railway logs
+
+In the service’s active deployment logs, search for `mcp.tool.finish` to see the outcome, elapsed milliseconds, post count, image count, and whether a gift was selected. The opaque `profile` value links lookups within the same server process. `instagram.cache` shows whether an additional Apify run was needed. `instagram.apify.finish` isolates time spent pulling posts. `mcp.resource.read` shows that ChatGPT fetched the HTML and records its size. If the gift tool returned `ready` and the resource was read, inspect the card in ChatGPT to verify its client-side render.
+
+On Railway the widget loads artwork from the service’s public origin and delivers a smaller HTML response. When running locally without `RAILWAY_PUBLIC_DOMAIN`, the HTML uses embedded images.
 
 ## Where the evidence and photos come from
 
