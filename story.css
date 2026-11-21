@@ -163,6 +163,9 @@
 #giftOptions button{display:grid;align-content:space-between;gap:4px;padding:8px;text-align:left;border:1px solid #a493cc;border-radius:7px;background:#f7efff;line-height:1.25;font-size:.78rem;overflow-wrap:anywhere}
 #giftOptions button[aria-pressed="true"]{background:var(--ink);color:var(--cream);border-color:var(--ink)}
 #giftOptions span{font-size:.7rem}
+#giftOptions small{font-size:.66rem;font-weight:650}
+#citations{align-items:center}
+#citations span{font-size:.76rem;font-weight:650}
 #avatarEmpty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:12px;color:#174334;font-weight:750;background:linear-gradient(145deg,#e8d9fa,#f7f5e6)}
 #avatarLookLabel{font-size:.72rem;color:#e9defe}
 #avatarLook{max-width:100%;color:var(--ink);background:#f1eafb;border:0;border-radius:6px;padding:6px;font:inherit;font-size:.77rem}

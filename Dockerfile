@@ -6,7 +6,7 @@ ENV SHOPSHOP_BUYER_REST_URL=https://rochester-tear-ensemble-float.trycloudflare.
 ENV SHOPSHOP_PRESENTATION_PROFILES=johnmayer,oliviadeano
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-COPY server.py story_data.py instagram.py public_instagram.py buyer_inquiry.py avatar.py ./
+COPY server.py story_data.py instagram.py public_instagram.py buyer_inquiry.py avatar.py gift_reasoning.py ./
 COPY story.html story.css story.js recap.js turntable.js brand-corpus.json ./
 COPY assets/ ./assets/
 USER 10001

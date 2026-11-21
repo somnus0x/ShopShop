@@ -203,6 +203,11 @@ function renderGiftOptions(show){
     const detail=gift.over_budget_thb?' · Over budget by ฿'+gift.over_budget_thb:(gift.catalog_fallback?' · Catalog option':'');
     price.textContent='฿'+gift.price.toLocaleString('en-TH')+detail;
     button.append(name,price);
+    if(gift.evidence?.length){
+      const posts=document.createElement('small');
+      posts.textContent='Matched to '+gift.evidence.map(i=>'Post '+(i+1)).join(' · ');
+      button.append(posts);
+    }
     button.onclick=()=>{
       if(giftChoice===option)return;
       giftChoice=option;equipped=false;render();persist();
@@ -313,7 +318,7 @@ function render(){
   $('expanded').classList.toggle('featured',summary);
   $('close').hidden=summary;
   $('giftLabel').hidden=!summary && !output.mock_gifts;
-  $('giftLabel').textContent=s?.over_budget_thb?'Closest to your budget':s?.catalog_fallback?'Closest catalog option':(output.mock_gifts?'Sample gift':'Gift pick');
+  $('giftLabel').textContent=s?.over_budget_thb?'Over budget':s?.catalog_fallback?'Catalog option':(output.mock_gifts?'Sample gift':'Gift pick');
   $('shortReason').hidden=!summary;
   $('shortReason').textContent=summary && s ? s.short_reason : '';
   if($('reasonDetail').dataset.pick!==String(index)){
@@ -324,7 +329,11 @@ function render(){
   $('profileTop').classList.toggle('with-model',summary);
   if(!hasGift){$('expanded').hidden=true;$('notePanel').hidden=true;$('status').textContent='';return;}
   $('brand').textContent=s.brand;$('product').textContent=s.product;$('price').textContent='฿'+s.price.toLocaleString('en-TH')+(output.mock_gifts?' · Sample price':' · Listed price');
-  $('citations').replaceChildren(...(s.evidence||[]).map(i=>evidenceButton('Post '+(i+1),[i])));
+  const posts=s.evidence||[];
+  $('citations').hidden=!posts.length;
+  const label=document.createElement('span');
+  label.textContent='Matched to';
+  $('citations').replaceChildren(label,...posts.map(i=>evidenceButton('Post '+(i+1),[i])));
   const demoInquiry=embedded && output.demo_inquiry;
   const overage=s.eligible?'':'Over budget by ฿'+(s.price-output.budget).toLocaleString('en-TH');
   if(overage)$('price').textContent+=' · '+overage;
@@ -338,7 +347,7 @@ const avatarMessages = {
   pending: 'Creating the avatar. You can keep browsing gifts.',
   ready: 'Drag or use the arrows to rotate',
   failed: 'Couldn’t create the avatar.',
-  expired: 'This image expired. Create the avatar again.',
+  expired: 'This avatar is unavailable. Create it again.',
   unavailable: 'Avatar generation is unavailable.',
   busy: 'Another avatar is generating. Try again in a moment.',
   limit_reached: 'The demo has reached its avatar limit.',
@@ -363,7 +372,6 @@ function renderAvatar(){
   $('generateAvatar').textContent=avatarJob.job_id && !finished?'Check avatar status ↗':'Create avatar ↗';
   $('avatarStatus').hidden=!available || !avatarJob.status;
   $('avatarStatus').textContent=avatarMessages[avatarJob.status]||'';
-  $('pin').textContent=finished?(avatarJob.reference==='profile_photo'?'AI avatar · Profile photo':'AI avatar · Profile vibe'):(output.demo?'June’s style':(live?'Avatar for '+output.profile:'Sample avatar'));
   const sheet=$('avatarSheet');
   const src=finished?avatarJob.image_url:sampleAvatarSource;
   if(src && sheet.src!==src)sheet.src=src;

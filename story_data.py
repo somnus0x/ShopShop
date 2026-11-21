@@ -215,7 +215,7 @@ def gift_alternatives(stories, primary, budget_thb, indices):
         if budget_thb is not None and item["price"] > budget_thb:
             item["over_budget_thb"] = item["price"] - budget_thb
     return sorted(options.values(), key=lambda option: (
-        not option["eligible"], not option.get("evidence"), option.get("over_budget_thb", 0),
+        not option["eligible"], -len(option.get("evidence", [])), option.get("over_budget_thb", 0),
         (budget_thb-option["price"]) if option.get("catalog_fallback") and option["eligible"] and budget_thb is not None else 0,
     ))[:3]
 
@@ -235,6 +235,8 @@ _BAG_REASONS = {
     "overhills-motif-windbreaker-jacket": "A windbreaker they can layer on the road.",
     "overhills-rover-pants": "An everyday pair of pants for getting around on a trip.",
     "overhills-resorts-7-shorts": "Light shorts for a warm-weather trip.",
+    "overhills-bop-taper-tee": "An easy tee to layer while traveling or wear on a day out.",
+    "overhills-airmatte-tee": "A spare tee for a travel day or time outdoors.",
 }
 _TRAINING_REASONS = {
     "overhills-loadlite-5-shorts": "Training shorts for their next workout.",
@@ -253,6 +255,25 @@ _LIVE_REASONS = {"race": _TRAINING_REASONS, "gym": _TRAINING_REASONS,
                  }}
 
 
+def _gift_rank(gift, post_index=None):
+    evidence = gift.get("evidence", [])
+    score = gift.get("_fit_score", 55 if evidence else 0)
+    return (not gift["eligible"], post_index is not None and post_index not in evidence,
+            -score, gift["price"])
+
+
+def finalize_live_gifts(result):
+    for post_index, section in enumerate((result["overview"], *result["stories"]), start=-1):
+        options = section.pop("_gift_candidates", None)
+        if options is None:
+            continue
+        scope = None if post_index == -1 else post_index
+        section["gifts"] = sorted(options, key=lambda gift: _gift_rank(gift, scope))[:3]
+        for gift in section["gifts"]:
+            gift.pop("_fit_score", None)
+    result["overview"]["pick"] = result["overview"]["gifts"][0]
+
+
 def apply_live_catalog(result, products, budget_thb):
     priced = [product for product in products if isinstance(product.get("price_thb"), int)
               and not isinstance(product["price_thb"], bool) and product["price_thb"] >= 0
@@ -268,21 +289,28 @@ def apply_live_catalog(result, products, budget_thb):
             overage = max(0, price - budget_thb) if budget_thb is not None else 0
             matches = [(i, _LIVE_REASONS.get(result["stories"][i]["cue"], {}).get(item)) for i in indices]
             evidence = [i for i, reason in matches if reason]
-            reason = next((reason for _, reason in matches if reason), "A catalog option close to the budget.")
-            priority = (bool(overage), overage, not evidence, price)
-            choices.append((priority, {
+            summary = next((reason for _, reason in matches if reason), "Another option near the budget.")
+            reason = summary
+            if evidence:
+                topic = VIBE_TOPICS.get(result["stories"][evidence[0]]["cue"], "places they shared").lower()
+                reason = f"The posts highlight {topic}. {summary}"
+            else:
+                reason = "This pick is based on price. The posts give little evidence about how it fits their style or activities."
+            choices.append({
                 "item": item, "product": product["name"], "brand": product["brand"] or "",
                 "price": price, "eligible": not overage, "over_budget_thb": overage,
-                "image_url": product.get("image_url"), "reason": reason, "short_reason": reason,
+                "image_url": product.get("image_url"), "reason": reason, "short_reason": summary,
                 "note": "Saw this and thought of you.", "evidence": evidence, "catalog_fallback": not evidence,
-            }))
-        return [choice for _, choice in sorted(choices, key=lambda entry: entry[0])[:3]]
+            })
+        return sorted(choices, key=_gift_rank)[:8]
 
     stories = result["stories"]
-    result["overview"]["gifts"] = picks(range(len(stories)))
+    result["overview"]["_gift_candidates"] = picks(range(len(stories)))
+    result["overview"]["gifts"] = result["overview"]["_gift_candidates"][:3]
     result["overview"]["pick"] = result["overview"]["gifts"][0]
     for index, story in enumerate(stories):
-        story["gifts"] = picks([index])
+        story["_gift_candidates"] = picks([index])
+        story["gifts"] = story["_gift_candidates"][:3]
     result["mock_gifts"] = False
     result["catalog_source"] = "merchant"
 

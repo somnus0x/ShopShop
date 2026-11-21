@@ -21,13 +21,14 @@ from starlette.responses import FileResponse, JSONResponse, Response
 
 import avatar
 import buyer_inquiry
+import gift_reasoning
 from instagram import instagram_posts
 from public_instagram import PRESENTATION_TTL, profile_log_id
-from story_data import PRODUCTS, ROOT, apply_live_catalog, build_story, instagram_handle, post_permalink, resolve_profile_query
+from story_data import PRODUCTS, ROOT, apply_live_catalog, build_story, finalize_live_gifts, instagram_handle, post_permalink, resolve_profile_query
 
-URI = "ui://shopshop/profile-gifts-v15.html"
+URI = "ui://shopshop/profile-gifts-v16.html"
 LEGACY_URIS = ("ui://shopshop/profile-gifts.html", *(
-    f"ui://shopshop/profile-gifts-v{version}.html" for version in range(7, 15)
+    f"ui://shopshop/profile-gifts-v{version}.html" for version in range(7, 16)
 ))
 PRESENTATION_AVATARS = {
     "johnmayer": "presentation-johnmayer.webp",
@@ -191,8 +192,8 @@ async def source_gifts(profile_url: str = "", posts: Annotated[list[Post], Field
     Use cue=place for a location-only caption. Use only public destinations, never home, workplace or inferred location.
     Use the overview to show the gift and its supporting captions. The card uses the
     buyer catalog when available and labels sample gifts if it uses the demo catalog. It shows three selectable gifts
-    on the overview and on each post. If all supported gifts exceed the budget,
-    the widget shows the closest match and the exact overage. Whenever status is ready,
+    on the overview and on each post. It favors fit within the budget, and shows
+    the exact overage for any higher-priced suggestion. Whenever status is ready,
     present the interactive widget as the entire answer. The card already shows the recap,
     gift, price, and next action. Do not repeat them in chat or add a separate shopping list.
     When using results from read_instagram_posts, set use_connected_instagram=True and
@@ -253,11 +254,14 @@ async def source_gifts(profile_url: str = "", posts: Annotated[list[Post], Field
             result["network"] = "Instagram · Cached posts"
     username = instagram_handle(profile_url)
     prepared = prepared_avatar(username)
-    if result["status"] == "ready" and not demo and username and (prepared or avatar.enabled(ASSET_ORIGIN)):
+    saved = None
+    if result["status"] == "ready" and ASSET_ORIGIN and not demo and username:
+        saved = prepared or await asyncio.to_thread(avatar.current, username, ASSET_ORIGIN)
+    if result["status"] == "ready" and not demo and username and (saved or avatar.enabled(ASSET_ORIGIN)):
         result["avatar_enabled"] = True
         cues = sorted({story["cue"] for story in result["stories"]})
         profile = profile_log_id(username)
-        job = prepared or avatar.current(profile, ASSET_ORIGIN)
+        job = saved
         if use_connected_instagram:
             job = job or avatar.start(profile, username, cues, ASSET_ORIGIN)
             logger.info("avatar.card profile=%s status=%s", profile, job["status"])
@@ -294,12 +298,15 @@ async def source_gifts(profile_url: str = "", posts: Annotated[list[Post], Field
             if file.mime_type and file.mime_type.lower() not in {"image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"}:
                 continue
             images[story_ids[post["caption"].strip()]] = {"file_id": file.file_id}
+        await gift_reasoning.enrich(result, images)
+        if result.get("catalog_source") == "merchant":
+            finalize_live_gifts(result)
     content = [] if result["status"] == "ready" else [TextContent(type="text", text=json.dumps(result, ensure_ascii=False))]
     return CallToolResult(structuredContent=result, content=content, _meta={**metadata, "post_images": images})
 
 @app.custom_route("/healthz", methods=["GET"], include_in_schema=False)
 async def health(_request):
-    return JSONResponse({"status": "ok"})
+    return JSONResponse({"status": "ok", "avatar_storage": "volume" if os.getenv("RAILWAY_VOLUME_MOUNT_PATH") else "deployment"})
 
 
 @app.custom_route("/widget-inquiry", methods=["POST"], include_in_schema=False)
@@ -426,10 +433,10 @@ async def prepare_profile_avatar(profile_url: Annotated[str, Field(max_length=20
     username = instagram_handle(resolve_profile_query(profile_url))
     if prepared_avatar(username):
         return {"status": "ready"}
-    if not username or not avatar.enabled(ASSET_ORIGIN):
+    if not username or not ASSET_ORIGIN:
         return {"status": "unavailable"}
     profile = profile_log_id(username)
-    result = avatar.current(profile, ASSET_ORIGIN) or avatar.start(profile, username, cues, ASSET_ORIGIN)
+    result = await asyncio.to_thread(avatar.current, username, ASSET_ORIGIN) or avatar.start(profile, username, cues, ASSET_ORIGIN)
     started = monotonic()
     result = await avatar.wait(result, ASSET_ORIGIN, 25)
     logger.info("avatar.prepare profile=%s status=%s elapsed_ms=%d", profile, result["status"],
@@ -498,7 +505,7 @@ async def generated_avatar(request):
     filename = request.path_params["filename"]
     if not re.fullmatch(r"[a-f0-9]{32}\.webp", filename):
         return JSONResponse({"error": "Avatar not found"}, status_code=404)
-    picture = avatar.artwork(filename.removesuffix(".webp"))
+    picture = await asyncio.to_thread(avatar.artwork, filename.removesuffix(".webp"))
     if not picture:
         return JSONResponse({"error": "Avatar not found"}, status_code=404)
     return Response(picture, media_type="image/webp", headers={

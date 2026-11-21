@@ -3,8 +3,13 @@ import asyncio
 import base64
 import logging
 import os
+import json
+import sqlite3
+from contextlib import closing, contextmanager
+from pathlib import Path
+from tempfile import gettempdir
 from threading import Lock, Thread
-from time import monotonic
+from time import monotonic, time
 from uuid import uuid4
 from urllib.parse import urlsplit
 
@@ -22,6 +27,47 @@ DAY_SECONDS = 86400
 _jobs = {}
 _job_keys = {}
 _lock = Lock()
+
+
+@contextmanager
+def _storage():
+    mounted = os.getenv("RAILWAY_VOLUME_MOUNT_PATH")
+    default = Path(mounted or gettempdir()) / "shopshop-avatars"
+    directory = Path(os.getenv("SHOPSHOP_AVATAR_DIR") or default)
+    directory.mkdir(mode=0o700, parents=True, exist_ok=True)
+    with closing(sqlite3.connect(directory / "avatars.sqlite3", timeout=3)) as db, db:
+        db.execute("""CREATE TABLE IF NOT EXISTS avatars (
+            id TEXT PRIMARY KEY, profile TEXT NOT NULL, cues TEXT NOT NULL, look TEXT NOT NULL,
+            reference TEXT NOT NULL, picture BLOB NOT NULL, completed REAL NOT NULL
+        )""")
+        db.execute("CREATE INDEX IF NOT EXISTS avatars_profile ON avatars (profile, completed)")
+        yield db
+
+
+def _saved(columns, where, parameters):
+    try:
+        with _storage() as db:
+            return db.execute(f"SELECT {columns} FROM avatars WHERE {where} ORDER BY completed DESC LIMIT 1",
+                              parameters).fetchone()
+    except (sqlite3.Error, OSError) as exc:
+        logger.warning("avatar.storage.read type=%s", type(exc).__name__)
+        return None
+
+
+def _save(job_id, username, cues, look, reference, picture):
+    try:
+        with _storage() as db:
+            db.execute("INSERT INTO avatars VALUES (?, ?, ?, ?, ?, ?, ?)",
+                       (job_id, username, json.dumps(cues), look, reference, picture, time()))
+        return True
+    except (sqlite3.Error, OSError) as exc:
+        logger.warning("avatar.storage.write type=%s", type(exc).__name__)
+        return False
+
+
+def _ready(job_id, origin, reference):
+    return {"status": "ready", "job_id": job_id, "reference": reference,
+            "image_url": f"{origin}/widget-avatar/{job_id}.webp"}
 
 
 def quota():
@@ -109,9 +155,11 @@ def _generate(job_id, key, username, cues, look):
         picture = base64.b64decode(response.json()["data"][0]["b64_json"], validate=True)
         if not picture.startswith(b"RIFF") or picture[8:12] != b"WEBP" or len(picture) > 8_000_000:
             raise ValueError("Invalid WebP result")
+        reference = "profile_photo" if photo else "style"
+        saved = _save(job_id, username, cues, look, reference, picture)
         with _lock:
-            _jobs[job_id].update(status="ready", picture=picture, reference="profile_photo" if photo else "style")
-        logger.info("avatar.finish elapsed_ms=%d bytes=%d", (monotonic()-started)*1000, len(picture))
+            _jobs[job_id].update(status="ready", picture=picture, reference=reference)
+        logger.info("avatar.finish elapsed_ms=%d bytes=%d saved=%s", (monotonic()-started)*1000, len(picture), saved)
     except Exception as exc:
         code = exc.response.status_code if isinstance(exc, httpx.HTTPStatusError) else "-"
         with _lock:
@@ -121,8 +169,6 @@ def _generate(job_id, key, username, cues, look):
 
 
 def start(profile_key, username, cues, origin, look="neutral"):
-    if not enabled(origin):
-        return {"status": "unavailable"}
     cues = tuple(sorted(set(cues)))
     job_key = (profile_key, cues, look)
     with _lock:
@@ -133,12 +179,17 @@ def start(profile_key, username, cues, origin, look="neutral"):
         prior = _job_keys.get(job_key)
         if prior:
             return _job_result(prior, origin)
+        saved = _saved("id, reference", "profile = ? AND cues = ? AND look = ?", (username, json.dumps(cues), look))
+        if saved:
+            return _ready(saved[0], origin, saved[1])
+        if not enabled(origin):
+            return {"status": "unavailable"}
         if len(_jobs) >= quota():
             return {"status": "limit_reached"}
         if any(job["status"] == "pending" for job in _jobs.values()):
             return {"status": "busy"}
         job_id = uuid4().hex
-        _jobs[job_id] = {"status": "pending", "expires": now + DAY_SECONDS, "key": job_key}
+        _jobs[job_id] = {"status": "pending", "expires": now + DAY_SECONDS, "key": job_key, "username": username}
         _job_keys[job_key] = job_id
         Thread(target=_generate, args=(job_id, os.environ["OPENAI_API_KEY"], username, cues, look), daemon=True).start()
         logger.info("avatar.start themes=%d", len(cues))
@@ -148,13 +199,13 @@ def start(profile_key, username, cues, origin, look="neutral"):
 def _job_result(job_id, origin):
     job = _jobs.get(job_id)
     if not job or job["expires"] <= monotonic():
-        return {"status": "expired"}
+        saved = _saved("reference", "id = ?", (job_id,))
+        return _ready(job_id, origin, saved[0]) if saved else {"status": "expired"}
     result = {"status": job["status"], "job_id": job_id}
     if job["status"] == "pending":
         result["status_url"] = f"{origin}/widget-avatar-job?id={job_id}"
     elif job["status"] == "ready":
-        result["reference"] = job["reference"]
-        result["image_url"] = f"{origin}/widget-avatar/{job_id}.webp"
+        return _ready(job_id, origin, job["reference"])
     return result
 
 
@@ -174,17 +225,21 @@ async def wait(result, origin, timeout):
     return result
 
 
-def current(profile_key, origin):
+def current(username, origin):
     with _lock:
         for job_id, job in reversed(_jobs.items()):
-            if job["key"][0] == profile_key:
+            if job["username"] == username:
                 result = _job_result(job_id, origin)
                 if result["status"] != "expired":
                     return result
-    return None
+    saved = _saved("id, reference", "profile = ?", (username,))
+    return _ready(saved[0], origin, saved[1]) if saved else None
 
 
 def artwork(job_id):
     with _lock:
         job = _jobs.get(job_id)
-        return job.get("picture") if job and job["expires"] > monotonic() else None
+        if job and job.get("picture"):
+            return job["picture"]
+    saved = _saved("picture", "id = ?", (job_id,))
+    return saved[0] if saved else None

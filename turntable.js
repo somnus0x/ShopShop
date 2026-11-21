@@ -1,4 +1,5 @@
 const canvas=$('scene'),ctx=canvas.getContext('2d'),sheet=$('avatarSheet') || new Image();
+const pin=$('pin');
 const thaiPortrait=document.documentElement.lang==='th';
 let yaw=0, pan=0, start=null, downYaw=0, animation=0;
 const reduce=window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -15,7 +16,7 @@ function draw(){
   if(left>0)ctx.drawImage(sheet,sx+1,sy,2,fh,0,0,left+1,h);
   if(w>left+dw)ctx.drawImage(sheet,sx+fw-3,sy,2,fh,left+dw-1,0,w-left-dw+1,h);
   ctx.drawImage(sheet,sx,sy,fw,fh,left,0,dw,h);
-  $('pin').style.transform='translateX('+(reduce.matches?0:pan*16)+'px)';
+  if(pin)pin.style.transform='translateX('+(reduce.matches?0:pan*16)+'px)';
   canvas.setAttribute('aria-label',thaiPortrait?'ตัวละครตัวอย่าง มุมที่ '+(frame+1)+' จาก 8':'Style portrait, view '+(frame+1)+' of 8');
 }
 function redraw(){if(!animation)animation=requestAnimationFrame(draw);}

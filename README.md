@@ -12,13 +12,13 @@ Open `index.html` for a standalone design preview. To see the card inside a conv
 
 ### Try the mock gift flow
 
-Paste a public profile into `@shopshop`. Review the source posts, choose one of the three gifts, and write a gift note. The standalone preview saves the gift for the current session. The ChatGPT widget can also send a demo inquiry to Supason. If every option exceeds the budget, the card shows the closest matches and their exact overage.
+Paste a public profile into `@shopshop`. Review the source posts, choose one of the three gifts, and write a gift note. ShopShop uses the OpenAI API to compare gifts against the posts and explain the matches. It ranks fit ahead of price within the budget and shows exact overages if it suggests higher-priced options.
 
 ### Generate a profile character
 
 Set `OPENAI_API_KEY` on Railway. In the live Instagram flow, `source_gifts` starts the character while it loads the catalog. The recap, posts, and gifts can open immediately. The character panel checks the backend and loads the eight-angle image when it is ready. If generation fails or reaches the quota, the panel shows the reason. Cards built from manually supplied captions can start the character from the widget.
 
-`SHOPSHOP_AVATAR_DAILY_LIMIT` controls the per-process generation quota and defaults to `3` per rolling 24 hours. Set it to `0` to disable generation. The live flow reuses the existing avatar for a profile. Each new job can use a separate $0.03 Apify profile-photo lookup and OpenAI Image API credits. Results and the quota reset when the Railway process restarts.
+`SHOPSHOP_AVATAR_DAILY_LIMIT` controls the per-process generation quota and defaults to `3` per rolling 24 hours. Set it to `0` to disable generation. Completed avatars retain their original URLs and carry no time limit. Attach a writable Railway volume to the ShopShop service to keep generated avatars across deploys. The app detects `RAILWAY_VOLUME_MOUNT_PATH` and saves completed images there. `SHOPSHOP_AVATAR_DIR` can point to a different writable directory. Each new job can use a separate $0.03 Apify profile-photo lookup and OpenAI Image API credits.
 
 ### Adjust the Instagram scan
 
