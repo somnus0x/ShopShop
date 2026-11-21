@@ -137,3 +137,6 @@
 .story[data-tone="summary"] #breakdown{order:4}
 .story[data-tone="summary"] .storyfoot{order:5}
 @media(max-width:460px){#vibe p{font-size:.78rem}}
+#breakdown #generateAvatar{width:100%;border:1px solid #d4c3ff;color:#e9defe;border-radius:9px;font-size:.82rem;padding:4px 8px}
+#breakdown #generateAvatar:disabled{opacity:.6;cursor:wait}
+#avatarStatus{font-size:.74rem;color:#e9defe;line-height:1.35}

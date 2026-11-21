@@ -14,6 +14,12 @@ Open `index.html` for a standalone design preview. To see the card inside a conv
 
 Paste a public profile into `@shopshop`. Review real source posts, pick the example gift, add a note, and select **ยืนยันของขวัญตัวอย่าง**. The confirmation stays in the widget and uses the demo catalog. If the relevant items all cost more than the stated budget, the card shows the closest match and its overage. ChatGPT is instructed to show the interactive card without a duplicate text recap.
 
+### Generate a profile character
+
+Set `OPENAI_API_KEY` on the Railway service. Real Instagram cards then show **สร้างตัวละครจาก Vibe**. The button starts one Image API request with the post topics. The widget can be used while the generated sprite sheet loads and can rotate through its eight views. The generated artwork is a fictional style illustration based on topics such as travel or fitness.
+
+`SHOPSHOP_AVATAR_DAILY_LIMIT` controls the per-process generation quota and defaults to `3` per rolling 24 hours. Set it to `0` to disable the action. Identical profile and topic sets reuse their existing job during that window. The prototype stores results in the Railway process, so results and the quota reset when that process restarts. A generation request consumes OpenAI API credits.
+
 ### Adjust the Instagram scan
 
 Set these variables in Railway and deploy the changes. Every lookup uses the configured post limit and charge cap.

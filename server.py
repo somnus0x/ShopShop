@@ -13,8 +13,9 @@ from typing import Annotated, Any, Literal
 from mcp.server.fastmcp import FastMCP
 from mcp.types import CallToolResult, TextContent, ToolAnnotations
 from pydantic import BaseModel, ConfigDict, Field
-from starlette.responses import FileResponse, JSONResponse
+from starlette.responses import FileResponse, JSONResponse, Response
 
+import avatar
 import buyer_inquiry
 from instagram import instagram_posts
 from public_instagram import profile_log_id
@@ -161,6 +162,8 @@ def source_gifts(profile_url: str = "", posts: Annotated[list[Post], Field(max_l
     result = build_story(profile_url, evidence, demo, budget_thb)
     if imported and result["status"] == "ready":
         result["from_instagram"] = True
+    if result["status"] == "ready" and not demo and instagram_handle(profile_url) and avatar.enabled(ASSET_ORIGIN):
+        result["avatar_enabled"] = True
     if result["status"] == "ready" and buyer_inquiry.configured():
         result["merchant_demo"] = True
     images = {}
@@ -270,6 +273,41 @@ async def refresh_demo_inquiry(ticket: Annotated[str, Field(max_length=250)]) ->
     logger.info("merchant.inquiry.refresh status=%s replies=%d elapsed_ms=%d", result["status"],
                 len(result.get("replies", [])), (monotonic()-started)*1000)
     return result
+
+
+AvatarCue = Literal["race", "gym", "travel", "trip", "dogs", "plaid", "flowers", "place"]
+
+
+@app.tool(meta=BUYER_WIDGET, annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False,
+          idempotentHint=True, openWorldHint=True))
+def generate_profile_avatar(profile_url: Annotated[str, Field(max_length=2048)],
+                            cues: Annotated[list[AvatarCue], Field(max_length=6)]) -> dict[str, Any]:
+    """Start one paid OpenAI image generation after the user presses Generate character."""
+    username = instagram_handle(profile_url)
+    if not username:
+        return {"status": "unavailable"}
+    return avatar.start(profile_log_id(username), cues, ASSET_ORIGIN)
+
+
+@app.tool(meta=BUYER_WIDGET, annotations=ToolAnnotations(readOnlyHint=True, openWorldHint=False))
+def profile_avatar_status(job_id: Annotated[str, Field(pattern=r"^[a-f0-9]{32}$")]) -> dict[str, Any]:
+    """Check an in-progress character generation started by the widget."""
+    return avatar.status(job_id, ASSET_ORIGIN)
+
+
+@app.custom_route("/widget-avatar/{filename}", methods=["GET", "HEAD"], include_in_schema=False)
+async def generated_avatar(request):
+    filename = request.path_params["filename"]
+    if not re.fullmatch(r"[a-f0-9]{32}\.webp", filename):
+        return JSONResponse({"error": "Avatar not found"}, status_code=404)
+    picture = avatar.artwork(filename.removesuffix(".webp"))
+    if not picture:
+        return JSONResponse({"error": "Avatar not found"}, status_code=404)
+    return Response(picture, media_type="image/webp", headers={
+        "Access-Control-Allow-Origin": "*",
+        "Cross-Origin-Resource-Policy": "cross-origin",
+        "Cache-Control": "private, max-age=3600",
+    })
 
 
 def component(asset_origin=""):
