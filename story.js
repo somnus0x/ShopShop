@@ -12,12 +12,13 @@ function clearShare() {
 }
 async function preparePoster(data) {
   const model=recapModel(data);
-  const art=data.demo ? $('juneArt') : document.querySelector('.brandmark');
-  let image=art;
-  try{await art.decode();}catch{image=null;}
+  const avatar = model.demo ? $('avatarSheet') : null;
+  const giftArt = model.gift?.item==='clover' ? $('cloverArt') : null;
+  const loadImage = photo => photo?.decode().then(()=>photo,()=>null);
+  const [avatarImage,giftImage] = await Promise.all([loadImage(avatar),loadImage(giftArt)]);
   if(output!==data)return;
   const paper=document.createElement('canvas');paper.width=1080;paper.height=1350;
-  paintRecap(paper.getContext('2d'),model,image);
+  paintRecap(paper.getContext('2d'),model,avatarImage,giftImage);
   const png=paper.toDataURL('image/png');
   if(output!==data)return;
   posterData=png;
@@ -62,9 +63,9 @@ function displayPhoto(url,credit){
   $('photoCredit').textContent=credit;$('sourceMedia').hidden=false;
 }
 async function showPostPhoto(){
-  const summary=index===-1, ref=imageRefs[index]?.file_id;
+  const summary=index===-1, {file_id:ref,image_url:remotePhoto}=imageRefs[index]||{};
   const local=localPhotos.get(index);
-  const key=JSON.stringify([index,ref,local?.version]);
+  const key=JSON.stringify([index,ref,remotePhoto,local?.version]);
   if(showingPhoto===key)return;
   showingPhoto=key;
   const token=++photoRequest;
@@ -74,7 +75,7 @@ async function showPostPhoto(){
   $('sourceLink').hidden=!link;
   if(link)$('sourceLink').href=link;else $('sourceLink').removeAttribute('href');
   if(summary)return;
-  $('attachPhoto').textContent=local || ref?'เปลี่ยนภาพของโพสต์นี้':'เพิ่มภาพของโพสต์นี้ ＋';
+  $('attachPhoto').textContent=local || ref || remotePhoto?'เปลี่ยนภาพของโพสต์นี้':'เพิ่มภาพของโพสต์นี้ ＋';
   if(local){displayPhoto(local.url,'ภาพที่แนบกับโพสต์ '+(index+1));return;}
   if(ref && window.openai?.getFileDownloadUrl){
     try{
@@ -84,7 +85,8 @@ async function showPostPhoto(){
       if(new URL(raw).protocol!=='https:')throw new Error();
       displayPhoto(raw,'ภาพต้นทางจากไฟล์ที่แชร์ในแชต');return;
     }catch{if(token===photoRequest)$('photoStatus').textContent='เปิดภาพจากแชตไม่ได้ แนบภาพของโพสต์นี้ได้';}
-  }else if(output.demo && index===0)displayPhoto($('juneArt').src,'ภาพประกอบโปรไฟล์สมมติของจูน');
+  }else if(remotePhoto)displayPhoto(remotePhoto,'ภาพจากโพสต์ Instagram');
+  else if(output.demo && index===0)displayPhoto($('juneArt').src,'ภาพประกอบโปรไฟล์สมมติของจูน');
 }
 $('postPhoto').onerror=()=>{
   if(!$('sourceMedia').hidden){
@@ -151,18 +153,15 @@ function render(){
   const overview=output.overview, summary=index===-1, total=output.stories.length;
   const s=activePick(), source=output.stories[index];
   showPostPhoto();
-  $('meta').textContent=output.demo?'โปรไฟล์สมมติ · เดโม':'จากโพสต์ที่แชร์ในแชต';
+  $('meta').textContent=output.demo?'โปรไฟล์สมมติ · เดโม':(output.from_instagram?'จากบัญชี Instagram ที่เชื่อมไว้':'จากโพสต์ที่แชร์ในแชต');
   $('handle').textContent=output.demo?'จูน · '+output.network:output.network+' · ข้อความจากโพสต์';
   $('counter').textContent=summary?'ภาพรวม · '+total+' โพสต์':(index+1)+' / '+total;
   $('segments').replaceChildren(...output.stories.map((_,i)=>{const bar=document.createElement('i');if(summary||i<=index)bar.className='on';return bar;}));
   $('quote').textContent=summary?overview.headline:source.caption;
-  $('recapArt').hidden=!summary;
-  $('recapArt').dataset.cover=output.demo?'june':'brand';
-  $('mixLabel').hidden=!summary;$('mixLegend').hidden=!summary;$('sharing').hidden=!summary;
-  $('recapDetail').hidden=!summary;
+  $('breakdown').hidden=!summary;$('sharing').hidden=!summary;
   $('sticker').hidden=summary;
   $('sticker').textContent=summary?'':source.glyph;
-  $('surface').setAttribute('aria-labelledby',summary?'handle quote mixLegend recapDetail cue':'quote cue');
+  $('surface').setAttribute('aria-labelledby',summary?'quote cue':'quote');
   $('cue').textContent=summary?'แตะเพื่อดูโพสต์ที่มา':source.title;
   $('handle').textContent=summary?'ภาพรวมของ'+output.profile:$('handle').textContent;
   const story=document.querySelector('.story');story.dataset.tone=summary?'summary':String(index%3);
@@ -184,12 +183,22 @@ function render(){
     }));
     $('likesTitle').hidden=!overview.likes.length;
     const model=recapModel(output);
-    $('recapArt').style.backgroundImage=ringGradient(model);
-    $('juneArt').hidden=!output.demo;
-    $('recapDetail').textContent=model.place;
-    $('mixLegend').replaceChildren(...model.groups.map(g=>{
-      const chip=document.createElement('span');
-      chip.style.setProperty('--dot',g.color);chip.textContent=g.label+' '+g.count;return chip;
+    const destination=overview.places.find(p=>p.relation==='favorite') || overview.places[0];
+    const placeButton=$('recapDetail');
+    placeButton.hidden=!destination;
+    placeButton.textContent=model.place;
+    placeButton.onclick=()=>{jump(destination.posts[0]);$('surface').focus();};
+    $('mixLegend').replaceChildren(...model.groups.map(group=>{
+      const bar=evidenceButton(group.label,group.posts);
+      const count=document.createElement('strong');
+      count.textContent=group.count+' / '+model.total;
+      const meter=document.createElement('span');
+      meter.className='vibe-meter';
+      meter.setAttribute('aria-hidden','true');
+      meter.style.setProperty('--share',group.count/model.total*100+'%');
+      meter.style.setProperty('--topic',group.color);
+      bar.append(count,meter);
+      return bar;
     }));
     $('whereTitle').hidden=!overview.places.length;
     $('places').replaceChildren(...overview.places.map(place=>{
@@ -203,6 +212,8 @@ function render(){
   $('open').textContent=hasGift?'เห็นโพสต์นี้แล้ว ให้อะไรดี? ↗':(summary?'ยังไม่มีของที่เข้ากับโพสต์และงบนี้':'โพสต์นี้ให้เบาะแสเรื่องสถานที่');
   $('open').disabled=!hasGift;
   const showGift=expanded || (summary && hasGift);
+  $('giftVisual').hidden=s?.item!=='clover';
+  $('giftLayout').classList.toggle('with-photo',s?.item==='clover');
   $('open').hidden=showGift;$('expanded').hidden=!showGift;
   $('expanded').classList.toggle('featured',summary);
   $('close').hidden=summary;

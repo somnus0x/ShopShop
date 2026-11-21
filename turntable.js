@@ -1,10 +1,10 @@
-const canvas=$('scene'),ctx=canvas.getContext('2d'),sheet=new Image();
+const canvas=$('scene'),ctx=canvas.getContext('2d'),sheet=$('avatarSheet') || new Image();
 const thaiPortrait=document.documentElement.lang==='th';
 let yaw=0, pan=0, start=null, downYaw=0, animation=0;
 const reduce=window.matchMedia('(prefers-reduced-motion: reduce)');
 function draw(){
   animation=0;
-  if(!sheet.naturalWidth)return;
+  if(!sheet.naturalWidth||!canvas.clientWidth||!canvas.clientHeight)return;
   const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(window.devicePixelRatio||1,2);
   if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);}
   ctx.setTransform(dpr,0,0,dpr,0,0);
@@ -19,7 +19,9 @@ function draw(){
   canvas.setAttribute('aria-label',thaiPortrait?'ตัวละครจูน มุมที่ '+(frame+1)+' จาก 8':'Style portrait, view '+(frame+1)+' of 8');
 }
 function redraw(){if(!animation)animation=requestAnimationFrame(draw);}
-sheet.onload=redraw;sheet.src='assets/turntable.webp';
+sheet.onload=redraw;
+if(!sheet.getAttribute('src'))sheet.src='assets/turntable.webp';
+if(sheet.complete)redraw();
 new ResizeObserver(redraw).observe(canvas);
 canvas.onpointerdown=e=>{if(e.button!==0)return;start=e.clientX;downYaw=yaw;canvas.setPointerCapture(e.pointerId);};
 canvas.onpointermove=e=>{
