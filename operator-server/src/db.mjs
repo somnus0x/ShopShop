@@ -4,7 +4,13 @@ import { dirname, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 
 export const RECIPIENT = 'supasonk';
-export const TEST_MESSAGE = 'Hi Supason! This is an AI-assisted shopping assistant test, sent with permission from this account’s owner. Could you reply “test received”? This is only a test; no purchase or payment is involved.';
+export const TEST_MESSAGE = [
+  'ShopShop | Test Inquiry',
+  'Dear Supason,',
+  'This is a test message from ShopShop, an AI-assisted shopping assistant, sent with permission from this account’s owner.',
+  'Please reply “test received” to confirm receipt. This is a demonstration only; no purchase or payment is involved.',
+  'Thank you for your assistance.\n\nKind regards,\nShopShop',
+].join('\n\n');
 export const DEFAULT_DB = resolve(process.env.POC_DATA_DIR || '.data', 'shopping-poc.sqlite');
 
 export class Store {

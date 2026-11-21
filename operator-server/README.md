@@ -102,6 +102,22 @@ The operator endpoint exposes `claim_product_inquiry`, `record_product_inquiry_s
 
 ## Trigger the authorized test
 
+### Scheduled demo payment follow-up
+
+The separate **ShopShop available reply follow-up** schedule checks the `@kawin.ac` conversation with `@supasonk` through Computer Use every 30 seconds during the November 21 demo. A new affirmative `available` reply triggers one message with randomized fictional customer, address and delivery details. The message uses a formal greeting and separate customer, address and delivery sections, and explicitly identifies the payment as simulated; this flow does not make a payment or arrange delivery. The schedule ends at midnight Asia/Bangkok, matching the original demo operator.
+
+The [follow-up worker instructions](docs/payment-followup-worker.txt) specify the account checks, new-message baseline, keyword handling and recovery procedure. `scripts/supasonk-payment-followup.mjs` stores each source message identity and exact generated response in `.data/supasonk-payment-followups.sqlite`. Only the first atomic preparation permits sending. Repeated or uncertain attempts require visual inspection and cannot automatically resend. The original inquiry queue is independent.
+
+```sh
+node scripts/supasonk-payment-followup.mjs status
+node scripts/supasonk-payment-followup.mjs list
+node scripts/supasonk-payment-followup.mjs --help
+```
+
+The local Mac must remain awake with Computer Use and the intended Instagram session available. A scheduled interval is a polling target; a run may take longer. Local helper tests do not establish that an Instagram reply was sent.
+
+### Original single test
+
 ```sh
 npm run poc -- status
 npm run poc -- trigger
@@ -112,7 +128,18 @@ npm run poc -- inquiry
 
 The exact message is:
 
-> Hi Supason! This is an AI-assisted shopping assistant test, sent with permission from this account’s owner. Could you reply “test received”? This is only a test; no purchase or payment is involved.
+> ShopShop | Test Inquiry
+>
+> Dear Supason,
+>
+> This is a test message from ShopShop, an AI-assisted shopping assistant, sent with permission from this account’s owner.
+>
+> Please reply “test received” to confirm receipt. This is a demonstration only; no purchase or payment is involved.
+>
+> Thank you for your assistance.
+>
+> Kind regards,  
+> ShopShop
 
 ## Database and execution
 

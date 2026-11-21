@@ -30,10 +30,15 @@ export const productInquirySchemas = {
 function inquiryMessage(inquiry) {
   if (inquiry.product_id === 'demo-supasonk' && inquiry.merchant === 'supasonk') {
     return [
-      'Hi Supason, I’m reaching out on behalf of ShopShop, a shopping assistant. We’re testing an inquiry for the ' + inquiry.product_name + '. Could you reply “available” and, if you’re happy to help, send a sample QR image with no payment details? There’s no real order or payment for this test.',
-      'Demo reference: ' + inquiry.id,
+      'ShopShop | Product Availability Inquiry',
+      'Dear Supason,',
+      'We are contacting you on behalf of ShopShop, an AI-assisted shopping assistant, to request availability confirmation for the following product as part of our demonstration.',
+      'Product: ' + inquiry.product_name + '\nInquiry reference: ' + inquiry.id,
+      'Please reply “available” if the item is in stock. If you wish to participate in the QR test, please also share a sample QR image that contains no payment details.',
+      'This is a demonstration inquiry only. No actual order or payment is involved.',
+      'Thank you for your assistance.\n\nKind regards,\nShopShop',
       'About: https://shopshop.example/about\nPrivacy: https://shopshop.example/privacy\nOpt out: https://shopshop.example/opt-out',
-      'These are demo links and don’t open a live site. If you’d prefer no further test messages, reply STOP. Thanks for helping us test ShopShop.',
+      'The links above are demonstration placeholders and do not open a live website. To stop receiving test messages, please reply STOP.',
     ].join('\n\n');
   }
   return 'Hi! Is ' + inquiry.product_name + ' available, and what is the price? Reference: ' + inquiry.id + '.';
