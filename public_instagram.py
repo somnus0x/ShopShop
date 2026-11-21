@@ -26,7 +26,8 @@ def _lookup(username, token):
             raise ValueError("Instagram scan limits out of range")
     except (InvalidOperation, ValueError):
         logger.error("Invalid SHOPSHOP_APIFY_POST_LIMIT or SHOPSHOP_APIFY_MAX_CHARGE_USD")
-        return {"status": "instagram_unavailable", "message": "ยังใช้การค้นหา Instagram ไม่ได้ " + IMPORT_HELP}
+        return {"status": "instagram_unavailable", "reason": "invalid_scan_config",
+                "message": "ค่าจำนวนโพสต์หรืองบ Apify บนเซิร์ฟเวอร์ไม่ถูกต้อง " + IMPORT_HELP}
 
     # The Actor returns one account row in addition to the requested posts.
     row_limit = post_limit + 1
@@ -39,15 +40,38 @@ def _lookup(username, token):
             timeout=30,
         )
         rows = response.raise_for_status().json()
+    except httpx.HTTPStatusError as exc:
+        code = exc.response.status_code
+        logger.warning("Apify Instagram lookup returned HTTP %s", code)
+        if code in {401, 403}:
+            return {"status": "instagram_unavailable", "reason": "apify_access_denied",
+                    "message": "Apify ปฏิเสธการเข้าถึง ตรวจ APIFY_TOKEN และสิทธิ์ของบัญชี"}
+        if code == 402:
+            return {"status": "instagram_unavailable", "reason": "apify_budget_exhausted",
+                    "message": "Apify แจ้งปัญหาด้านเครดิตหรือวงเงิน ตรวจบัญชี Apify"}
+        return {"status": "instagram_unavailable", "reason": f"apify_http_{code}",
+                "message": f"Apify ดึงโพสต์ไม่สำเร็จ (HTTP {code}) " + IMPORT_HELP}
+    except httpx.TimeoutException:
+        logger.warning("Apify Instagram lookup timed out")
+        return {"status": "instagram_unavailable", "reason": "apify_timeout",
+                "message": "Apify ใช้เวลาดึงโพสต์เกินกำหนด " + IMPORT_HELP}
     except (httpx.HTTPError, ValueError):
-        return {"status": "instagram_unavailable", "message": "เปิดโพสต์จาก Instagram ไม่สำเร็จ " + IMPORT_HELP}
+        logger.warning("Apify Instagram lookup failed before a usable response")
+        return {"status": "instagram_unavailable", "reason": "apify_response_failed",
+                "message": "เชื่อมต่อ Apify หรืออ่านผลการดึงโพสต์ไม่สำเร็จ " + IMPORT_HELP}
     if not isinstance(rows, list):
-        rows = []
+        return {"status": "instagram_unavailable", "reason": "apify_unexpected_response",
+                "message": "รูปแบบผลจาก Apify ไม่ตรงกับที่ ShopShop ใช้ " + IMPORT_HELP}
     rows = [row for row in rows[:row_limit] if isinstance(row, dict)]
     account = next((row for row in rows if row.get("rowType") == "account"
                     and str(row.get("handle", "")).lower() == username), None)
-    if not account or account.get("isPrivate") is not False:
-        return {"status": "need_posts", "message": "ไม่พบโพสต์สาธารณะของโปรไฟล์นี้ " + IMPORT_HELP}
+    if account and account.get("isPrivate") is True:
+        return {"status": "need_posts", "reason": "private_profile",
+                "message": "บัญชี Instagram นี้เป็นแบบส่วนตัว " + IMPORT_HELP}
+    if not account:
+        logger.info("Apify did not return a verified public account row")
+        return {"status": "need_posts", "reason": "no_public_account_row",
+                "message": "Apify ไม่ส่งข้อมูลโปรไฟล์สาธารณะกลับมา " + IMPORT_HELP}
     posts = []
     for row in rows:
         if row.get("rowType") != "post" or str(row.get("accountHandle", "")).lower() != username:
@@ -62,7 +86,8 @@ def _lookup(username, token):
         posts.append({"caption": caption, "source_url": url, "image_url": preview_image({"media_url": image})})
     if posts:
         return {"status": "ready", "posts": posts[:post_limit]}
-    return {"status": "need_posts", "message": "ยังไม่พบแคปชันที่ใช้ได้ " + IMPORT_HELP}
+    return {"status": "need_posts", "reason": "no_captioned_posts",
+            "message": "Apify พบโปรไฟล์ แต่ไม่มีโพสต์พร้อมแคปชันให้ใช้ " + IMPORT_HELP}
 
 
 def public_posts(username, token, *, cached_only=False):

@@ -35,7 +35,8 @@ def instagram_posts(profile_url, *, cached_only=False):
     account_id = os.getenv("SHOPSHOP_IG_ACCOUNT_ID", "")
     token = os.getenv("SHOPSHOP_IG_ACCESS_TOKEN", "")
     if not token or not account_id.isascii() or not account_id.isdecimal():
-        return {"status": "need_posts", "message": "เวิร์กสเปซนี้ยังไม่ได้เชื่อมบัญชี Instagram Professional " + IMPORT_HELP}
+        return {"status": "need_posts", "reason": "apify_not_configured",
+                "message": "ยังไม่ได้ตั้ง APIFY_TOKEN บนเซิร์ฟเวอร์ ShopShop " + IMPORT_HELP}
     fields = "caption,permalink,media_type,media_url,thumbnail_url,children{media_type,media_url,thumbnail_url}"
     try:
         with httpx.Client(base_url=GRAPH_URL, headers={"Authorization": f"Bearer {token}"}, timeout=5.0) as client:
