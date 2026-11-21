@@ -215,6 +215,59 @@ def catalog_pick(item, budget_thb, reason, evidence):
             "catalog_fallback": not evidence}
 
 
+_BAG_REASONS = {
+    "aman-jekel-h-messenger": "กระเป๋าสะพายสำหรับพกของระหว่างเดินทาง",
+    "aman-fames-classic-duffle": "กระเป๋าดัฟเฟิลใส่เสื้อผ้าสำหรับออกทริป",
+    "overhills-motif-windbreaker-jacket": "เสื้อกันลมสำหรับใส่เป็นชั้นนอกระหว่างเดินทาง",
+    "overhills-rover-pants": "กางเกงสำหรับใส่เดินเที่ยว",
+    "overhills-resorts-7-shorts": "กางเกงขาสั้นสำหรับใส่ในทริปอากาศร้อน",
+}
+_TRAINING_REASONS = {
+    "overhills-loadlite-5-shorts": "กางเกงขาสั้นสำหรับใส่ซ้อม",
+    "overhills-grit-pace-45-shorts": "กางเกงขาสั้นสำหรับใส่วิ่ง",
+    "overhills-track-long-sleeve": "เสื้อแขนยาวสำหรับใส่ช่วงวอร์มอัป",
+    "overhills-cool-pace-singlet": "เสื้อกล้ามสำหรับใส่ซ้อมหรือวันแข่ง",
+    "overhills-airmatte-tee": "เสื้อยืดสำหรับใส่ซ้อมหรือพกไปเปลี่ยนหลังออกกำลังกาย",
+    "overhills-bop-taper-tee": "เสื้อยืดอีกตัวสำหรับสลับใส่ไปออกกำลังกาย",
+}
+_LIVE_REASONS = {"race": _TRAINING_REASONS, "gym": _TRAINING_REASONS,
+                 "trip": _BAG_REASONS, "travel": _BAG_REASONS, "place": _BAG_REASONS}
+
+
+def apply_live_catalog(result, products, budget_thb):
+    priced = [product for product in products if isinstance(product.get("price_thb"), int)
+              and not isinstance(product["price_thb"], bool) and product["price_thb"] >= 0
+              and product["product_id"] != "demo-supasonk"]
+    if not priced:
+        return
+
+    def picks(indices):
+        choices = []
+        for product in priced:
+            item = product["product_id"]
+            price = product["price_thb"]
+            overage = max(0, price - budget_thb) if budget_thb is not None else 0
+            matches = [(i, _LIVE_REASONS.get(result["stories"][i]["cue"], {}).get(item)) for i in indices]
+            evidence = [i for i, reason in matches if reason]
+            reason = next((reason for _, reason in matches if reason), "ตัวเลือกจากร้านในแคตตาล็อกใกล้งบที่ตั้งไว้")
+            priority = (bool(overage), overage, not evidence, price)
+            choices.append((priority, {
+                "item": item, "product": product["name"], "brand": product["brand"] or "",
+                "price": price, "eligible": not overage, "over_budget_thb": overage,
+                "image_url": product.get("image_url"), "reason": reason, "short_reason": reason,
+                "note": "เห็นชิ้นนี้แล้วนึกถึงเธอ", "evidence": evidence, "catalog_fallback": not evidence,
+            }))
+        return [choice for _, choice in sorted(choices, key=lambda entry: entry[0])[:3]]
+
+    stories = result["stories"]
+    result["overview"]["gifts"] = picks(range(len(stories)))
+    result["overview"]["pick"] = result["overview"]["gifts"][0]
+    for index, story in enumerate(stories):
+        story["gifts"] = picks([index])
+    result["mock_gifts"] = False
+    result["catalog_source"] = "merchant"
+
+
 def build_story(profile_url="", posts=(), demo=False, budget_thb=None):
     network = "Instagram" if demo else platform(profile_url)
     handle = instagram_handle(profile_url) if network == "Instagram" and not demo else None

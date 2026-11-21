@@ -107,7 +107,8 @@
 #places .chiangmai button{min-height:120px;background:linear-gradient(0deg,#0b211ef0,transparent 90%),url("CI_CITY") center/cover;color:white;display:flex;flex-direction:column;justify-content:end;align-items:start}
 #places .chiangmai button:before{display:none}
 .place-tile a{display:block;padding:8px 12px;color:var(--jade);font-size:.8rem;font-weight:700}
-#giftVisual img+img{aspect-ratio:2/1;object-fit:cover;margin-top:3px}
+#giftVisual #cloverContext{aspect-ratio:2/1;object-fit:cover;margin-top:3px}
+#giftVisual img[hidden]{display:none}
 .story[data-tone="summary"] #quote{font-size:clamp(1.08rem,3.3vw,1.55rem)}
 .story[data-tone="summary"] #surface{padding:7px 0 3px}
 #breakdown{gap:1px;padding-bottom:5px}

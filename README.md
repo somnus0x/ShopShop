@@ -16,9 +16,9 @@ Paste a public profile into `@shopshop`. Review real source posts, pick one of t
 
 ### Generate a profile character
 
-Set `OPENAI_API_KEY` on the Railway service. Real Instagram cards then show **สร้างตัวละครจาก Vibe**. The button checks Apify for the Instagram profile photo, then starts one Image API edit using the photo and post topics. If the photo is unavailable, it generates from the selected styling and topics. The profile-photo lookup has a separate $0.03 Apify cap. The widget can be used while the generated sprite sheet loads and can rotate through its eight views. The generated artwork is a fictional style illustration based on topics such as travel or fitness.
+Set `OPENAI_API_KEY` on Railway. In the live Instagram flow, ShopShop reads the posts and starts the character before opening the gift card. ChatGPT calls `prepare_profile_avatar` in waits of up to 25 seconds until the job finishes. The gift card opens with the eight-angle character ready to rotate. If generation fails or reaches the quota, the card still shows the gifts with the avatar status. Cards built from manually supplied captions can start the character from the widget.
 
-`SHOPSHOP_AVATAR_DAILY_LIMIT` controls the per-process generation quota and defaults to `3` per rolling 24 hours. Set it to `0` to disable the action. Identical profile and topic sets reuse their existing job during that window. The prototype stores results in the Railway process, so results and the quota reset when that process restarts. A generation request consumes OpenAI API credits.
+`SHOPSHOP_AVATAR_DAILY_LIMIT` controls the per-process generation quota and defaults to `3` per rolling 24 hours. Set it to `0` to disable generation. The live flow reuses the existing avatar for a profile. Each new job can use a separate $0.03 Apify profile-photo lookup and OpenAI Image API credits. Results and the quota reset when the Railway process restarts.
 
 ### Adjust the Instagram scan
 
@@ -32,7 +32,9 @@ Set these variables in Railway and deploy the changes. Every lookup uses the con
 
 For example, set the post limit to `100` and the cap to `0.30`. The charge cap, the scraper timeout, and the number of available public posts can reduce the returned count. [Apify Post Scraper pricing](https://apify.com/apify/instagram-post-scraper)
 
-### Connect the merchant inquiry demo
+### Connect the buyer catalog and inquiry demo
+
+The Railway image defaults to the base URL in [the buyer handoff](operator-server/docs/handoff.md). Override `SHOPSHOP_BUYER_REST_URL` on Railway if the temporary tunnel changes. Use the HTTPS base URL without `/api` or `/mcp`. ShopShop calls the REST catalog from its backend and uses the merchant photos and listed THB prices in live profile cards. If every priced option exceeds the budget, the card shows the nearest options with the overage. If the catalog is unreachable, the labeled sample catalog is used.
 
 The inquiry panel appears on the profile overview when the buyer bridge is configured. It submits the separate Supason demo product `demo-supasonk`; the Clover remains a visual gift recommendation. The operator uses the existing shopping queue to send and record the reply. The widget refreshes the original inquiry using a signed ticket and reuses its request ID if the initial button click needs retrying.
 
@@ -45,7 +47,7 @@ The inquiry panel appears on the profile overview when the buyer bridge is confi
 | `SHOPSHOP_BUYER_DEMO_CODE` | Separate high-entropy demo code to enter in the widget before sending |
 | `SHOPSHOP_QR_ORIGIN` | HTTPS origin of the operator-approved sample QR host, if testing QR replies |
 
-The shopping Mac’s loopback address is only reachable from that Mac. After configuring the private route, call `merchant_bridge_status` to verify authenticated tool discovery before sending a test inquiry. `list_products` and `get_product` use the connected merchant catalog when both tools are advertised. Otherwise they identify the demo catalog as their source. The Supason inquiry action remains limited to `demo-supasonk`. Use the buyer endpoint credentials for this integration. Use sample QR images without payment details.
+The REST connection supports catalog browsing with the base URL alone. Set `SHOPSHOP_INQUIRY_SECRET` and `SHOPSHOP_BUYER_DEMO_CODE` to enable the demo inquiry. The older authenticated MCP settings apply when the REST base URL is absent. Call `merchant_bridge_status` to verify the active connection before submitting a demo inquiry.
 
 ## Connect a private demo to ChatGPT
 

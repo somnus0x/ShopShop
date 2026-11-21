@@ -3,7 +3,7 @@ const embedded = window.parent !== window;
 let output = null, index = 0, expanded = false, equipped = false, sending = false;
 let drafts = {}, sent = {}, signature = '';
 let inquiry = {}, inquiryPending = false;
-let avatarJob = {}, avatarPolling = false, giftChoice = 0;
+let avatarJob = {}, avatarControl = null, avatarPolling = false, giftChoice = 0;
 const sampleAvatarSource = $('avatarSheet').src;
 const pending = new Map();
 let serial = 0;
@@ -58,8 +58,11 @@ function persist(){
   window.openai?.setWidgetState?.({signature,index,expanded,equipped,drafts,sent,inquiry,avatarJob,giftChoice});
 }
 let imageRefs={}, localPhotos=new Map(), showingPhoto='', photoRequest=0;
+function toolMetadata(meta){
+  return meta?.mcp_tool_result?._meta || meta?.call_tool_result?._meta || meta;
+}
 function hostImages(meta){
-  return meta?.post_images ?? meta?.mcp_tool_result?._meta?.post_images ?? meta?.call_tool_result?._meta?.post_images;
+  return meta?.post_images ?? toolMetadata(meta)?.post_images;
 }
 function displayPhoto(url,credit){
   $('postPhoto').src=url;$('postPhoto').alt=credit;
@@ -126,7 +129,15 @@ function receive(data,meta){
   if(!data?.status)return;
   const key=JSON.stringify(data);
   const refs=hostImages(meta);
+  const control=meta?.avatar_control ?? toolMetadata(meta)?.avatar_control;
   if(key===signature){
+    if(control){
+      avatarControl=control;
+      if(control.job && !avatarPolling && avatarJob.status!=='ready'){
+        avatarJob=control.job;renderAvatar();
+        if(avatarJob.status==='pending')updateAvatar(true);
+      }
+    }
     if(refs && JSON.stringify(imageRefs)!==JSON.stringify(refs)){
       imageRefs=refs;if(data.status==='ready')showPostPhoto();
     }
@@ -134,10 +145,12 @@ function receive(data,meta){
   }
   imageRefs=refs||{};localPhotos.clear();showingPhoto='';photoRequest++;
   signature=key;output=data;index=data.overview?-1:0;expanded=false;equipped=false;drafts={};sent={};inquiry={};avatarJob={};avatarPolling=false;giftChoice=0;
+  avatarControl=control;
   const state=window.openai?.widgetState;
   if(state?.signature===key && (data.stories?.[state.index] || (data.overview && state.index===-1))){
     index=state.index;expanded=!!state.expanded;equipped=!!state.equipped;drafts=state.drafts||{};sent=state.sent||{};inquiry=state.inquiry||{};avatarJob=state.avatarJob||{};giftChoice=state.giftChoice||0;
   }
+  if(control?.job)avatarJob=control.job;
   $('ready').hidden=data.status!=='ready';$('waiting').hidden=!$('ready').hidden;
   $('merchantStatus').textContent='';
   $('merchantReplies').replaceChildren();
@@ -271,13 +284,19 @@ function render(){
   const showGift=hasGift && (expanded || summary);
   renderGiftOptions(showGift);
   $('makeGiftImage').hidden=!(embedded && showGift && hasGift);
-  $('giftVisual').hidden=s?.item!=='clover';
-  $('giftLayout').classList.toggle('with-photo',s?.item==='clover');
+  const clover=s?.item==='clover', livePhoto=s?.image_url;
+  const giftPhoto=$('liveGiftArt');
+  $('giftVisual').hidden=!clover && !livePhoto;
+  $('giftLayout').classList.toggle('with-photo',clover || !!livePhoto);
+  giftPhoto.hidden=!livePhoto;
+  if(livePhoto){giftPhoto.src=livePhoto;giftPhoto.alt=s.product;}else giftPhoto.removeAttribute('src');
+  $('cloverArt').hidden=!clover;$('cloverContext').hidden=!clover;
+  $('giftPhotoCredit').textContent=livePhoto?'ภาพจากแคตตาล็อกของร้าน':'ภาพจำลอง · เมื่อห้อยกับเป้';
   $('open').hidden=showGift;$('expanded').hidden=!showGift;
   $('expanded').classList.toggle('featured',summary);
   $('close').hidden=summary;
   $('giftLabel').hidden=!summary && !output.mock_gifts;
-  $('giftLabel').textContent=s?.catalog_fallback?'ตัวเลือกใกล้เคียงจากแคตตาล็อก':s?.over_budget_thb?'ของขวัญตัวอย่างที่ใกล้งบที่สุด':(output.mock_gifts?'ของขวัญตัวอย่าง':'ของขวัญที่เลือกให้');
+  $('giftLabel').textContent=s?.over_budget_thb?'ตัวเลือกที่ใกล้งบที่สุด':s?.catalog_fallback?'ตัวเลือกใกล้เคียงจากแคตตาล็อก':(output.mock_gifts?'ของขวัญตัวอย่าง':'ของขวัญที่เลือกให้');
   $('shortReason').hidden=!summary;
   $('shortReason').textContent=summary && s ? s.short_reason : '';
   if($('reasonDetail').dataset.pick!==String(index)){
@@ -307,33 +326,54 @@ const avatarMessages = {
   unavailable: 'ยังใช้การสร้างตัวละครไม่ได้',
   busy: 'กำลังสร้างภาพอื่นอยู่ ลองอีกครั้งในอีกสักครู่',
   limit_reached: 'ถึงโควตาสร้างตัวละครของรอบเดโมแล้ว',
+  grant_expired: 'ลิงก์สร้างตัวละครหมดอายุ เปิดการ์ด ShopShop ใหม่อีกครั้ง',
   disconnected: 'ยังเช็กสถานะไม่ได้ กดเพื่อเช็กอีกครั้ง',
 };
 function renderAvatar(){
-  const available=embedded && !!output?.avatar_enabled && index===-1;
+  const live=embedded && !!output?.avatar_enabled;
+  const available=live && index===-1;
   const finished=avatarJob.status==='ready';
   $('generateAvatar').hidden=!available || finished;
   $('avatarLook').hidden=!available || finished;
   $('avatarLookLabel').hidden=!available || finished;
   $('avatarLook').disabled=avatarPolling;
-  $('avatarEmpty').hidden=!available || finished;
-  $('scene').hidden=available && !finished;
-  $('prev').parentElement?.toggleAttribute('hidden',available && !finished);
+  $('avatarEmpty').hidden=!live || finished;
+  $('scene').hidden=live && !finished;
+  $('prev').parentElement?.toggleAttribute('hidden',live && !finished);
   $('generateAvatar').disabled=avatarPolling;
   $('generateAvatar').textContent=avatarJob.job_id && !finished?'เช็กสถานะตัวละคร ↗':'สร้างตัวละครจาก Vibe ↗';
   $('avatarStatus').hidden=!available || !avatarJob.status;
   $('avatarStatus').textContent=avatarMessages[avatarJob.status]||'';
-  $('pin').textContent=finished?(avatarJob.reference==='profile_photo'?'ตัวละครจากรูปโปรไฟล์ · AI':'ตัวละครจาก Vibe · AI'):(output.demo?'สไตล์ของจูน':(available?'ตัวละครของ '+output.profile:'โมเดลสไตล์ตัวอย่าง'));
+  $('pin').textContent=finished?(avatarJob.reference==='profile_photo'?'ตัวละครจากรูปโปรไฟล์ · AI':'ตัวละครจาก Vibe · AI'):(output.demo?'สไตล์ของจูน':(live?'ตัวละครของ '+output.profile:'โมเดลสไตล์ตัวอย่าง'));
   const sheet=$('avatarSheet');
   const src=finished?avatarJob.image_url:sampleAvatarSource;
   if(src && sheet.src!==src)sheet.src=src;
 }
 async function avatarTool(name,args){
-  const response=window.openai?.callTool
-    ? await window.openai.callTool(name,args)
-    : await request('tools/call',{name,arguments:args});
-  if(response?.isError || !response?.structuredContent?.status)throw new Error('Missing avatar status');
-  return response.structuredContent;
+  if(avatarControl?.endpoint){
+    const endpoint=new URL(avatarControl.endpoint);
+    const options={signal:AbortSignal.timeout(8000),credentials:'omit'};
+    if(name==='profile_avatar_status'){
+      endpoint.searchParams.set('id',args.job_id);
+    }else{
+      options.method='POST';
+      options.body=JSON.stringify({grant:avatarControl.grant,look:args.look});
+    }
+    const response=await fetch(endpoint,options);
+    const result=await response.json();
+    if(result?.status)return result;
+    throw new Error('Railway returned no avatar status');
+  }
+  let response;
+  try{
+    response=await request('tools/call',{name,arguments:args});
+  }catch(error){
+    if(!window.openai?.callTool)throw error;
+    response=await window.openai.callTool(name,args);
+  }
+  const result=response?.structuredContent ?? response;
+  if(response?.isError || !result?.status)throw new Error('Missing avatar status');
+  return result;
 }
 async function updateAvatar(resume=false){
   if(!output?.avatar_enabled || avatarPolling)return;

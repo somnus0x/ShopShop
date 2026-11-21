@@ -159,6 +159,16 @@ def status(job_id, origin):
         return _job_result(job_id, origin)
 
 
+def current(profile_key, origin):
+    with _lock:
+        for job_id, job in reversed(_jobs.items()):
+            if job["key"][0] == profile_key:
+                result = _job_result(job_id, origin)
+                if result["status"] != "expired":
+                    return result
+    return None
+
+
 def artwork(job_id):
     with _lock:
         job = _jobs.get(job_id)

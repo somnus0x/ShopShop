@@ -1,11 +1,11 @@
-"""Bridge the demo widget to the shopping Mac's authenticated buyer MCP."""
+"""Bridge ShopShop to the buyer REST API or the existing buyer MCP."""
 from contextlib import asynccontextmanager
 import hashlib
 import hmac
 import os
 import re
 import time
-from urllib.parse import urlsplit
+from urllib.parse import quote, urljoin, urlsplit
 from uuid import UUID
 
 import anyio
@@ -17,14 +17,22 @@ PRODUCT_ID = "demo-supasonk"
 
 
 def configured():
+    if rest_origin():
+        return all(os.getenv(name) for name in ("SHOPSHOP_INQUIRY_SECRET", "SHOPSHOP_BUYER_DEMO_CODE"))
     credentials = ("SHOPSHOP_BUYER_URL", "SHOPSHOP_BUYER_TOKEN", "SHOPSHOP_INQUIRY_SECRET", "SHOPSHOP_BUYER_DEMO_CODE")
     return os.getenv("SHOPSHOP_ENABLE_MERCHANT_MCP") == "1" and all(os.getenv(name) for name in credentials)
+
+
+def rest_origin():
+    value = os.getenv("SHOPSHOP_BUYER_REST_URL", "").rstrip("/")
+    parts = urlsplit(value)
+    return value if parts.scheme == "https" and parts.hostname and not parts.username and not (parts.path or parts.query or parts.fragment) else ""
 
 
 def qr_origin():
     value = os.getenv("SHOPSHOP_QR_ORIGIN", "").rstrip("/")
     parts = urlsplit(value)
-    return value if parts.scheme == "https" and parts.netloc and not parts.username and not (parts.path or parts.query or parts.fragment) else ""
+    return value if parts.scheme == "https" and parts.netloc and not parts.username and not (parts.path or parts.query or parts.fragment) else rest_origin()
 
 
 def _signature(value):
@@ -44,6 +52,13 @@ async def _session():
 
 
 async def check_connection():
+    if rest_origin():
+        try:
+            catalog = await _rest("GET", "/api/products", params={"limit": 1})
+            return {"status": "ready", "catalog": "available" if isinstance(catalog.get("products"), list) else "absent",
+                    "transport": "rest", "inquiries": "enabled" if configured() else "disabled"}
+        except (httpx.HTTPError, ValueError):
+            return {"status": "buyer_unreachable", "transport": "rest"}
     if not configured():
         return {"status": "not_configured"}
     try:
@@ -56,7 +71,37 @@ async def check_connection():
         return {"status": "buyer_unreachable"}
 
 
-async def read_catalog(tool_name, arguments):
+async def _rest(method, path, **kwargs):
+    async with httpx.AsyncClient(base_url=rest_origin(), timeout=8) as client:
+        response = await client.request(method, path, **kwargs)
+    data = response.raise_for_status().json()
+    if not isinstance(data, dict):
+        raise ValueError("Expected a buyer REST object")
+    return data
+
+
+def _rest_product(product):
+    if not isinstance(product, dict):
+        return product
+    path = product.get("image_url")
+    return {**product, "brand": product.get("merchant"), "price_thb": (
+        product.get("price") if product.get("currency") == "THB" else None
+    ), "image_url": urljoin(rest_origin(), path) if isinstance(path, str) and path.startswith("/api/products/") else None}
+
+
+async def read_catalog(tool_name, arguments, *, limit=15):
+    if rest_origin():
+        try:
+            if tool_name == "list_products":
+                data = await _rest("GET", "/api/products", params={**arguments, "limit": limit})
+                if isinstance(data.get("products"), list):
+                    data["products"] = [_rest_product(product) for product in data["products"]]
+                return data
+            product_id = quote(arguments["product_id"], safe="")
+            data = await _rest("GET", f"/api/products/{product_id}")
+            return {**data, "product": _rest_product(data.get("product"))}
+        except (httpx.HTTPError, ValueError):
+            return None
     if not configured():
         return None
     try:
@@ -90,6 +135,8 @@ def _public_result(payload):
         if not isinstance(reply, dict):
             continue
         image = reply.get("qr_image_url") or ""
+        if rest_origin() and isinstance(image, str) and image.startswith("/") and not image.startswith("//"):
+            image = urljoin(rest_origin(), image)
         replies.append({"text": str(reply.get("text") or ""),
                         "qr_image_url": image if origin and isinstance(image, str) and image.startswith(origin + "/") else ""})
     return {"status": str(inquiry.get("status") or "queued"), "replies": replies}
@@ -102,7 +149,8 @@ async def submit(request_id, demo_code):
         if not hmac.compare_digest(demo_code.encode(), os.environ["SHOPSHOP_BUYER_DEMO_CODE"].encode()):
             return {"status": "denied"}
         request_id = str(UUID(request_id))
-        payload = await _call("submit_product_inquiry", {"request_id": request_id, "product_id": PRODUCT_ID})
+        arguments = {"request_id": request_id, "product_id": PRODUCT_ID}
+        payload = await _rest("POST", "/api/inquiries", json=arguments) if rest_origin() else await _call("submit_product_inquiry", arguments)
         result = _public_result(payload)
         inquiry_id = str(payload["inquiry"]["id"])
         if not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", inquiry_id):
@@ -118,9 +166,10 @@ async def refresh(ticket):
         return {"status": "unavailable"}
     try:
         inquiry_id, expiry, signature = ticket.split(".")
-        if int(expiry) < time.time() or not hmac.compare_digest(signature, _signature(f"{inquiry_id}.{expiry}")):
+        if (not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", inquiry_id)
+                or int(expiry) < time.time() or not hmac.compare_digest(signature, _signature(f"{inquiry_id}.{expiry}"))):
             return {"status": "expired"}
-        payload = await _call("get_product_inquiry", {"inquiry_id": inquiry_id})
+        payload = await _rest("GET", f"/api/inquiries/{inquiry_id}") if rest_origin() else await _call("get_product_inquiry", {"inquiry_id": inquiry_id})
         if str(payload["inquiry"]["id"]) != inquiry_id:
             raise ValueError("Mismatched inquiry")
         return _public_result(payload)
