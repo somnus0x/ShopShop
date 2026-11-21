@@ -1,0 +1,170 @@
+{
+  "reviewed_on": "2026-11-21",
+  "currency": "THB",
+  "collection_method": "Public web index and merchant pages. Instagram profile requests failed. No desktop feed capture. Prices are listing snapshots; check variants, stock and shipping with the seller.",
+  "brands": [
+    {
+      "name": "AMAN Leather",
+      "handle": "aman.leather",
+      "instagram": "https://www.instagram.com/aman.leather/",
+      "products": [],
+      "coverage": "profile supplied; product identity and pricing unverified"
+    },
+    {
+      "name": "Overhills",
+      "handle": "overhills.th",
+      "instagram": "https://www.instagram.com/overhills.th/",
+      "products": [],
+      "coverage": "profile supplied; product identity and pricing unverified"
+    },
+    {
+      "name": "FLOG",
+      "handle": "flog.thailand",
+      "instagram": "https://www.instagram.com/flog.thailand/",
+      "products": [
+        {
+          "id": "golf-bag",
+          "name": "Golf clothing bag · FG-BTB2308",
+          "price_thb": 2590,
+          "source": "https://shopee.co.th/กระเป๋าเสื้อผ้ากอล์ฟ-FLOG-FG-BTB2308-i.663155017.44059459065",
+          "evidence": "Seller Flog.Thailand lists this golf clothing bag in two variants.",
+          "tags": [
+            "golf",
+            "golf bags"
+          ],
+          "reason": "For someone with a regular tee time who needs a bag for a change of clothes.",
+          "gift_note": "For your next early tee time.",
+          "image": null
+        },
+        {
+          "id": "golf-shirt",
+          "name": "Women’s golf shirt · FG-T5087W",
+          "price_thb": 1690,
+          "source": "https://shopee.co.th/เสื้อกอล์ฟผู้หญิง-FG-T5087W-i.663155017.51401905972",
+          "evidence": "Seller Flog.Thailand lists this women’s golf shirt. Check size and shop status before ordering.",
+          "tags": [
+            "golf",
+            "sportswear"
+          ],
+          "reason": "An option for a golfer when you already know her preferred fit.",
+          "gift_note": "I remembered you telling me about the next round.",
+          "image": null
+        }
+      ],
+      "coverage": "seller listings"
+    },
+    {
+      "name": "Theremin",
+      "handle": "theremin.official",
+      "instagram": "https://www.instagram.com/theremin.official/",
+      "products": [
+        {
+          "id": "faye",
+          "name": "Faye blouse · Brown plaid",
+          "price_thb": 620,
+          "source": "https://shop.line.me/@ppf5220f/product/1007575819",
+          "evidence": "The listing describes a cropped, bow-front blouse and offers S and M.",
+          "tags": [
+            "plaid",
+            "bows",
+            "blouses"
+          ],
+          "reason": "For someone who wears checks and bows. Choose it together if you are unsure of her size.",
+          "gift_note": "I thought of your favourite check shirt.",
+          "image": null
+        }
+      ],
+      "coverage": "seller listings"
+    },
+    {
+      "name": "Sretsis",
+      "handle": "sretsisofficial",
+      "instagram": "https://www.instagram.com/sretsisofficial/",
+      "products": [
+        {
+          "id": "scruncy",
+          "name": "Siamese Leopard Scruncy",
+          "price_thb": 1500,
+          "source": "https://sretsis.com/product/siamese-leopard-scruncy/",
+          "evidence": "Listed as a hair accessory in the leopard colourway.",
+          "tags": [
+            "hair accessories",
+            "leopard print",
+            "prints"
+          ],
+          "reason": "A small flash of the print she already likes wearing.",
+          "gift_note": "I remembered that leopard print you love.",
+          "image": "https://i0.wp.com/sretsis.com/wp-content/uploads/2026/09/FW26-SIamese-Leopard-Scrunchy.jpg?fit=500%2C750&ssl=1"
+        },
+        {
+          "id": "rose",
+          "name": "Queen Rose Pin",
+          "price_thb": 2900,
+          "source": "https://sretsis.com/product-category/sretsis/accessories/",
+          "evidence": "The accessories edit lists Queen Rose Pin at THB 2,900.",
+          "tags": [
+            "flowers",
+            "pins",
+            "brooches"
+          ],
+          "reason": "One rose for a jacket lapel, small enough to bring to coffee.",
+          "gift_note": "A rose for your favourite jacket.",
+          "image": null
+        }
+      ],
+      "coverage": "seller listings"
+    },
+    {
+      "name": "Rally Movement",
+      "handle": "rallymovement",
+      "instagram": "https://www.instagram.com/rallymovement/",
+      "products": [
+        {
+          "id": "clover",
+          "name": "Lucky Leather Tag · Clover",
+          "price_thb": 590,
+          "source": "https://shop.line.me/@rallymovement/collection/58153",
+          "evidence": "Clover is one of five motifs listed in the Lucky Leather Tag series.",
+          "tags": [
+            "bag charms",
+            "leather",
+            "good luck"
+          ],
+          "reason": "Tie a little good-luck wish to the bag she already carries.",
+          "gift_note": "A little luck for whatever comes next.",
+          "image": "https://obs-ect.line-scdn.net/r/ect/ect/cj10NjA4NWJyZDFkZWEmcz1qcDYmdD1tJnU9MWU3Y29mc24wM2hnMCZpPTA"
+        },
+        {
+          "id": "doggo",
+          "name": "Lucky Leather Tag · Doggo",
+          "price_thb": 590,
+          "source": "https://shop.line.me/@rallymovement/collection/58153",
+          "evidence": "Doggo appears in the leather tag collection.",
+          "tags": [
+            "dogs",
+            "bag charms"
+          ],
+          "reason": "A small nod to the dog she talks about. No clothing size to guess.",
+          "gift_note": "This made me think of your dog.",
+          "image": null
+        },
+        {
+          "id": "flower",
+          "name": "Flower Leather Tag V.2 · Pink-Lemon",
+          "price_thb": 590,
+          "source": "https://shop.line.me/@rallymovement/collection/58153",
+          "evidence": "Pink-Lemon is a listed colourway of the Flower Leather Tag V.2.",
+          "tags": [
+            "flowers",
+            "colour",
+            "bag charms"
+          ],
+          "reason": "A flower she can take along on the next café trip.",
+          "gift_note": "A flower for your everyday bag.",
+          "image": null
+        }
+      ],
+      "coverage": "seller listings"
+    }
+  ]
+}
