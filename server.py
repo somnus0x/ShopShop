@@ -7,6 +7,8 @@ import logging
 import os
 import re
 import sys
+from collections import OrderedDict
+from copy import deepcopy
 from functools import wraps
 from time import monotonic, time
 from uuid import uuid4
@@ -20,7 +22,7 @@ from starlette.responses import FileResponse, JSONResponse, Response
 import avatar
 import buyer_inquiry
 from instagram import instagram_posts
-from public_instagram import profile_log_id
+from public_instagram import PRESENTATION_TTL, profile_log_id
 from story_data import PRODUCTS, ROOT, apply_live_catalog, build_story, instagram_handle, post_permalink, resolve_profile_query
 
 URI = "ui://shopshop/profile-gifts-v13.html"
@@ -35,6 +37,9 @@ railway_domain = os.getenv("RAILWAY_PUBLIC_DOMAIN", "")
 ASSET_ORIGIN = f"https://{railway_domain}" if re.fullmatch(r"[A-Za-z0-9.-]+", railway_domain) else ""
 AVATAR_GRANT_KEY = os.urandom(32)
 AVATAR_RESPONSE_HEADERS = {"Access-Control-Allow-Origin": "*", "Cache-Control": "no-store"}
+PRESENTATION_CARD_LIMIT = 16
+presentation_cards = OrderedDict()
+presentation_card_lock = asyncio.Lock()
 logger = logging.getLogger("shopshop")
 MIME = "text/html;profile=mcp-app"
 app = FastMCP("shopshop", host=os.getenv("HOST","127.0.0.1"), port=int(os.getenv("PORT", "8000")),
@@ -111,6 +116,37 @@ async def read_instagram_posts(profile_url: Annotated[str, Field(max_length=2048
     return result
 
 
+async def load_merchant_gifts(result, budget_thb):
+    if not buyer_inquiry.rest_origin():
+        return
+    remote = await buyer_inquiry.read_catalog("list_products", {}, limit=50)
+    if remote and isinstance(remote.get("products"), list):
+        products = [item for product in remote["products"] if (item := public_catalog_item(product))]
+        apply_live_catalog(result, products, budget_thb)
+    logger.info("catalog.card source=%s", result.get("catalog_source", "demo"))
+
+
+async def presentation_gifts(profile_url, evidence, budget_thb):
+    username = instagram_handle(profile_url)
+    key = (username, budget_thb)
+    async with presentation_card_lock:
+        cached = presentation_cards.get(key)
+        if cached and cached[0] > monotonic():
+            presentation_cards.move_to_end(key)
+            logger.info("presentation.card cache=hit profile=%s", profile_log_id(username))
+            return deepcopy(cached[1])
+        result = build_story(profile_url, evidence, budget_thb=budget_thb)
+        if result["status"] == "ready":
+            await load_merchant_gifts(result, budget_thb)
+            if result.get("catalog_source") == "merchant":
+                presentation_cards[key] = (monotonic() + PRESENTATION_TTL, deepcopy(result))
+                presentation_cards.move_to_end(key)
+                if len(presentation_cards) > PRESENTATION_CARD_LIMIT:
+                    presentation_cards.popitem(last=False)
+        logger.info("presentation.card cache=miss profile=%s", profile_log_id(username))
+        return result
+
+
 @app.tool(meta={"ui":{"resourceUri":URI},"openai/outputTemplate":URI,"openai/fileParams":["post_images"]},
           annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, openWorldHint=True))
 @trace_profile_tool
@@ -155,6 +191,7 @@ async def source_gifts(profile_url: str = "", posts: Annotated[list[Post], Field
     demo = demo and not profile_url.strip()
     imported = {}
     presentation_cached = False
+    use_prepared_card = False
     evidence = [post.model_dump() for post in posts]
     if not demo and not evidence and not post_images and instagram_handle(profile_url):
         feed = await read_instagram_posts(profile_url)
@@ -162,6 +199,7 @@ async def source_gifts(profile_url: str = "", posts: Annotated[list[Post], Field
             evidence = [Post(cue="music", caption=post["caption"], source_url=post["source_url"]).model_dump()
                         for post in feed["posts"]]
             use_connected_instagram = True
+            use_prepared_card = True
         else:
             if feed["status"] == "ready":
                 result = {"status": "needs_caption_selection", "posts": feed["posts"],
@@ -186,7 +224,10 @@ async def source_gifts(profile_url: str = "", posts: Annotated[list[Post], Field
             if original and caption and caption in original["caption"]:
                 verified.append(post)
         evidence = verified
-    result = build_story(profile_url, evidence, demo, budget_thb)
+    if use_prepared_card:
+        result = await presentation_gifts(profile_url, evidence, budget_thb)
+    else:
+        result = build_story(profile_url, evidence, demo, budget_thb)
     metadata = {}
     if imported and result["status"] == "ready":
         result["from_instagram"] = True
@@ -211,12 +252,8 @@ async def source_gifts(profile_url: str = "", posts: Annotated[list[Post], Field
         }
     if result["status"] == "ready" and buyer_inquiry.configured():
         result["merchant_demo"] = True
-    if result["status"] == "ready" and not demo and buyer_inquiry.rest_origin():
-        remote = await buyer_inquiry.read_catalog("list_products", {}, limit=50)
-        if remote and isinstance(remote.get("products"), list):
-            products = [item for product in remote["products"] if (item := public_catalog_item(product))]
-            apply_live_catalog(result, products, budget_thb)
-        logger.info("catalog.card source=%s", result.get("catalog_source", "demo"))
+    if result["status"] == "ready" and not demo and not use_prepared_card:
+        await load_merchant_gifts(result, budget_thb)
     images = {}
     if not demo and result["status"] == "ready":
         story_ids = {story["caption"].strip(): str(i) for i, story in enumerate(result["stories"])}
