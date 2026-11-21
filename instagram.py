@@ -1,11 +1,10 @@
 """Read recent evidence from the demo workspace's authorized Instagram account."""
 import os
-import re
 from urllib.parse import urlsplit
 
 import httpx
 
-from story_data import platform, post_permalink
+from story_data import instagram_handle, post_permalink
 
 GRAPH_URL = "https://graph.instagram.com/v27.0"
 IMPORT_HELP = "ส่งแคปชันหรือภาพหน้าจอของโพสต์ในแชตเพื่อให้ shopshop ใช้เป็นหลักฐานได้"
@@ -26,10 +25,8 @@ def preview_image(media):
 
 
 def instagram_posts(profile_url, *, cached_only=False):
-    if platform(profile_url) != "Instagram":
-        return {"status": "need_instagram_profile", "message": "ส่งลิงก์โปรไฟล์ Instagram เพื่อเลือกโพสต์"}
-    username = urlsplit(profile_url).path.strip("/").lower()
-    if not re.fullmatch(r"[a-z0-9._]{1,30}", username) or username in {"p", "reel", "stories", "explore"}:
+    username = instagram_handle(profile_url)
+    if not username:
         return {"status": "need_instagram_profile", "message": "ใช้ลิงก์หน้าโปรไฟล์ Instagram " + IMPORT_HELP}
     apify_token = os.getenv("APIFY_TOKEN")
     if apify_token:

@@ -157,8 +157,8 @@ function render(){
   const s=activePick(), source=output.stories[index];
   renderInquiry();
   showPostPhoto();
-  $('meta').textContent=output.demo?'โปรไฟล์สมมติ · เดโม':(output.from_instagram?'จากบัญชี Instagram ที่เชื่อมไว้':'จากโพสต์ที่แชร์ในแชต');
-  $('handle').textContent=output.demo?'จูน · '+output.network:output.network+' · ข้อความจากโพสต์';
+  $('meta').textContent=output.demo?'โปรไฟล์สมมติ · เดโม':(output.from_instagram?'จากโพสต์ Instagram':'จากโพสต์ที่แชร์ในแชต');
+  $('handle').textContent=(output.profile.startsWith('@') || output.demo ? output.profile+' · ' : '')+output.network;
   $('counter').textContent=summary?'ภาพรวม · '+total+' โพสต์':(index+1)+' / '+total;
   $('segments').replaceChildren(...output.stories.map((_,i)=>{const bar=document.createElement('i');if(summary||i<=index)bar.className='on';return bar;}));
   $('quote').textContent=summary?overview.headline:source.caption;
@@ -167,7 +167,7 @@ function render(){
   $('sticker').textContent=summary?'':source.glyph;
   $('surface').setAttribute('aria-labelledby',summary?'quote cue':'quote');
   $('cue').textContent=summary?'แตะเพื่อดูโพสต์ที่มา':source.title;
-  $('handle').textContent=summary?'ภาพรวมของ'+output.profile:$('handle').textContent;
+  $('handle').textContent=summary?'ภาพรวมของ '+output.profile:$('handle').textContent;
   const story=document.querySelector('.story');story.dataset.tone=summary?'summary':String(index%3);
   $('summary').hidden=!summary;$('overviewBack').hidden=summary||!overview;
   if(summary){

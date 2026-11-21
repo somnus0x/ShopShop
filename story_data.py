@@ -117,6 +117,15 @@ def platform(url):
             return name
     return None
 
+def instagram_handle(url):
+    if platform(url) != "Instagram":
+        return None
+    handle = urlsplit(url).path.strip("/").lower()
+    if re.fullmatch(r"[a-z0-9._]{1,30}", handle) and handle not in {"p", "reel", "reels", "stories", "explore", "accounts", "direct"}:
+        return handle
+    return None
+
+
 def post_permalink(url, network):
     """Keep only a same-platform post path and its identifying parameters."""
     if not url or platform(url) != network:
@@ -138,7 +147,8 @@ def post_permalink(url, network):
 
 def build_story(profile_url="", posts=(), demo=False, budget_thb=None):
     network = "Instagram" if demo else platform(profile_url)
-    if not network:
+    handle = instagram_handle(profile_url) if network == "Instagram" and not demo else None
+    if not network or (network == "Instagram" and not demo and not handle):
         return {"status":"need_profile","message":"ส่งลิงก์โปรไฟล์ Instagram หรือ Facebook ในแชตนี้ได้เลย"}
     stories = []
     seen = set()
@@ -164,5 +174,5 @@ def build_story(profile_url="", posts=(), demo=False, budget_thb=None):
             stories[-1]["place"] = place
     if not stories:
         return {"status":"need_post","message":"ส่งภาพหน้าจอหรือคัดแคปชันจากโพสต์ของเธอลงในแชตนี้ เพื่อให้เราเลือกของจากสิ่งที่เธอโพสต์จริง ๆ"}
-    return {"status":"ready","demo":demo,"profile":"จูน" if demo else "เธอ","network":network,
+    return {"status":"ready","demo":demo,"profile":"จูน" if demo else (f"@{handle}" if handle else "เธอ"),"network":network,
             "profile_url":None if demo else profile_url,"budget":budget_thb,"stories":stories,"overview":profile_read(stories)}
