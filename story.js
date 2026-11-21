@@ -150,7 +150,10 @@ function receive(data,meta){
   if(state?.signature===key && (data.stories?.[state.index] || (data.overview && state.index===-1))){
     index=state.index;expanded=!!state.expanded;equipped=!!state.equipped;drafts=state.drafts||{};sent=state.sent||{};inquiry=state.inquiry||{};avatarJob=state.avatarJob||{};giftChoice=state.giftChoice||0;
   }
-  if(control?.job)avatarJob=control.job;
+  const initialJob=data.avatar_job ?? control?.job;
+  if(initialJob && (initialJob.status!=='pending' || initialJob.job_id!==avatarJob.job_id || avatarJob.status!=='ready')){
+    avatarJob=initialJob;
+  }
   $('ready').hidden=data.status!=='ready';$('waiting').hidden=!$('ready').hidden;
   $('merchantStatus').textContent='';
   $('merchantReplies').replaceChildren();
@@ -328,16 +331,19 @@ const avatarMessages = {
   limit_reached: 'ถึงโควตาสร้างตัวละครของรอบเดโมแล้ว',
   grant_expired: 'ลิงก์สร้างตัวละครหมดอายุ เปิดการ์ด ShopShop ใหม่อีกครั้ง',
   disconnected: 'ยังเช็กสถานะไม่ได้ กดเพื่อเช็กอีกครั้ง',
+  image_unavailable: 'เปิดภาพตัวละครไม่ได้ ลองโหลดอีกครั้ง',
 };
 function renderAvatar(){
   const live=embedded && !!output?.avatar_enabled;
   const available=live && index===-1;
   const finished=avatarJob.status==='ready';
-  $('generateAvatar').hidden=!available || finished;
-  $('avatarLook').hidden=!available || finished;
-  $('avatarLookLabel').hidden=!available || finished;
+  const pending=avatarJob.status==='pending';
+  $('generateAvatar').hidden=!available || finished || pending;
+  $('avatarLook').hidden=!available || finished || pending;
+  $('avatarLookLabel').hidden=!available || finished || pending;
   $('avatarLook').disabled=avatarPolling;
   $('avatarEmpty').hidden=!live || finished;
+  $('avatarEmpty').textContent=pending?'กำลังสร้างตัวละครจากโปรไฟล์…':avatarMessages[avatarJob.status] || 'สร้างตัวละครจากรูปโปรไฟล์';
   $('scene').hidden=live && !finished;
   $('prev').parentElement?.toggleAttribute('hidden',live && !finished);
   $('generateAvatar').disabled=avatarPolling;
@@ -349,11 +355,18 @@ function renderAvatar(){
   const src=finished?avatarJob.image_url:sampleAvatarSource;
   if(src && sheet.src!==src)sheet.src=src;
 }
+$('avatarSheet').onerror=()=>{
+  if(avatarJob.status!=='ready')return;
+  avatarJob={...avatarJob,status:'image_unavailable'};
+  renderAvatar();persist();
+};
 async function avatarTool(name,args){
-  if(avatarControl?.endpoint){
-    const endpoint=new URL(avatarControl.endpoint);
+  const checking=name==='profile_avatar_status';
+  const url=(checking && avatarJob.status_url) || avatarControl?.endpoint;
+  if(url){
+    const endpoint=new URL(url);
     const options={signal:AbortSignal.timeout(8000),credentials:'omit'};
-    if(name==='profile_avatar_status'){
+    if(checking){
       endpoint.searchParams.set('id',args.job_id);
     }else{
       options.method='POST';
@@ -399,7 +412,7 @@ async function updateAvatar(resume=false){
     if(current===output){avatarPolling=false;renderAvatar();}
   }
 }
-$('generateAvatar').onclick=()=>updateAvatar(!!avatarJob.job_id && ['pending','disconnected'].includes(avatarJob.status));
+$('generateAvatar').onclick=()=>updateAvatar(!!avatarJob.job_id && ['pending','disconnected','image_unavailable'].includes(avatarJob.status));
 function saveLabel(){
   return output?.mock_gifts?'ยืนยันของขวัญตัวอย่าง':'ส่งของที่เลือกกับโน้ตเข้าแชต ↗';
 }

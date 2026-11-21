@@ -16,7 +16,7 @@ Paste a public profile into `@shopshop`. Review real source posts, pick one of t
 
 ### Generate a profile character
 
-Set `OPENAI_API_KEY` on Railway. In the live Instagram flow, ShopShop reads the posts and starts the character before opening the gift card. ChatGPT calls `prepare_profile_avatar` in waits of up to 25 seconds until the job finishes. The gift card opens with the eight-angle character ready to rotate. If generation fails or reaches the quota, the card still shows the gifts with the avatar status. Cards built from manually supplied captions can start the character from the widget.
+Set `OPENAI_API_KEY` on Railway. In the live Instagram flow, `source_gifts` starts the character while it loads the catalog. The recap, posts, and gifts can open immediately. The character panel checks the backend and loads the eight-angle image when it is ready. If generation fails or reaches the quota, the panel shows the reason. Cards built from manually supplied captions can start the character from the widget.
 
 `SHOPSHOP_AVATAR_DAILY_LIMIT` controls the per-process generation quota and defaults to `3` per rolling 24 hours. Set it to `0` to disable generation. The live flow reuses the existing avatar for a profile. Each new job can use a separate $0.03 Apify profile-photo lookup and OpenAI Image API credits. Results and the quota reset when the Railway process restarts.
 

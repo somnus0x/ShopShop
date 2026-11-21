@@ -1,4 +1,5 @@
 """Generate an illustrated turntable from a small allowlist of profile themes."""
+import asyncio
 import base64
 import logging
 import os
@@ -148,7 +149,9 @@ def _job_result(job_id, origin):
     if not job or job["expires"] <= monotonic():
         return {"status": "expired"}
     result = {"status": job["status"], "job_id": job_id}
-    if job["status"] == "ready":
+    if job["status"] == "pending":
+        result["status_url"] = f"{origin}/widget-avatar-job?id={job_id}"
+    elif job["status"] == "ready":
         result["reference"] = job["reference"]
         result["image_url"] = f"{origin}/widget-avatar/{job_id}.webp"
     return result
@@ -157,6 +160,17 @@ def _job_result(job_id, origin):
 def status(job_id, origin):
     with _lock:
         return _job_result(job_id, origin)
+
+
+async def wait(result, origin, timeout):
+    deadline = monotonic() + timeout
+    while result["status"] == "pending":
+        remaining = deadline - monotonic()
+        if remaining <= 0:
+            break
+        await asyncio.sleep(min(1, remaining))
+        result = status(result["job_id"], origin)
+    return result
 
 
 def current(profile_key, origin):
