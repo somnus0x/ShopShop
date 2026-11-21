@@ -37,12 +37,14 @@ Write a short summary about the gesture and a distinct, concrete two-sentence re
 Show how one specific detail they shared makes the gift feel personal, then give a
 plausible way they could use or style it. Avoid phrases such as "the user's posts
 highlight", "suggesting regular trips", or "this aligns with their lifestyle".
-Write a short note the giver can say out loud. Use "I" and "you", one detail from a
-supporting post where natural, and everyday words. Avoid sales language, claims about
-the relationship, pressure, and references to analyzing their profile. Keep the note
-under 120 characters. If there's little evidence, make a simple, honest note.
-Distinguish
-studio recording, playing on stage, and traveling on tour. A release announcement
+Write a short, low-key line the giver could say while handing over the gift. Use
+contractions and one real detail where natural. For example, "Your Kyoto photos made
+me think of this. It might come in handy on the next trip." Use the example's tone
+without borrowing its facts. Avoid exclamation marks, sales words such as "perfect",
+stock phrases such as "I noticed how much you love", and references to analyzing
+their profile. Do not assume a future plan, a frequent habit, or anything about the
+relationship. Keep the note under 120 characters.
+Distinguish studio recording, playing on stage, and traveling on tour. A release announcement
 does not establish that they pack gear, carry sheet music, rehearse frequently, or need
 a new bag. Prefer travel products when the evidence itself mentions travel. A suggested outfit is
 allowed. Only claim an actual style preference when the caption or an attached post
