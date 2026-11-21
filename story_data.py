@@ -251,7 +251,6 @@ _LIVE_REASONS = {"race": _TRAINING_REASONS, "gym": _TRAINING_REASONS,
                  "music": {
                      "overhills-bop-taper-tee": "An easy tee for rehearsal or time in the studio.",
                      "overhills-airmatte-tee": "A spare tee for a long rehearsal day.",
-                     "aman-jekel-h-messenger": "A messenger bag for carrying sheet music and small rehearsal essentials.",
                  }}
 
 

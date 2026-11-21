@@ -129,7 +129,9 @@ async def read_instagram_posts(profile_url: Annotated[str, Field(max_length=2048
         return {"status": "ready", "avatar_enabled": avatar_available,
                 "presentation_cached": result.get("presentation_cached", False), "posts": [
             {"caption": post["caption"], "source_url": post["source_url"],
-             "has_image": bool(post.get("image_url"))} for post in result["posts"]
+             "has_image": bool(post.get("image_url")),
+             **({"presentation_cue": post["presentation_cue"]} if "presentation_cue" in post else {})}
+            for post in result["posts"]
         ]}
     return result
 
@@ -215,7 +217,8 @@ async def source_gifts(profile_url: str = "", posts: Annotated[list[Post], Field
     if not demo and not evidence and not post_images and instagram_handle(profile_url):
         feed = await read_instagram_posts(profile_url)
         if feed.get("presentation_cached"):
-            evidence = [Post(cue="music", caption=post["caption"], source_url=post["source_url"]).model_dump()
+            evidence = [Post(cue=post["presentation_cue"], caption=post["caption"],
+                             source_url=post["source_url"]).model_dump()
                         for post in feed["posts"]]
             use_connected_instagram = True
             use_prepared_card = True

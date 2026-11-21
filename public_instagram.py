@@ -19,12 +19,12 @@ PRESENTATION_TTL = 4 * 60 * 60
 # when the live feed is slow or unavailable during the presentation.
 PRESENTATION_EXCERPTS = {
     "johnmayer": (
-        ("CVnyY0yPTXL", "This track was recorded live, in one take"),
-        ("Cd6sdPivAfV", "To this day, these songs are still some of my favorites to play live."),
+        ("CVnyY0yPTXL", "This track was recorded live, in one take", "music"),
+        ("Cd6sdPivAfV", "To this day, these songs are still some of my favorites to play live.", "music"),
     ),
     "oliviadeano": (
-        ("Ddw0FdskWle", "happy birthday to the album that changed my life! the art of loving is one today 🎈"),
-        ("DZ4hUsQDaB4", "so easy to fall in love with dublin 🥲🥲🥲 what a perfect end to the art of loving uk/eu tour!!!!"),
+        ("Ddw0FdskWle", "happy birthday to the album that changed my life! the art of loving is one today 🎈", "music"),
+        ("DZ4hUsQDaB4", "so easy to fall in love with dublin 🥲🥲🥲 what a perfect end to the art of loving uk/eu tour!!!!", "trip"),
     ),
 }
 logger = logging.getLogger(__name__)
@@ -140,8 +140,9 @@ def public_posts(username, token, *, cached_only=False):
     if excerpts:
         logger.info("instagram.cache profile=%s result=presentation", profile_log_id(username))
         return {"status": "ready", "presentation_cached": True, "posts": [
-            {"caption": caption, "source_url": f"https://www.instagram.com/p/{shortcode}/", "image_url": None}
-            for shortcode, caption in excerpts
+            {"caption": caption, "source_url": f"https://www.instagram.com/p/{shortcode}/",
+             "image_url": None, "presentation_cue": cue}
+            for shortcode, caption, cue in excerpts
         ]}
     # One worker serves the demo. This also prevents two overlapping calls for the
     # same uncached profile from charging twice.
