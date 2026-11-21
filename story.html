@@ -20,10 +20,11 @@
   <select id="avatarLook" hidden><option value="neutral">Neutral</option><option value="masculine">Masculine</option><option value="feminine">Feminine</option></select>
   <button id="generateAvatar" type="button" hidden>Create avatar ↗</button>
   <p id="avatarStatus" role="status" hidden></p>
-  <button id="shareCard" type="button">Share this card ↗</button>
+  <button id="shareCard" type="button" aria-controls="sharePreview" aria-expanded="false">Share this card ↗</button>
+  <section id="sharing"><p id="shareStatus" role="status"></p><figure id="sharePreview" hidden><img id="saveImage" alt="Shareable recap card"><figcaption>Press and hold or right-click to save the image</figcaption><a id="downloadCard" download="shopshop-gift-mix.png">Download PNG ↓</a></figure></section>
 </div>
 <div id="mediaActions" hidden><button type="button" id="attachPhoto">Add post photo ＋</button><input id="photoInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/avif" hidden><a id="sourceLink" target="_blank" rel="noopener noreferrer" hidden>Open original post ↗</a><small role="status" id="photoStatus"></small></div>
-<div class="storyfoot"><span id="cue"></span><div><button id="back" aria-label="Previous post">←</button><button id="forward" aria-label="Next post">→</button></div></div></section></div>
+<div class="storyfoot"><span id="cue"></span><button id="viewSources" type="button" hidden>View the source posts</button><div><button id="back" aria-label="Previous post">←</button><button id="forward" aria-label="Next post">→</button></div></div></section></div>
 <button class="plain" id="overviewBack" hidden>← Back to overview</button><button class="cta" id="open">What gift fits this post? <b>↗</b></button>
 <section id="expanded" aria-label="Gift pick" hidden>
 <div id="giftOptions" aria-label="Gift options" hidden></div>
@@ -49,7 +50,6 @@
   </section>
 </section>
 <button class="plain" id="close">← Back to post</button></section>
-<section id="sharing" hidden><p id="shareStatus" role="status"></p><figure id="sharePreview" hidden><img id="saveImage" alt="Shareable recap card"><figcaption>Press and hold or right-click to save the image</figcaption><a id="downloadCard" download="shopshop-gift-mix.png">Download PNG ↓</a></figure></section>
 <section id="summary" hidden><h2 id="likesTitle">Interests in the posts</h2><div id="likes"></div><h2 id="whereTitle">Places mentioned</h2><div id="places"></div></section>
 <img id="juneArt" src="CI_JUNE" alt="" hidden>
 <p class="status" id="status" role="status"></p></div></main>

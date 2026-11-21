@@ -25,9 +25,9 @@ from instagram import instagram_posts
 from public_instagram import PRESENTATION_TTL, profile_log_id
 from story_data import PRODUCTS, ROOT, apply_live_catalog, build_story, instagram_handle, post_permalink, resolve_profile_query
 
-URI = "ui://shopshop/profile-gifts-v14.html"
+URI = "ui://shopshop/profile-gifts-v15.html"
 LEGACY_URIS = ("ui://shopshop/profile-gifts.html", *(
-    f"ui://shopshop/profile-gifts-v{version}.html" for version in range(7, 14)
+    f"ui://shopshop/profile-gifts-v{version}.html" for version in range(7, 15)
 ))
 PRESENTATION_AVATARS = {
     "johnmayer": "presentation-johnmayer.webp",

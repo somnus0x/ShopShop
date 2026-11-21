@@ -11,6 +11,8 @@ let posterFile = null, posterData = null;
 function clearShare() {
   posterFile=null;posterData=null;
   $('sharePreview').hidden=true;$('shareStatus').textContent='';
+  $('shareCard').setAttribute('aria-expanded','false');
+  $('shareCard').textContent='Preparing share card…';
   $('saveImage').removeAttribute('src');$('downloadCard').removeAttribute('href');
 }
 async function preparePoster(data) {
@@ -26,7 +28,8 @@ async function preparePoster(data) {
   if(output!==data)return;
   posterData=png;
   $('shareCard').disabled=false;
-  paper.toBlob(blob=>{
+  $('shareCard').textContent='Share this card ↗';
+  paper.toBlob?.(blob=>{
     if(output===data && blob && typeof File==='function')posterFile=new File([blob],'shopshop-gift-mix.png',{type:'image/png'});
   },'image/png');
 }
@@ -41,7 +44,9 @@ $('shareCard').onclick=async()=>{
   }catch(error){if(error.name==='AbortError')return;}
   if(output!==data)return;
   $('saveImage').src=posterData;$('downloadCard').href=posterData;
-  $('sharePreview').hidden=false;$('downloadCard').focus();
+  $('sharePreview').hidden=false;
+  $('shareCard').setAttribute('aria-expanded','true');
+  $('downloadCard').focus();
 };
 function notify(method,params) {
   window.parent.postMessage({jsonrpc:'2.0',method,params},'*');
@@ -166,7 +171,11 @@ function receive(data,meta){
   render();
   if(inquiry.ticket)scheduleInquiryCheck();
   if(avatarJob.status==='pending')updateAvatar(true);
-  if(data.overview)preparePoster(data).catch(()=>{$('shareStatus').textContent='This device couldn’t create the share image.';});
+  if(data.overview)preparePoster(data).catch(()=>{
+    if(output!==data)return;
+    $('shareCard').textContent='Share this card ↗';
+    $('shareStatus').textContent='This device couldn’t create the share image.';
+  });
 }
 function giftOptions(){
   const context=index===-1?output.overview:output.stories[index];
@@ -195,7 +204,7 @@ function renderGiftOptions(show){
     price.textContent='฿'+gift.price.toLocaleString('en-TH')+detail;
     button.append(name,price);
     button.onclick=()=>{
-      if(sending || giftChoice===option)return;
+      if(giftChoice===option)return;
       giftChoice=option;equipped=false;render();persist();
       $('product').tabIndex=-1;$('product').focus();
     };
@@ -203,7 +212,6 @@ function renderGiftOptions(show){
   }));
 }
 function jump(to){
-  if(sending)return;
   index=to;giftChoice=0;expanded=to>=0 && !!output.stories[to]?.gifts?.length;equipped=false;render();persist();
 }
 function evidenceButton(label, indices){
@@ -223,11 +231,13 @@ function render(){
   $('quote').textContent=summary?overview.headline:source.caption;
   $('vibe').hidden=!summary || !overview?.vibe_summary;
   $('vibeSummary').textContent=summary ? (overview.vibe_summary || '') : '';
-  $('breakdown').hidden=!summary;$('sharing').hidden=!summary;
+  $('breakdown').hidden=!summary;
   $('sticker').hidden=summary;
   $('sticker').textContent=summary?'':source.glyph;
-  $('surface').setAttribute('aria-labelledby',summary?'quote cue':'quote');
-  $('cue').textContent=summary?'View the source posts':source.title;
+  $('surface').setAttribute('aria-labelledby',summary?'quote viewSources':'quote');
+  $('viewSources').hidden=!summary;
+  $('cue').hidden=summary;
+  $('cue').textContent=source?.title||'';
   $('handle').textContent=summary?'Overview for '+output.profile:$('handle').textContent;
   const story=document.querySelector('.story');story.dataset.tone=summary?'summary':String(index%3);
   $('summary').hidden=!summary;$('overviewBack').hidden=summary||!overview;
@@ -507,6 +517,14 @@ async function sendInquiry(action, automatic=false){
 }
 $('inquiryRefresh').onclick=()=>sendInquiry('status');
 
+function move(by){
+  const length=output.stories.length+(output.overview?1:0);
+  const offset=output.overview?1:0;
+  jump((index+offset+by+length)%length-offset);
+  const story=document.querySelector('.story');story.classList.remove('pulse');void story.offsetWidth;story.classList.add('pulse');
+}
+$('overviewBack').onclick=()=>jump(-1);
+$('viewSources').onclick=()=>{move(1);$('surface').focus();};
 $('back').onclick=()=>move(-1);$('forward').onclick=$('surface').onclick=()=>move(1);
 $('surface').onkeydown=e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();move(e.key==='ArrowLeft'?-1:1);}};
 $('open').onclick=()=>{
