@@ -16,7 +16,8 @@ PRODUCT_ID = "demo-supasonk"
 
 
 def configured():
-    return all(os.getenv(name) for name in ("SHOPSHOP_BUYER_URL", "SHOPSHOP_BUYER_TOKEN", "SHOPSHOP_INQUIRY_SECRET", "SHOPSHOP_BUYER_DEMO_CODE"))
+    credentials = ("SHOPSHOP_BUYER_URL", "SHOPSHOP_BUYER_TOKEN", "SHOPSHOP_INQUIRY_SECRET", "SHOPSHOP_BUYER_DEMO_CODE")
+    return os.getenv("SHOPSHOP_ENABLE_MERCHANT_MCP") == "1" and all(os.getenv(name) for name in credentials)
 
 
 def qr_origin():

@@ -14,7 +14,7 @@ import buyer_inquiry
 from instagram import instagram_posts
 from story_data import ROOT, build_story, instagram_handle, post_permalink
 
-URI = "ui://shopshop/profile-gifts-v9.html"
+URI = "ui://shopshop/profile-gifts-v10.html"
 MIME = "text/html;profile=mcp-app"
 app = FastMCP("shopshop", host=os.getenv("HOST","127.0.0.1"), port=int(os.getenv("PORT", "8000")),
               stateless_http=True, json_response=True)
@@ -76,7 +76,8 @@ def source_gifts(profile_url: str = "", posts: Annotated[list[Post], Field(max_l
     For an explicitly named destination, supply its exact name and a verbatim excerpt from the caption.
     Use favorite only for expressed liking or returning by preference; distinguish visits and plans.
     Use cue=place for a location-only caption. Use only public destinations, never home, workplace or inferred location.
-    Use the overview to explain interests and give an in-budget gift with its supporting captions.
+    Use the overview to explain interests and show an in-budget mock gift from the
+    demo catalog with its supporting captions. The widget confirms it as a mock selection.
     When using results from read_instagram_posts, set use_connected_instagram=True and
     preserve each exact caption excerpt and matching source_url. For an inaccessible
     profile or unsupported evidence, omit posts and ask for an applicable post.

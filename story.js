@@ -239,7 +239,9 @@ function render(){
   $('open').hidden=showGift;$('expanded').hidden=!showGift;
   $('expanded').classList.toggle('featured',summary);
   $('close').hidden=summary;
-  $('giftLabel').hidden=!summary;$('shortReason').hidden=!summary;
+  $('giftLabel').hidden=!summary && !output.mock_gifts;
+  $('giftLabel').textContent=output.mock_gifts?'ของขวัญตัวอย่าง':'ของขวัญที่เลือกให้';
+  $('shortReason').hidden=!summary;
   $('shortReason').textContent=summary && s ? s.short_reason : '';
   if($('reasonDetail').dataset.pick!==String(index)){
     $('reasonDetail').open=!summary;$('reasonDetail').dataset.pick=String(index);
@@ -247,13 +249,20 @@ function render(){
   $('portrait').hidden=!output.demo||!summary;
   $('profileTop').classList.toggle('with-model',output.demo && summary);
   if(!hasGift){$('expanded').hidden=true;$('notePanel').hidden=true;$('status').textContent='';return;}
-  $('brand').textContent=s.brand;$('product').textContent=s.product;$('price').textContent='฿'+s.price.toLocaleString('th-TH')+' · ราคาในแคตตาล็อก';
+  $('brand').textContent=s.brand;$('product').textContent=s.product;$('price').textContent='฿'+s.price.toLocaleString('th-TH')+(output.mock_gifts?' · ราคาตัวอย่าง':' · ราคาในแคตตาล็อก');
   $('citations').replaceChildren(...(summary?s.evidence:[]).map(i=>evidenceButton('โพสต์ '+(i+1),[i])));
   $('reason').textContent=s.reason;$('equip').disabled=!s.eligible;
   $('equip').textContent=s.eligible?(equipped?'✓ อยู่ในช่องของขวัญ · แก้โน้ต':'ใส่ช่องของขวัญ ＋'):'เกินงบ ฿'+output.budget;
   $('notePanel').hidden=!equipped||!showGift;$('note').value=drafts[index]??s.note;
-  $('save').disabled=sending||!!sent[index];$('save').textContent=sent[index]?'✓ เก็บแล้ว':'ส่งของที่เลือกกับโน้ตเข้าแชต ↗';
-  $('status').textContent=sent[index]?(embedded?'ส่งตัวเลือกนี้เข้าแชตแล้ว':'ตัวอย่างข้อความในแชต · '+sent[index]):'';
+  $('save').disabled=sending||!!sent[index];
+  $('save').textContent=sent[index]?'✓ เก็บแล้ว':saveLabel();
+  const confirmation=output.mock_gifts
+    ? '✓ เลือก '+s.product+' แล้วในโหมดทดลอง'
+    : (embedded?'ส่งตัวเลือกนี้เข้าแชตแล้ว':'ตัวอย่างข้อความในแชต · '+sent[index]);
+  $('status').textContent=sent[index]?confirmation:'';
+}
+function saveLabel(){
+  return output?.mock_gifts?'ยืนยันของขวัญตัวอย่าง':'ส่งของที่เลือกกับโน้ตเข้าแชต ↗';
 }
 function renderInquiry(){
   $('merchantDemo').hidden=!(embedded && output?.merchant_demo && index===-1);
@@ -341,15 +350,15 @@ $('makeGiftImage').onclick=async()=>{
   finally{button.disabled=false;}
 };
 $('equip').onclick=()=>{equipped=true;render();persist();$('note').focus();};
-$('note').oninput=()=>{drafts[index]=$('note').value;delete sent[index];$('save').disabled=sending;$('save').textContent='ส่งของที่เลือกกับโน้ตเข้าแชต ↗';$('status').textContent='';persist();};
+$('note').oninput=()=>{drafts[index]=$('note').value;delete sent[index];$('save').disabled=sending;$('save').textContent=saveLabel();$('status').textContent='';persist();};
 $('save').onclick=async()=>{
-  if(sending || sent[index])return;
+  if(sending || sent[index] || !activePick()?.eligible)return;
   const s=activePick(), note=$('note').value.trim(), current=signature, selected=index;
   const citations=(index===-1?s.evidence:[index]).map(i=>'“'+output.stories[i].caption+'”').join(' · ');
   const message='เลือก '+s.product+' จาก '+s.brand+' (฿'+s.price+') '+s.reason+'\nจากโพสต์ '+citations+(note?'\nโน้ตที่จะให้: '+note:'');
   sending=true;$('save').disabled=true;$('note').disabled=true;
   try{
-    if(embedded){
+    if(embedded && !output.mock_gifts){
       const reply=await request('ui/message',{role:'user',content:[{type:'text',text:message}]});
       if(reply?.isError)throw new Error('Host declined');
     }

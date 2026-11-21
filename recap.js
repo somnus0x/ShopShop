@@ -18,7 +18,7 @@ function recapModel(data) {
   const place = overview.places.find(p=>p.relation==='favorite') || overview.places[0];
   const pick = overview.pick;
   return {
-    demo:data.demo, total:data.stories.length, headline:overview.headline,
+    demo:data.demo, mockGifts:data.mock_gifts, total:data.stories.length, headline:overview.headline,
     groups:[...counts.values()].sort((a,b)=>b.count-a.count),
     place:place ? placeLabels[place.relation]+' · '+place.name : '',
     gift:pick ? {item:pick.item,name:pick.product, brand:pick.brand, price:pick.price, reason:pick.short_reason} : null
@@ -98,7 +98,7 @@ function paintRecap(context, model, avatar, productImage) {
     }
     label(gift.brand,textX,598,22,700,ink,textW);
     const end=block(gift.name,textX,641,textW,productImage?34:45,26,2,800,ink,1.10);
-    label('฿'+gift.price.toLocaleString('th-TH')+' · ราคาแคตตาล็อก',textX,end+5,22,700,ink,textW);
+    label('฿'+gift.price.toLocaleString('th-TH')+(model.mockGifts?' · ราคาตัวอย่าง':' · ราคาแคตตาล็อก'),textX,end+5,22,700,ink,textW);
     block(gift.reason,textX,end+41,textW,23,20,3,400,ink,1.26);
   }else{
     label('ของขวัญที่เลือกให้',35,613,26,700,ink,640);

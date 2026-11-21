@@ -10,6 +10,10 @@ Open `index.html` for a standalone design preview. To see the card inside a conv
 2. In [ChatGPT Plugins](https://chatgpt.com/plugins), choose **+ → Add custom MCP server**. Enter the Railway HTTPS URL with `/mcp` appended, name it **ShopShop**, and use **No authentication** for the demo server. Create and install the plugin. [OpenAI connection guide](https://developers.openai.com/plugins/deploy/connect-chatgpt)
 3. Add `APIFY_TOKEN` in Railway Variables. In a new conversation, mention `@shopshop`, then paste the actual public Instagram profile URL you want to test and ask for a gift under ฿600. Check that the overview shows the pasted handle, that its post images match the originals, and that the gift explanation cites the posts. The scraper requests up to 30 recent public posts per lookup with a $0.10 Apify charge cap. ChatGPT selects up to six supporting posts for the gift. Successful and empty results are cached for five minutes in the server process. Set a usage limit in Apify for the demo. Private or unreadable profiles prompt for screenshots. [Apify Actor](https://apify.com/apify/instagram-post-scraper) · [Apify API](https://docs.apify.com/api/v2/actor-run-sync-get-dataset-items)
 
+### Try the mock gift flow
+
+Paste a public profile into `@shopshop`. Review real source posts, pick the example gift, add a note, and select **ยืนยันของขวัญตัวอย่าง**. The confirmation stays in the widget and uses the demo catalog.
+
 ### Adjust the Instagram scan
 
 Set these variables in Railway and deploy the changes. Every lookup uses the configured post limit and charge cap.
@@ -28,6 +32,7 @@ The inquiry panel appears on the profile overview when the buyer bridge is confi
 
 | Railway variable | Value |
 | --- | --- |
+| `SHOPSHOP_ENABLE_MERCHANT_MCP` | Set to `1` when ready to test the separate merchant workflow. Defaults to off. |
 | `SHOPSHOP_BUYER_URL` | Private route from Railway to the shopping Mac’s `/buyer/mcp` endpoint |
 | `SHOPSHOP_BUYER_TOKEN` | The buyer-only bearer credential from the shopping operator |
 | `SHOPSHOP_INQUIRY_SECRET` | Random server-only key for signing inquiry tickets |
@@ -65,7 +70,7 @@ The shopping Mac’s loopback address is only reachable from that Mac. Test the 
 
    Paste the public profile URL in the same message.
 
-   Expect a recap and gift recommendation for the handle you supplied. Tap a graph entry to read the supporting post. Choose **ใส่ช่องของขวัญ**, edit the note, then press **ส่งของที่เลือกกับโน้ตเข้าแชต** to send your selection. **แชร์การ์ดนี้** opens the phone’s share sheet or a saveable 1080 × 1350 PNG.
+   Expect a recap and gift recommendation for the handle you supplied. Tap a graph entry to read the supporting post. Choose **ใส่ช่องของขวัญ**, edit the note, then press **ยืนยันของขวัญตัวอย่าง** to confirm your mock selection. **แชร์การ์ดนี้** opens the phone’s share sheet or a saveable 1080 × 1350 PNG.
 
 For a hosted connection, run `.venv/bin/python server.py` with the HTTP transport and expose its `/mcp` route through your HTTPS ingress. The local default is `http://127.0.0.1:8000/mcp`. The process accepts `HOST` and `PORT` from the environment. In step 4 choose **Server URL** and enter your reachable HTTPS URL including `/mcp`. GitHub hosts the source files. A running MCP endpoint or tunnel is required for interactive ChatGPT use. After changing the tool schema or UI resource, restart the server, choose **Refresh** in the ChatGPT plugin, and start a new conversation. [Connect and test a plugin](https://developers.openai.com/plugins/deploy/connect-chatgpt)
 

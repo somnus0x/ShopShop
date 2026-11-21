@@ -176,5 +176,5 @@ def build_story(profile_url="", posts=(), demo=False, budget_thb=None):
             stories[-1]["place"] = place
     if not stories:
         return {"status":"need_post","message":"ส่งภาพหน้าจอหรือคัดแคปชันจากโพสต์ของเธอลงในแชตนี้ เพื่อให้เราเลือกของจากสิ่งที่เธอโพสต์จริง ๆ"}
-    return {"status":"ready","demo":demo,"profile":"จูน" if demo else (f"@{handle}" if handle else "เธอ"),"network":network,
+    return {"status":"ready","mock_gifts":True,"demo":demo,"profile":"จูน" if demo else (f"@{handle}" if handle else "เธอ"),"network":network,
             "profile_url":None if demo else profile_url,"budget":budget_thb,"stories":stories,"overview":profile_read(stories)}

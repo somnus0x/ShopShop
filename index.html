@@ -189,7 +189,7 @@ function recapModel(data) {
   const place = overview.places.find(p=>p.relation==='favorite') || overview.places[0];
   const pick = overview.pick;
   return {
-    demo:data.demo, total:data.stories.length, headline:overview.headline,
+    demo:data.demo, mockGifts:data.mock_gifts, total:data.stories.length, headline:overview.headline,
     groups:[...counts.values()].sort((a,b)=>b.count-a.count),
     place:place ? placeLabels[place.relation]+' · '+place.name : '',
     gift:pick ? {item:pick.item,name:pick.product, brand:pick.brand, price:pick.price, reason:pick.short_reason} : null
@@ -269,7 +269,7 @@ function paintRecap(context, model, avatar, productImage) {
     }
     label(gift.brand,textX,598,22,700,ink,textW);
     const end=block(gift.name,textX,641,textW,productImage?34:45,26,2,800,ink,1.10);
-    label('฿'+gift.price.toLocaleString('th-TH')+' · ราคาแคตตาล็อก',textX,end+5,22,700,ink,textW);
+    label('฿'+gift.price.toLocaleString('th-TH')+(model.mockGifts?' · ราคาตัวอย่าง':' · ราคาแคตตาล็อก'),textX,end+5,22,700,ink,textW);
     block(gift.reason,textX,end+41,textW,23,20,3,400,ink,1.26);
   }else{
     label('ของขวัญที่เลือกให้',35,613,26,700,ink,640);
@@ -278,7 +278,7 @@ function paintRecap(context, model, avatar, productImage) {
   label(model.gift?'ชิ้นนี้ใช่เธอกี่เต็มสิบ?':'เห็นโพสต์นี้แล้ว นึกถึงของขวัญอะไร?',38,874,25,700,lime,600);
   c.restore();
 }
-</script><script>const fixture={"status": "ready", "demo": true, "profile": "จูน", "network": "Instagram", "profile_url": null, "budget": null, "stories": [{"cue": "race", "item": "clover", "caption": "สมัคร HYROX สนามแรกแล้ววว วันเสาร์นี้ขอแค่เข้าเส้นชัยก็พอ 🥹", "title": "เชียร์วันแข่ง", "glyph": "🍀", "product": "Lucky Leather Tag · Clover", "brand": "Rally Movement", "price": 590, "reason": "ให้โคลเวอร์ไว้ห้อยกระเป๋าวันแข่ง เป็นคำว่า “สู้ ๆ” ที่เธอพกไปได้ โดยไม่ต้องเดาว่าเธอใช้อุปกรณ์ซ้อมแบบไหน", "note": "วันแข่งสู้ ๆ นะ ไว้มาเล่าให้ฟังด้วย ☘", "eligible": true}, {"cue": "travel", "item": "flower", "caption": "เชียงใหม่ 3 วัน เอาเป้ไปใบเดียวเหมือนเดิม ชอบกลับมาเชียงใหม่ทุกหน้าหนาว 🎒", "title": "เป้ใบที่ไปด้วยทุกทริป", "glyph": "🎒", "product": "Flower Leather Tag V.2 · Pink-Lemon", "brand": "Rally Movement", "price": 590, "reason": "ถ้าเธอเดินทางด้วยเป้ใบเดียว แท็กสีสดช่วยให้จำเป้ของตัวเองได้ไว แล้วเธอก็ใช้ของใบโปรดต่อได้", "note": "เอาไว้ห้อยเป้ใบนั้นนะ ทริปหน้าขอดูรูปด้วย :)", "eligible": true, "place": {"name": "เชียงใหม่", "relation": "favorite", "excerpt": "ชอบกลับมาเชียงใหม่ทุกหน้าหนาว"}}, {"cue": "gym", "item": "golf-bag", "caption": "เลิกงานแล้วไปยิมต่อ วันนี้ลืมหยิบชุดมาเปลี่ยนอีกแล้ว 🫠", "title": "แวะยิมหลังเลิกงาน", "glyph": "🏃", "product": "Golf clothing bag · FG-BTB2308", "brand": "FLOG", "price": 2590, "reason": "รุ่นนี้เป็นกระเป๋าใส่เสื้อผ้ากอล์ฟ แต่ใช้พกชุดเปลี่ยนไปยิมได้ด้วย เลือกชิ้นนี้ถ้าเธอกำลังมองหากระเป๋าอีกใบจริง ๆ", "note": "เห็นว่าต้องหอบชุดไปเปลี่ยนบ่อย เลยนึกถึงใบนี้", "eligible": true}], "overview": {"headline": "วันแข่งก็ลุย วันเที่ยวก็เป้ใบเดียว", "likes": [{"label": "ลงแข่งกีฬา", "posts": [0]}, {"label": "เที่ยวด้วยเป้ใบเดียว", "posts": [1]}, {"label": "ออกกำลังกายหลังเลิกงาน", "posts": [2]}], "places": [{"name": "เชียงใหม่", "relation": "favorite", "posts": [1]}], "pick": {"cue": "race", "item": "clover", "caption": "สมัคร HYROX สนามแรกแล้ววว วันเสาร์นี้ขอแค่เข้าเส้นชัยก็พอ 🥹", "title": "เชียร์วันแข่ง", "glyph": "🍀", "product": "Lucky Leather Tag · Clover", "brand": "Rally Movement", "price": 590, "reason": "ให้โคลเวอร์ไว้ห้อยกระเป๋าวันแข่ง เป็นคำว่า “สู้ ๆ” ที่เธอพกไปได้ โดยไม่ต้องเดาว่าเธอใช้อุปกรณ์ซ้อมแบบไหน ห้อยไว้กับเป้ใบเดิมเวลาไปเที่ยวได้ ใช้เป็นเครื่องรางเล็ก ๆ บนกระเป๋าไปยิมได้ ชิ้นเล็กพกไปให้ตอนนัดกาแฟได้ และไม่ต้องเดาไซซ์", "note": "ทริปหน้าไปเชียงใหม่ พาชิ้นนี้ไปด้วยนะ :)", "eligible": true, "evidence": [0, 1, 2], "short_reason": "ห้อยโคลเวอร์กับเป้ใบโปรด ให้เธอพกคำว่า “สู้ ๆ” ไปทั้งวันแข่งและวันเที่ยว"}}};const $ = id => document.getElementById(id);
+</script><script>const fixture={"status": "ready", "mock_gifts": true, "demo": true, "profile": "จูน", "network": "Instagram", "profile_url": null, "budget": null, "stories": [{"cue": "race", "item": "clover", "caption": "สมัคร HYROX สนามแรกแล้ววว วันเสาร์นี้ขอแค่เข้าเส้นชัยก็พอ 🥹", "title": "เชียร์วันแข่ง", "glyph": "🍀", "product": "Lucky Leather Tag · Clover", "brand": "Rally Movement", "price": 590, "reason": "ให้โคลเวอร์ไว้ห้อยกระเป๋าวันแข่ง เป็นคำว่า “สู้ ๆ” ที่เธอพกไปได้ โดยไม่ต้องเดาว่าเธอใช้อุปกรณ์ซ้อมแบบไหน", "note": "วันแข่งสู้ ๆ นะ ไว้มาเล่าให้ฟังด้วย ☘", "eligible": true}, {"cue": "travel", "item": "flower", "caption": "เชียงใหม่ 3 วัน เอาเป้ไปใบเดียวเหมือนเดิม ชอบกลับมาเชียงใหม่ทุกหน้าหนาว 🎒", "title": "เป้ใบที่ไปด้วยทุกทริป", "glyph": "🎒", "product": "Flower Leather Tag V.2 · Pink-Lemon", "brand": "Rally Movement", "price": 590, "reason": "ถ้าเธอเดินทางด้วยเป้ใบเดียว แท็กสีสดช่วยให้จำเป้ของตัวเองได้ไว แล้วเธอก็ใช้ของใบโปรดต่อได้", "note": "เอาไว้ห้อยเป้ใบนั้นนะ ทริปหน้าขอดูรูปด้วย :)", "eligible": true, "place": {"name": "เชียงใหม่", "relation": "favorite", "excerpt": "ชอบกลับมาเชียงใหม่ทุกหน้าหนาว"}}, {"cue": "gym", "item": "golf-bag", "caption": "เลิกงานแล้วไปยิมต่อ วันนี้ลืมหยิบชุดมาเปลี่ยนอีกแล้ว 🫠", "title": "แวะยิมหลังเลิกงาน", "glyph": "🏃", "product": "Golf clothing bag · FG-BTB2308", "brand": "FLOG", "price": 2590, "reason": "รุ่นนี้เป็นกระเป๋าใส่เสื้อผ้ากอล์ฟ แต่ใช้พกชุดเปลี่ยนไปยิมได้ด้วย เลือกชิ้นนี้ถ้าเธอกำลังมองหากระเป๋าอีกใบจริง ๆ", "note": "เห็นว่าต้องหอบชุดไปเปลี่ยนบ่อย เลยนึกถึงใบนี้", "eligible": true}], "overview": {"headline": "วันแข่งก็ลุย วันเที่ยวก็เป้ใบเดียว", "likes": [{"label": "ลงแข่งกีฬา", "posts": [0]}, {"label": "เที่ยวด้วยเป้ใบเดียว", "posts": [1]}, {"label": "ออกกำลังกายหลังเลิกงาน", "posts": [2]}], "places": [{"name": "เชียงใหม่", "relation": "favorite", "posts": [1]}], "pick": {"cue": "race", "item": "clover", "caption": "สมัคร HYROX สนามแรกแล้ววว วันเสาร์นี้ขอแค่เข้าเส้นชัยก็พอ 🥹", "title": "เชียร์วันแข่ง", "glyph": "🍀", "product": "Lucky Leather Tag · Clover", "brand": "Rally Movement", "price": 590, "reason": "ให้โคลเวอร์ไว้ห้อยกระเป๋าวันแข่ง เป็นคำว่า “สู้ ๆ” ที่เธอพกไปได้ โดยไม่ต้องเดาว่าเธอใช้อุปกรณ์ซ้อมแบบไหน ห้อยไว้กับเป้ใบเดิมเวลาไปเที่ยวได้ ใช้เป็นเครื่องรางเล็ก ๆ บนกระเป๋าไปยิมได้ ชิ้นเล็กพกไปให้ตอนนัดกาแฟได้ และไม่ต้องเดาไซซ์", "note": "ทริปหน้าไปเชียงใหม่ พาชิ้นนี้ไปด้วยนะ :)", "eligible": true, "evidence": [0, 1, 2], "short_reason": "ห้อยโคลเวอร์กับเป้ใบโปรด ให้เธอพกคำว่า “สู้ ๆ” ไปทั้งวันแข่งและวันเที่ยว"}}};const $ = id => document.getElementById(id);
 const embedded = window.parent !== window;
 let output = null, index = 0, expanded = false, equipped = false, sending = false;
 let drafts = {}, sent = {}, signature = '';
@@ -519,7 +519,9 @@ function render(){
   $('open').hidden=showGift;$('expanded').hidden=!showGift;
   $('expanded').classList.toggle('featured',summary);
   $('close').hidden=summary;
-  $('giftLabel').hidden=!summary;$('shortReason').hidden=!summary;
+  $('giftLabel').hidden=!summary && !output.mock_gifts;
+  $('giftLabel').textContent=output.mock_gifts?'ของขวัญตัวอย่าง':'ของขวัญที่เลือกให้';
+  $('shortReason').hidden=!summary;
   $('shortReason').textContent=summary && s ? s.short_reason : '';
   if($('reasonDetail').dataset.pick!==String(index)){
     $('reasonDetail').open=!summary;$('reasonDetail').dataset.pick=String(index);
@@ -527,13 +529,20 @@ function render(){
   $('portrait').hidden=!output.demo||!summary;
   $('profileTop').classList.toggle('with-model',output.demo && summary);
   if(!hasGift){$('expanded').hidden=true;$('notePanel').hidden=true;$('status').textContent='';return;}
-  $('brand').textContent=s.brand;$('product').textContent=s.product;$('price').textContent='฿'+s.price.toLocaleString('th-TH')+' · ราคาในแคตตาล็อก';
+  $('brand').textContent=s.brand;$('product').textContent=s.product;$('price').textContent='฿'+s.price.toLocaleString('th-TH')+(output.mock_gifts?' · ราคาตัวอย่าง':' · ราคาในแคตตาล็อก');
   $('citations').replaceChildren(...(summary?s.evidence:[]).map(i=>evidenceButton('โพสต์ '+(i+1),[i])));
   $('reason').textContent=s.reason;$('equip').disabled=!s.eligible;
   $('equip').textContent=s.eligible?(equipped?'✓ อยู่ในช่องของขวัญ · แก้โน้ต':'ใส่ช่องของขวัญ ＋'):'เกินงบ ฿'+output.budget;
   $('notePanel').hidden=!equipped||!showGift;$('note').value=drafts[index]??s.note;
-  $('save').disabled=sending||!!sent[index];$('save').textContent=sent[index]?'✓ เก็บแล้ว':'ส่งของที่เลือกกับโน้ตเข้าแชต ↗';
-  $('status').textContent=sent[index]?(embedded?'ส่งตัวเลือกนี้เข้าแชตแล้ว':'ตัวอย่างข้อความในแชต · '+sent[index]):'';
+  $('save').disabled=sending||!!sent[index];
+  $('save').textContent=sent[index]?'✓ เก็บแล้ว':saveLabel();
+  const confirmation=output.mock_gifts
+    ? '✓ เลือก '+s.product+' แล้วในโหมดทดลอง'
+    : (embedded?'ส่งตัวเลือกนี้เข้าแชตแล้ว':'ตัวอย่างข้อความในแชต · '+sent[index]);
+  $('status').textContent=sent[index]?confirmation:'';
+}
+function saveLabel(){
+  return output?.mock_gifts?'ยืนยันของขวัญตัวอย่าง':'ส่งของที่เลือกกับโน้ตเข้าแชต ↗';
 }
 function renderInquiry(){
   $('merchantDemo').hidden=!(embedded && output?.merchant_demo && index===-1);
@@ -621,15 +630,15 @@ $('makeGiftImage').onclick=async()=>{
   finally{button.disabled=false;}
 };
 $('equip').onclick=()=>{equipped=true;render();persist();$('note').focus();};
-$('note').oninput=()=>{drafts[index]=$('note').value;delete sent[index];$('save').disabled=sending;$('save').textContent='ส่งของที่เลือกกับโน้ตเข้าแชต ↗';$('status').textContent='';persist();};
+$('note').oninput=()=>{drafts[index]=$('note').value;delete sent[index];$('save').disabled=sending;$('save').textContent=saveLabel();$('status').textContent='';persist();};
 $('save').onclick=async()=>{
-  if(sending || sent[index])return;
+  if(sending || sent[index] || !activePick()?.eligible)return;
   const s=activePick(), note=$('note').value.trim(), current=signature, selected=index;
   const citations=(index===-1?s.evidence:[index]).map(i=>'“'+output.stories[i].caption+'”').join(' · ');
   const message='เลือก '+s.product+' จาก '+s.brand+' (฿'+s.price+') '+s.reason+'\nจากโพสต์ '+citations+(note?'\nโน้ตที่จะให้: '+note:'');
   sending=true;$('save').disabled=true;$('note').disabled=true;
   try{
-    if(embedded){
+    if(embedded && !output.mock_gifts){
       const reply=await request('ui/message',{role:'user',content:[{type:'text',text:message}]});
       if(reply?.isError)throw new Error('Host declined');
     }
