@@ -128,3 +128,12 @@
 #merchantReplies img{display:block;width:min(180px,100%);height:auto;margin-top:6px}
 
 .story[data-tone="summary"] #postPhoto{max-height:180px;object-fit:cover}
+
+.story[data-tone="summary"] #surface{order:1}
+.story[data-tone="summary"] #vibe{order:2;margin:0 0 5px;padding:8px 0 10px;border-bottom:1px solid #dfff6844}
+#vibe h2{color:#d4c3ff;font-size:.75rem;font-weight:750}
+#vibe p{color:var(--cream);font-size:.89rem;line-height:1.45;overflow-wrap:anywhere}
+.story[data-tone="summary"] #sourceMedia{order:3}
+.story[data-tone="summary"] #breakdown{order:4}
+.story[data-tone="summary"] .storyfoot{order:5}
+@media(max-width:460px){#vibe p{font-size:.78rem}}

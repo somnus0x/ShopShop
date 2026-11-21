@@ -167,6 +167,8 @@ function render(){
   $('counter').textContent=summary?'ภาพรวม · '+total+' โพสต์':(index+1)+' / '+total;
   $('segments').replaceChildren(...output.stories.map((_,i)=>{const bar=document.createElement('i');if(summary||i<=index)bar.className='on';return bar;}));
   $('quote').textContent=summary?overview.headline:source.caption;
+  $('vibe').hidden=!summary || !overview?.vibe_summary;
+  $('vibeSummary').textContent=summary ? (overview.vibe_summary || '') : '';
   $('breakdown').hidden=!summary;$('sharing').hidden=!summary;
   $('sticker').hidden=summary;
   $('sticker').textContent=summary?'':source.glyph;

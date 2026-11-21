@@ -320,7 +320,7 @@ resource_meta = {
     "ui": {"prefersBorder": True, "csp": {"connectDomains": [], "resourceDomains": resource_domains}},
     "openai/widgetDescription": (
         "The complete ShopShop answer. It shows the Instagram profile recap, supporting posts, "
-        "gift, price and budget gap, and mock confirmation. When the card is ready, present the "
+        "rotatable sample character, vibe summary, gift, price and budget gap, and mock confirmation. Present the "
         "widget alone. Skip duplicate summaries, shopping lists, and follow-up text."
     ),
 }

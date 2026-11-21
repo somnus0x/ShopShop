@@ -24,6 +24,11 @@ LIKES = {
     "race":"ลงแข่งกีฬา", "gym":"ออกกำลังกายหลังเลิกงาน", "travel":"เที่ยวด้วยเป้ใบเดียว",
     "trip":"ท่องเที่ยว", "dogs":"สุนัข", "plaid":"เสื้อผ้าลายตาราง", "flowers":"ดอกไม้",
 }
+VIBE_TOPICS = {
+    "race": "การลงแข่งกีฬา", "gym": "การออกกำลังกายหลังเลิกงาน",
+    "travel": "ทริปที่พกเป้ใบเดียว", "trip": "การเดินทาง",
+    "dogs": "สุนัข", "plaid": "เสื้อผ้าลายตาราง", "flowers": "ดอกไม้",
+}
 SHORT_REASONS = {
     "race": "โคลเวอร์ห้อยกระเป๋า เป็นคำว่า “สู้ ๆ” ที่พกไปวันแข่งได้",
     "trip": "แท็กสีสดไว้ห้อยกระเป๋าตอนออกทริป หยิบกระเป๋าของตัวเองได้ง่ายขึ้น",
@@ -102,7 +107,18 @@ def profile_read(stories, budget_thb=None):
             if place["relation"] == "favorite" and any(i in pick["evidence"] and stories[i]["cue"] == "travel" for i in place["posts"]):
                 pick["note"] = "ทริปหน้าไป" + place["name"] + " พาชิ้นนี้ไปด้วยนะ :)"
                 break
-    return {"headline":headline, "likes":likes, "places":destinations, "pick":pick}
+    ranked = sorted(groups, key=lambda cue: -len(groups[cue]))
+    subjects = [VIBE_TOPICS[cue] for cue in ranked if cue in VIBE_TOPICS
+                and (cue != "trip" or "travel" not in groups)]
+    if subjects:
+        vibe_summary = "โพสต์ที่เลือกเล่าเรื่อง" + "และ".join(subjects[:2])
+    else:
+        vibe_summary = "โพสต์ที่เลือกพูดถึงสถานที่เป็นหลัก"
+    place_names = list(dict.fromkeys(place["name"] for place in destinations))
+    if place_names:
+        vibe_summary += " โดยพูดถึง " + " และ ".join(place_names[:2])
+    return {"headline":headline, "vibe_summary":vibe_summary, "likes":likes,
+            "places":destinations, "pick":pick}
 
 DEMO_POSTS = [
     {"cue":"race","caption":"สมัคร HYROX สนามแรกแล้ววว วันเสาร์นี้ขอแค่เข้าเส้นชัยก็พอ 🥹"},
