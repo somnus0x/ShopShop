@@ -122,11 +122,26 @@
  #likes small{grid-row:2}#likes .post-meter{margin:0}
 }
 
-#merchantDemo{margin:14px 0;padding:16px;border:1px solid var(--line);border-radius:12px}
-#merchantDemo h2{font-size:1rem}
-#merchantDemo p,#merchantDemo label{font-size:.86rem}
-#merchantCode{max-width:100%;font:inherit;padding:6px;border:1px solid var(--line);border-radius:5px}
-#merchantReplies img{display:block;width:min(180px,100%);height:auto;margin-top:6px}
+#note{color:var(--ink);caret-color:var(--ink)}
+#inquiryDetails,#inquiryFeedback{font-size:.82rem;color:var(--jade);margin-top:7px}
+#inquiryReceipt{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;gap:12px;margin-top:14px;padding:14px;background:var(--acid);color:var(--ink);border-radius:12px;overflow:hidden}
+#inquiryReceipt h2{font-size:1.04rem;line-height:1.25}
+#inquiryReceipt p{font-size:.84rem;margin-top:3px}
+#inquiryReceipt .plain{padding:0;margin:0;min-height:44px;text-align:left}
+.inquiry-stamp{display:grid;place-items:center;width:34px;height:34px;background:var(--ink);color:var(--acid);border-radius:50%;font-size:1.15rem;font-weight:750}
+.inquiry-spark{position:absolute;top:31px;left:31px;pointer-events:none}
+.inquiry-spark i{position:absolute;width:5px;height:5px;background:var(--ink);transform:rotate(45deg);opacity:0}
+.inquiry-spark i:nth-child(1){--x:-20px;--y:-18px}
+.inquiry-spark i:nth-child(2){--x:22px;--y:-19px}
+.inquiry-spark i:nth-child(3){--x:24px;--y:18px}
+.inquiry-spark i:nth-child(4){--x:-19px;--y:20px}
+#inquiryReceipt[data-celebrate]{animation:receipt-arrival .32s cubic-bezier(.22,1,.36,1) both}
+#inquiryReceipt[data-celebrate] .inquiry-stamp{animation:stamp-arrival .35s cubic-bezier(.22,1,.36,1) both}
+#inquiryReceipt[data-celebrate] .inquiry-spark i{animation:stamp-spark .43s .06s cubic-bezier(.22,1,.36,1) both}
+@keyframes receipt-arrival{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes stamp-arrival{from{opacity:0;transform:scale(.65) rotate(-14deg)}to{opacity:1;transform:none}}
+@keyframes stamp-spark{0%{opacity:0}20%{opacity:.85}100%{opacity:0;transform:translate(var(--x),var(--y)) rotate(110deg)}}
+#inquiryReplies img{display:block;width:min(180px,100%);height:auto;margin-top:6px}
 
 .story[data-tone="summary"] #postPhoto{max-height:180px;object-fit:cover}
 

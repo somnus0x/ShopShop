@@ -1,11 +1,11 @@
 // Each supplied post contributes once. Race and gym belong to the same fitness topic.
 const topics = {
-  race: ['ฟิตเนส', '#dfff69'], gym: ['ฟิตเนส', '#dfff69'],
-  travel: ['เดินทาง', '#c4afff'], trip: ['เดินทาง', '#c4afff'], dogs: ['น้องหมา', '#ffb899'],
-  plaid: ['แฟชั่น', '#88dce4'], flowers: ['ดอกไม้', '#ffb2d6'], place: ['สถานที่', '#fff0ba'],
-  music: ['ดนตรี', '#ffa6b8']
+  race: ['Fitness', '#dfff69'], gym: ['Fitness', '#dfff69'],
+  travel: ['Travel', '#c4afff'], trip: ['Travel', '#c4afff'], dogs: ['Dogs', '#ffb899'],
+  plaid: ['Style', '#88dce4'], flowers: ['Flowers', '#ffb2d6'], place: ['Places', '#fff0ba'],
+  music: ['Music', '#ffa6b8']
 };
-const placeLabels = {favorite:'ชอบไป', visited:'เคยไป', planned:'อยากไป'};
+const placeLabels = {favorite:'Favorite', visited:'Visited', planned:'Planned'};
 function recapModel(data) {
   const counts = new Map();
   for (const [index,story] of data.stories.entries()) {
@@ -59,7 +59,7 @@ function paintRecap(context, model, avatar, productImage) {
   rect(0,0,720,900,ink);
   label('shopshop',32,60,44,900,lime,300);
   c.textAlign='right';
-  label(model.demo?'จูน  /  โปรไฟล์สมมติ':'จากโพสต์ที่แชร์',688,56,22,700,paper,285);
+  label(model.demo?'JUNE / DEMO PROFILE':'FROM SHARED POSTS',688,56,22,700,paper,285);
   c.textAlign='left';
   rect(32,82,656,2,'#618269');
 
@@ -95,16 +95,16 @@ function paintRecap(context, model, avatar, productImage) {
     const textW = 685-textX;
     if(productImage){
       c.drawImage(productImage,32,576,210,210);
-      label('ภาพจำลองสินค้า',33,815,19,700,ink,210);
+      label('Product mockup',33,815,19,700,ink,210);
     }
     label(gift.brand,textX,598,22,700,ink,textW);
     const end=block(gift.name,textX,641,textW,productImage?34:45,26,2,800,ink,1.10);
-    label('฿'+gift.price.toLocaleString('th-TH')+(gift.overBudget?' · เกินงบ ฿'+gift.overBudget:(model.mockGifts?' · ราคาตัวอย่าง':' · ราคาแคตตาล็อก')),textX,end+5,22,700,ink,textW);
+    label('฿'+gift.price.toLocaleString('en-TH')+(gift.overBudget?' · Over budget by ฿'+gift.overBudget:(model.mockGifts?' · Sample price':' · Listed price')),textX,end+5,22,700,ink,textW);
     block(gift.reason,textX,end+41,textW,23,20,3,400,ink,1.26);
   }else{
-    label('ของขวัญที่เลือกให้',35,613,26,700,ink,640);
-    block('ยังไม่มีของที่เข้ากับโพสต์และงบนี้',35,696,640,45,32,2,800,ink,1.2);
+    label('Gift pick',35,613,26,700,ink,640);
+    block('No gifts found for these posts and budget.',35,696,640,45,32,2,800,ink,1.2);
   }
-  label(model.gift?'ชิ้นนี้ใช่เธอกี่เต็มสิบ?':'เห็นโพสต์นี้แล้ว นึกถึงของขวัญอะไร?',38,874,25,700,lime,600);
+  label(model.gift?'How well does this gift fit?':'What gift does this bring to mind?',38,874,25,700,lime,600);
   c.restore();
 }

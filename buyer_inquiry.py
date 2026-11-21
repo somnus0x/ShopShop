@@ -14,6 +14,7 @@ from mcp import ClientSession
 from mcp.client.streamable_http import streamable_http_client
 
 PRODUCT_ID = "demo-supasonk"
+_process_signing_key = os.urandom(32)
 
 
 def configured():
@@ -36,7 +37,28 @@ def qr_origin():
 
 
 def _signature(value):
-    return hmac.new(os.environ["SHOPSHOP_INQUIRY_SECRET"].encode(), value.encode(), hashlib.sha256).hexdigest()
+    secret = os.getenv("SHOPSHOP_INQUIRY_SECRET")
+    return hmac.new(secret.encode() if secret else _process_signing_key, value.encode(), hashlib.sha256).hexdigest()
+
+
+def widget_grant(request_id):
+    value = f"submit.{request_id}.{int(time.time()) + 3600}"
+    return f"{value}.{_signature(value)}"
+
+
+async def submit_widget(request_id, grant):
+    if not rest_origin():
+        return {"status": "unavailable"}
+    try:
+        request_id = str(UUID(request_id))
+        action, bound_id, expiry, signature = grant.split(".")
+        if action != "submit" or bound_id != request_id or int(expiry) < time.time():
+            return {"status": "expired"}
+        if not hmac.compare_digest(signature, _signature(f"submit.{bound_id}.{expiry}")):
+            return {"status": "denied"}
+    except (ValueError, TypeError, AttributeError):
+        return {"status": "denied"}
+    return await _submit(request_id)
 
 
 @asynccontextmanager
@@ -56,7 +78,7 @@ async def check_connection():
         try:
             catalog = await _rest("GET", "/api/products", params={"limit": 1})
             return {"status": "ready", "catalog": "available" if isinstance(catalog.get("products"), list) else "absent",
-                    "transport": "rest", "inquiries": "enabled" if configured() else "disabled"}
+                    "transport": "rest", "inquiries": "demo_available"}
         except (httpx.HTTPError, ValueError):
             return {"status": "buyer_unreachable", "transport": "rest"}
     if not configured():
@@ -149,6 +171,13 @@ async def submit(request_id, demo_code):
         if not hmac.compare_digest(demo_code.encode(), os.environ["SHOPSHOP_BUYER_DEMO_CODE"].encode()):
             return {"status": "denied"}
         request_id = str(UUID(request_id))
+    except (ValueError, TypeError, AttributeError):
+        return {"status": "denied"}
+    return await _submit(request_id)
+
+
+async def _submit(request_id):
+    try:
         arguments = {"request_id": request_id, "product_id": PRODUCT_ID}
         payload = await _rest("POST", "/api/inquiries", json=arguments) if rest_origin() else await _call("submit_product_inquiry", arguments)
         result = _public_result(payload)
@@ -156,13 +185,14 @@ async def submit(request_id, demo_code):
         if not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", inquiry_id):
             raise ValueError("Unexpected inquiry ID")
         value = f"{inquiry_id}.{int(time.time()) + 86400}"
-        return {**result, "ticket": f"{value}.{_signature(value)}"}
+        return {**result, "ticket": f"{value}.{_signature(value)}",
+                "created": payload.get("created", True)}
     except Exception:
         return {"status": "unavailable"}
 
 
 async def refresh(ticket):
-    if not configured():
+    if not (rest_origin() or configured()):
         return {"status": "unavailable"}
     try:
         inquiry_id, expiry, signature = ticket.split(".")

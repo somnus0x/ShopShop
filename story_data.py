@@ -8,44 +8,44 @@ ROOT = Path(__file__).resolve().parent
 CATALOG = json.loads((ROOT / "brand-corpus.json").read_text())
 PRODUCTS = {p["id"]: dict(p, brand=b["name"]) for b in CATALOG["brands"] for p in b["products"]}
 PAIRINGS = {
-    "race": ("clover", "เชียร์วันแข่ง", "🍀", "ให้โคลเวอร์ไว้ห้อยกระเป๋าวันแข่ง เป็นคำว่า “สู้ ๆ” ที่เธอพกไปได้ โดยไม่ต้องเดาว่าเธอใช้อุปกรณ์ซ้อมแบบไหน", "วันแข่งสู้ ๆ นะ ไว้มาเล่าให้ฟังด้วย ☘"),
-    "travel": ("flower", "เป้ใบที่ไปด้วยทุกทริป", "🎒", "ถ้าเธอเดินทางด้วยเป้ใบเดียว แท็กสีสดช่วยให้จำเป้ของตัวเองได้ไว แล้วเธอก็ใช้ของใบโปรดต่อได้", "เอาไว้ห้อยเป้ใบนั้นนะ ทริปหน้าขอดูรูปด้วย :)"),
-    "gym": ("golf-bag", "แวะยิมหลังเลิกงาน", "🏃", "รุ่นนี้เป็นกระเป๋าใส่เสื้อผ้ากอล์ฟ แต่ใช้พกชุดเปลี่ยนไปยิมได้ด้วย เลือกชิ้นนี้ถ้าเธอกำลังมองหากระเป๋าอีกใบจริง ๆ", "เห็นว่าต้องหอบชุดไปเปลี่ยนบ่อย เลยนึกถึงใบนี้"),
+    "race": ("clover", "Race day", "🍀", "A clover tag for their race bag is a small good-luck gift that fits the gear they already use.", "Good luck on race day. Tell me how it goes ☘"),
+    "travel": ("flower", "One bag, every trip", "🎒", "A bright tag makes their favorite backpack easy to spot when they travel with one bag.", "For that backpack of yours. Send me a photo from your next trip :)"),
+    "gym": ("golf-bag", "After-work gym", "🏃", "This golf clothing bag can carry a change of clothes for the gym. It fits someone who needs a dedicated gym bag.", "For those days when you squeeze in a workout after work."),
 }
 # Each cue is assigned by the host only when the supplied caption supports it.
 # Secondary uses are editorial suggestions, not additional facts about the recipient.
 PAIRINGS.update({
-    "trip": ("flower", "เรื่องเล่าจากทริป", "🧳", "แท็กห้อยกระเป๋าสีสดช่วยให้สังเกตกระเป๋าได้ง่ายขึ้นระหว่างเดินทาง เป็นของเล็ก ๆ ที่โยงถึงทริปในโพสต์", "เห็นโพสต์ทริปนี้แล้วนึกถึงชิ้นนี้ เอาไว้พาไปทริปหน้านะ"),
-    "dogs": ("doggo", "ชอบสุนัข", "🐶", "แท็กลายน้องหมาเป็นของเล็ก ๆ ที่โยงถึงเรื่องที่เธอชอบคุยได้", "เห็นน้องหมาตัวนี้แล้วนึกถึงเธอ"),
-    "plaid": ("faye", "ชอบใส่ลายตาราง", "🎀", "เสื้อ Faye ใช้ลายตารางสีน้ำตาล ถ้ารู้ว่าเธอชอบลายนี้ ลองชวนเธอเลือกไซซ์ด้วยกัน", "เห็นลายตารางแล้วนึกถึงเสื้อตัวโปรดของเธอ"),
-    "flowers": ("flower", "ชอบดอกไม้", "🌸", "แท็กรูปดอกไม้ชิ้นนี้ห้อยกับกระเป๋าใบเดิมได้ เธอจึงพกดอกไม้ติดตัวไปได้ทุกวัน", "ดอกนี้เอาไว้พาไปเที่ยวด้วยนะ"),
-    "music": ("clover", "เพลงและการแสดง", "🎵", "แท็กโคลเวอร์ห้อยกระเป๋าที่พกไปซ้อมหรือไปแสดง เป็นคำอวยพรเล็ก ๆ ก่อนเริ่มงาน", "ขอให้โชว์ออกมาดี :)"),
+    "trip": ("flower", "Trip highlights", "🧳", "A bright luggage tag makes a travel bag easier to spot and ties back to the trip they shared.", "Your trip made me think of this. Take it on the next one."),
+    "dogs": ("doggo", "A soft spot for dogs", "🐶", "A dog-shaped bag tag is a small nod to a subject they love talking about.", "This little dog made me think of you."),
+    "plaid": ("faye", "Plaid on repeat", "🎀", "The Faye blouse comes in brown plaid. If they already wear the pattern, you can pick a size together.", "This plaid reminded me of your favorite shirt."),
+    "flowers": ("flower", "A thing for flowers", "🌸", "A flower-shaped bag tag lets them carry a little bloom on the bag they already use.", "A little flower to take with you."),
+    "music": ("clover", "Music and live shows", "🎵", "A clover tag adds a little good luck to the bag they bring to rehearsal or a show.", "Have a great show :)"),
 })
 LIKES = {
-    "race":"ลงแข่งกีฬา", "gym":"ออกกำลังกายหลังเลิกงาน", "travel":"เที่ยวด้วยเป้ใบเดียว",
-    "trip":"ท่องเที่ยว", "dogs":"สุนัข", "plaid":"เสื้อผ้าลายตาราง", "flowers":"ดอกไม้",
-    "music":"เพลงและการแสดง",
+    "race":"Racing", "gym":"After-work workouts", "travel":"One-bag travel",
+    "trip":"Travel", "dogs":"Dogs", "plaid":"Plaid", "flowers":"Flowers",
+    "music":"Music and live shows",
 }
 VIBE_TOPICS = {
-    "race": "การลงแข่งกีฬา", "gym": "การออกกำลังกายหลังเลิกงาน",
-    "travel": "ทริปที่พกเป้ใบเดียว", "trip": "การเดินทาง",
-    "dogs": "สุนัข", "plaid": "เสื้อผ้าลายตาราง", "flowers": "ดอกไม้",
-    "music": "เพลงและการแสดง",
+    "race": "racing", "gym": "after-work workouts",
+    "travel": "one-bag trips", "trip": "travel",
+    "dogs": "Dogs", "plaid": "Plaid", "flowers": "Flowers",
+    "music": "Music and live shows",
 }
 SHORT_REASONS = {
-    "race": "โคลเวอร์ห้อยกระเป๋า เป็นคำว่า “สู้ ๆ” ที่พกไปวันแข่งได้",
-    "trip": "แท็กสีสดไว้ห้อยกระเป๋าตอนออกทริป หยิบกระเป๋าของตัวเองได้ง่ายขึ้น",
-    "travel": "แท็กสีสดช่วยให้เธอจำเป้ใบโปรดได้ไวตอนเดินทาง",
-    "gym": "ใบนี้ใส่ชุดเปลี่ยนไปยิมหลังเลิกงานได้",
-    "dogs": "แท็กลายน้องหมาห้อยกระเป๋าได้ ให้เธอพกสิ่งที่ชอบไปทุกวัน",
-    "plaid": "เสื้อผูกโบลายตารางเข้ากับลายที่เธอชอบใส่ ชวนกันเลือกไซซ์ได้",
-    "flowers": "ดอกไม้ที่ห้อยกระเป๋าใบโปรดไปด้วยได้ทุกวัน",
-    "music": "แท็กโคลเวอร์สำหรับกระเป๋าที่พกไปซ้อมหรือไปแสดง",
+    "race": "A little good luck for their race bag.",
+    "trip": "A bright tag makes their bag easier to spot on a trip.",
+    "travel": "Help their favorite backpack stand out while traveling.",
+    "gym": "A bag for their after-work gym kit.",
+    "dogs": "A dog-shaped bag tag for everyday use.",
+    "plaid": "A plaid bow blouse in a pattern they already wear.",
+    "flowers": "A flower to take along on their favorite bag.",
+    "music": "A clover tag for rehearsal or show days.",
 }
 CROSSOVER = {
-    "clover": {"travel":"ห้อยไว้กับเป้ใบเดิมเวลาไปเที่ยวได้", "gym":"ใช้เป็นเครื่องรางเล็ก ๆ บนกระเป๋าไปยิมได้"},
-    "doggo": {"travel":"ลายน้องหมาติดไปกับเป้ใบเดียวที่พาไปเที่ยวได้"},
-    "flower": {"gym":"ห้อยกับกระเป๋าไปยิมให้จำใบของตัวเองง่ายขึ้น"},
+    "clover": {"travel":"It also works on the backpack they travel with.", "gym":"It can double as a good-luck charm on their gym bag."},
+    "doggo": {"travel":"The dog tag can go on the backpack they take everywhere."},
+    "flower": {"gym":"It makes their gym bag easier to recognize."},
 }
 
 def profile_read(stories, budget_thb=None):
@@ -55,15 +55,15 @@ def profile_read(stories, budget_thb=None):
     likes = [{"label":LIKES[cue], "posts":indices} for cue, indices in groups.items() if cue in LIKES]
     labels = [like["label"] for like in likes]
     if not labels:
-        headline = "พิกัดที่เธอพูดถึงในโพสต์"
+        headline = "Places they’ve mentioned"
     elif len(stories) == 1:
-        headline = "โพสต์นี้เล่าเรื่อง" + labels[0]
+        headline = "In this post · " + labels[0]
     elif {"race","travel"} <= groups.keys():
-        headline = "วันแข่งก็ลุย วันเที่ยวก็เป้ใบเดียว"
+        headline = "Race day. One-bag getaway."
     elif {"race","gym"} <= groups.keys():
-        headline = "จากวันซ้อม ถึงวันแข่ง"
+        headline = "From training days to race day"
     elif len(labels) == 1:
-        headline = "เรื่องที่เห็นจากโพสต์คือ" + labels[0]
+        headline = "From the posts · " + labels[0]
     else:
         headline = labels[0] + " × " + labels[1]
 
@@ -104,31 +104,31 @@ def profile_read(stories, budget_thb=None):
     if pick:
         pick["short_reason"] = SHORT_REASONS[pick["cue"]]
         if pick["item"] == "clover" and any(stories[i]["cue"] == "travel" for i in pick["evidence"]):
-            pick["short_reason"] = "ห้อยโคลเวอร์กับเป้ใบโปรด ให้เธอพกคำว่า “สู้ ๆ” ไปทั้งวันแข่งและวันเที่ยว"
+            pick["short_reason"] = "A clover for their favorite bag, from race day to the next getaway."
         if pick["item"] in {"clover","doggo","flower"}:
-            pick["reason"] += " ชิ้นเล็กพกไปให้ตอนนัดกาแฟได้ และไม่ต้องเดาไซซ์"
+            pick["reason"] += " It’s easy to bring on a coffee date and fits without guessing their size."
         for place in destinations:
             if place["relation"] == "favorite" and any(i in pick["evidence"] and stories[i]["cue"] == "travel" for i in place["posts"]):
-                pick["note"] = "ทริปหน้าไป" + place["name"] + " พาชิ้นนี้ไปด้วยนะ :)"
+                pick["note"] = "Next stop, " + place["name"] + ". Bring this along :)"
                 break
     ranked = sorted(groups, key=lambda cue: -len(groups[cue]))
     subjects = [VIBE_TOPICS[cue] for cue in ranked if cue in VIBE_TOPICS
                 and (cue != "trip" or "travel" not in groups)]
     if subjects:
-        vibe_summary = "โพสต์ที่เลือกเล่าเรื่อง" + "และ".join(subjects[:2])
+        vibe_summary = "These posts show an interest in " + " and ".join(subjects[:2])
     else:
-        vibe_summary = "โพสต์ที่เลือกพูดถึงสถานที่เป็นหลัก"
+        vibe_summary = "These posts mostly highlight places"
     place_names = list(dict.fromkeys(place["name"] for place in destinations))
     if place_names:
-        vibe_summary += " โดยพูดถึง " + " และ ".join(place_names[:2])
-    return {"headline":headline, "vibe_summary":vibe_summary, "likes":likes,
+        vibe_summary += ", with mentions of " + " and ".join(place_names[:2])
+    return {"headline":headline, "vibe_summary":vibe_summary + ".", "likes":likes,
             "places":destinations, "pick":pick}
 
 DEMO_POSTS = [
-    {"cue":"race","caption":"สมัคร HYROX สนามแรกแล้ววว วันเสาร์นี้ขอแค่เข้าเส้นชัยก็พอ 🥹"},
-    {"cue":"travel","caption":"เชียงใหม่ 3 วัน เอาเป้ไปใบเดียวเหมือนเดิม ชอบกลับมาเชียงใหม่ทุกหน้าหนาว 🎒",
-     "place":{"name":"เชียงใหม่","relation":"favorite","excerpt":"ชอบกลับมาเชียงใหม่ทุกหน้าหนาว"}},
-    {"cue":"gym","caption":"เลิกงานแล้วไปยิมต่อ วันนี้ลืมหยิบชุดมาเปลี่ยนอีกแล้ว 🫠"},
+    {"cue":"race","caption":"Signed up for my first HYROX! I just want to cross the finish line on Saturday 🥹"},
+    {"cue":"travel","caption":"Three days in Chiang Mai and one backpack, as usual. I love coming back to Chiang Mai every winter 🎒",
+     "place":{"name":"Chiang Mai","relation":"favorite","excerpt":"I love coming back to Chiang Mai every winter"}},
+    {"cue":"gym","caption":"Gym after work. I forgot to pack a change of clothes again 🫠"},
 ]
 
 PRESENTATION_QUERIES = {"johnmayer": "johnmayer", "oliviadean": "oliviadeano",
@@ -185,12 +185,12 @@ def post_permalink(url, network):
 
 # Alternatives use a concrete product feature and the same evidence as the direct pick.
 TRAVEL_ALTERNATIVES = {
-    "clover": "ใช้ห้อยกระเป๋าเดินทางให้จำใบของตัวเองได้ง่ายขึ้น",
-    "doggo": "แท็กทรงน้องหมาเป็นอีกแบบสำหรับแยกกระเป๋าของตัวเองตอนเดินทาง",
+    "clover": "Tag their luggage so they can spot it quickly.",
+    "doggo": "A dog-shaped tag helps their bag stand out on the road.",
 }
 FITNESS_ALTERNATIVES = {
-    "clover": "แท็กโคลเวอร์ไว้ห้อยกระเป๋าไปซ้อมหรือวันแข่ง",
-    "flower": "แท็กสีสดสำหรับแยกกระเป๋าออกกำลังกาย",
+    "clover": "A clover charm for their training or race bag.",
+    "flower": "A bright tag makes their workout bag easy to spot.",
 }
 
 
@@ -210,7 +210,7 @@ def gift_alternatives(stories, primary, budget_thb, indices):
                 options[item] = catalog_pick(item, budget_thb, reason, [i])
     for item in PRODUCTS:
         if item not in options:
-            options[item] = catalog_pick(item, budget_thb, "ตัวเลือกทั่วไปจากแคตตาล็อก", [])
+            options[item] = catalog_pick(item, budget_thb, "Another option from the catalog.", [])
     for item in options.values():
         if budget_thb is not None and item["price"] > budget_thb:
             item["over_budget_thb"] = item["price"] - budget_thb
@@ -225,31 +225,31 @@ def catalog_pick(item, budget_thb, reason, evidence):
     price = product["price_thb"]
     return {"item": item, "product": product["name"], "brand": product["brand"], "price": price,
             "eligible": budget_thb is None or price <= budget_thb, "reason": reason,
-            "short_reason": reason, "note": "เห็นชิ้นนี้แล้วนึกถึงเธอ", "evidence": evidence,
+            "short_reason": reason, "note": "Saw this and thought of you.", "evidence": evidence,
             "catalog_fallback": not evidence}
 
 
 _BAG_REASONS = {
-    "aman-jekel-h-messenger": "กระเป๋าสะพายสำหรับพกของระหว่างเดินทาง",
-    "aman-fames-classic-duffle": "กระเป๋าดัฟเฟิลใส่เสื้อผ้าสำหรับออกทริป",
-    "overhills-motif-windbreaker-jacket": "เสื้อกันลมสำหรับใส่เป็นชั้นนอกระหว่างเดินทาง",
-    "overhills-rover-pants": "กางเกงสำหรับใส่เดินเที่ยว",
-    "overhills-resorts-7-shorts": "กางเกงขาสั้นสำหรับใส่ในทริปอากาศร้อน",
+    "aman-jekel-h-messenger": "A messenger bag for keeping everyday travel essentials close.",
+    "aman-fames-classic-duffle": "A duffle for packing clothes for a trip.",
+    "overhills-motif-windbreaker-jacket": "A windbreaker they can layer on the road.",
+    "overhills-rover-pants": "An everyday pair of pants for getting around on a trip.",
+    "overhills-resorts-7-shorts": "Light shorts for a warm-weather trip.",
 }
 _TRAINING_REASONS = {
-    "overhills-loadlite-5-shorts": "กางเกงขาสั้นสำหรับใส่ซ้อม",
-    "overhills-grit-pace-45-shorts": "กางเกงขาสั้นสำหรับใส่วิ่ง",
-    "overhills-track-long-sleeve": "เสื้อแขนยาวสำหรับใส่ช่วงวอร์มอัป",
-    "overhills-cool-pace-singlet": "เสื้อกล้ามสำหรับใส่ซ้อมหรือวันแข่ง",
-    "overhills-airmatte-tee": "เสื้อยืดสำหรับใส่ซ้อมหรือพกไปเปลี่ยนหลังออกกำลังกาย",
-    "overhills-bop-taper-tee": "เสื้อยืดอีกตัวสำหรับสลับใส่ไปออกกำลังกาย",
+    "overhills-loadlite-5-shorts": "Training shorts for their next workout.",
+    "overhills-grit-pace-45-shorts": "Running shorts for their next training session.",
+    "overhills-track-long-sleeve": "A long-sleeve top for warm-ups.",
+    "overhills-cool-pace-singlet": "A singlet for training or race day.",
+    "overhills-airmatte-tee": "A tee to train in or change into after a workout.",
+    "overhills-bop-taper-tee": "A spare tee for their workout rotation.",
 }
 _LIVE_REASONS = {"race": _TRAINING_REASONS, "gym": _TRAINING_REASONS,
                  "trip": _BAG_REASONS, "travel": _BAG_REASONS, "place": _BAG_REASONS,
                  "music": {
-                     "overhills-bop-taper-tee": "เสื้อยืดสำหรับใส่สบาย ๆ ตอนซ้อมหรืออยู่ในสตูดิโอ",
-                     "overhills-airmatte-tee": "เสื้อยืดอีกตัวไว้พกเปลี่ยนระหว่างวันซ้อม",
-                     "aman-jekel-h-messenger": "กระเป๋าสะพายสำหรับพกโน้ตเพลงและของชิ้นเล็กไปซ้อม",
+                     "overhills-bop-taper-tee": "An easy tee for rehearsal or time in the studio.",
+                     "overhills-airmatte-tee": "A spare tee for a long rehearsal day.",
+                     "aman-jekel-h-messenger": "A messenger bag for carrying sheet music and small rehearsal essentials.",
                  }}
 
 
@@ -268,13 +268,13 @@ def apply_live_catalog(result, products, budget_thb):
             overage = max(0, price - budget_thb) if budget_thb is not None else 0
             matches = [(i, _LIVE_REASONS.get(result["stories"][i]["cue"], {}).get(item)) for i in indices]
             evidence = [i for i, reason in matches if reason]
-            reason = next((reason for _, reason in matches if reason), "ตัวเลือกจากร้านในแคตตาล็อกใกล้งบที่ตั้งไว้")
+            reason = next((reason for _, reason in matches if reason), "A catalog option close to the budget.")
             priority = (bool(overage), overage, not evidence, price)
             choices.append((priority, {
                 "item": item, "product": product["name"], "brand": product["brand"] or "",
                 "price": price, "eligible": not overage, "over_budget_thb": overage,
                 "image_url": product.get("image_url"), "reason": reason, "short_reason": reason,
-                "note": "เห็นชิ้นนี้แล้วนึกถึงเธอ", "evidence": evidence, "catalog_fallback": not evidence,
+                "note": "Saw this and thought of you.", "evidence": evidence, "catalog_fallback": not evidence,
             }))
         return [choice for _, choice in sorted(choices, key=lambda entry: entry[0])[:3]]
 
@@ -291,7 +291,7 @@ def build_story(profile_url="", posts=(), demo=False, budget_thb=None):
     network = "Instagram" if demo else platform(profile_url)
     handle = instagram_handle(profile_url) if network == "Instagram" and not demo else None
     if not network or (network == "Instagram" and not demo and not handle):
-        return {"status":"need_profile","message":"ส่งลิงก์โปรไฟล์ Instagram หรือ Facebook ในแชตนี้ได้เลย"}
+        return {"status":"need_profile","message":"Share an Instagram or Facebook profile link in chat."}
     stories = []
     seen = set()
     for p in DEMO_POSTS if demo else posts:
@@ -303,7 +303,7 @@ def build_story(profile_url="", posts=(), demo=False, budget_thb=None):
         if cue == "place" and re.search(r"\b(?:trip|travel|vacation)\b|ทริป|ไปเที่ยว|เดินทาง", key, re.IGNORECASE):
             cue = "trip"
         if cue == "place":
-            stories.append({"caption":p["caption"],"cue":"place","title":"สถานที่ในโพสต์","glyph":"📍","eligible":False})
+            stories.append({"caption":p["caption"],"cue":"place","title":"Place mentioned","glyph":"📍","eligible":False})
         else:
             item, title, glyph, reason, note = PAIRINGS[cue]
             product = PRODUCTS[item]
@@ -318,12 +318,12 @@ def build_story(profile_url="", posts=(), demo=False, budget_thb=None):
                 and place["excerpt"] in p["caption"] and place.get("relation") in {"favorite","planned","visited"}):
             stories[-1]["place"] = place
     if not stories:
-        return {"status":"need_post","message":"ส่งภาพหน้าจอหรือคัดแคปชันจากโพสต์ของเธอลงในแชตนี้ เพื่อให้เราเลือกของจากสิ่งที่เธอโพสต์จริง ๆ"}
+        return {"status":"need_post","message":"Share a screenshot or caption in chat so ShopShop can recommend a gift based on their posts."}
     overview = profile_read(stories, budget_thb)
     overview["gifts"] = gift_alternatives(stories, overview["pick"], budget_thb, range(len(stories)))
     overview["pick"] = overview["gifts"][0]
     post_gifts = [gift_alternatives(stories, None, budget_thb, [i]) for i in range(len(stories))]
     for story, gifts in zip(stories, post_gifts):
         story["gifts"] = gifts
-    return {"status":"ready","mock_gifts":True,"demo":demo,"profile":"จูน" if demo else (f"@{handle}" if handle else "เธอ"),"network":network,
+    return {"status":"ready","mock_gifts":True,"demo":demo,"profile":"June" if demo else (f"@{handle}" if handle else "Profile"),"network":network,
             "profile_url":None if demo else profile_url,"budget":budget_thb,"stories":stories,"overview":overview}

@@ -49,7 +49,7 @@ def _lookup(username, token):
     except (InvalidOperation, ValueError):
         logger.error("Invalid Apify scan limit, budget, or timeout setting")
         return {"status": "instagram_unavailable", "reason": "invalid_scan_config",
-                "message": "ค่าจำนวนโพสต์หรืองบ Apify บนเซิร์ฟเวอร์ไม่ถูกต้อง " + IMPORT_HELP}
+                "message": "The Instagram scan settings are invalid. " + IMPORT_HELP}
 
     started = time.monotonic()
     lookup = profile_log_id(username)
@@ -78,26 +78,26 @@ def _lookup(username, token):
         logger.warning("Apify Instagram lookup returned HTTP %s (%s)", code, error_type or "unknown")
         if code in {401, 403}:
             return {"status": "instagram_unavailable", "reason": "apify_access_denied",
-                    "message": "Apify ปฏิเสธการเข้าถึง ตรวจ APIFY_TOKEN และสิทธิ์ของบัญชี"}
+                    "message": "The Instagram data provider denied access."}
         if code == 402:
             return {"status": "instagram_unavailable", "reason": "apify_budget_exhausted",
-                    "message": "Apify แจ้งปัญหาด้านเครดิตหรือวงเงิน ตรวจบัญชี Apify"}
+                    "message": "The Instagram data provider reported a billing limit."}
         reason = f"apify_http_{code}"
         if error_type:
             reason += f":{error_type}"
         return {"status": "instagram_unavailable", "reason": reason,
-                "message": f"Apify ดึงโพสต์ไม่สำเร็จ ({reason}) " + IMPORT_HELP}
+                "message": f"Couldn’t retrieve Instagram posts ({reason}). " + IMPORT_HELP}
     except httpx.TimeoutException:
         logger.warning("Apify Instagram lookup timed out")
         return {"status": "instagram_unavailable", "reason": "apify_timeout",
-                "message": "Apify ใช้เวลาดึงโพสต์เกินกำหนด " + IMPORT_HELP}
+                "message": "Instagram lookup timed out. " + IMPORT_HELP}
     except (httpx.HTTPError, ValueError):
         logger.warning("Apify Instagram lookup failed before a usable response")
         return {"status": "instagram_unavailable", "reason": "apify_response_failed",
-                "message": "เชื่อมต่อ Apify หรืออ่านผลการดึงโพสต์ไม่สำเร็จ " + IMPORT_HELP}
+                "message": "Couldn’t read Instagram posts right now. " + IMPORT_HELP}
     if not isinstance(rows, list):
         return {"status": "instagram_unavailable", "reason": "apify_unexpected_response",
-                "message": "รูปแบบผลจาก Apify ไม่ตรงกับที่ ShopShop ใช้ " + IMPORT_HELP}
+                "message": "The Instagram data provider returned an unexpected response. " + IMPORT_HELP}
     posts = []
     seen = set()
     matching_posts = 0
@@ -106,7 +106,7 @@ def _lookup(username, token):
             continue
         if row.get("isPrivate") is True:
             return {"status": "need_posts", "reason": "private_profile",
-                    "message": "บัญชี Instagram นี้เป็นแบบส่วนตัว " + IMPORT_HELP}
+                    "message": "This Instagram profile is private. " + IMPORT_HELP}
         if str(row.get("ownerUsername") or "").lower() != username:
             continue
         url = post_permalink(str(row.get("url") or ""), "Instagram")
@@ -128,9 +128,9 @@ def _lookup(username, token):
         return {"status": "ready", "posts": posts}
     if matching_posts:
         return {"status": "need_posts", "reason": "no_captioned_posts",
-                "message": "Apify พบโพสต์ แต่ไม่มีแคปชันให้ใช้ " + IMPORT_HELP}
+                "message": "Posts were found without usable captions. " + IMPORT_HELP}
     return {"status": "need_posts", "reason": "no_public_posts",
-            "message": "Apify ไม่พบโพสต์สาธารณะจากโปรไฟล์นี้ " + IMPORT_HELP}
+            "message": "No public posts were found. " + IMPORT_HELP}
 
 
 def public_posts(username, token, *, cached_only=False):
@@ -153,7 +153,7 @@ def public_posts(username, token, *, cached_only=False):
             return cached[1]
         logger.info("instagram.cache profile=%s result=miss cached_only=%s", profile_log_id(username), cached_only)
         if cached_only:
-            return {"status": "need_posts", "reason": "instagram_cache_miss", "message": "เปิดโพสต์อีกครั้งก่อนเลือกของขวัญ " + IMPORT_HELP}
+            return {"status": "need_posts", "reason": "instagram_cache_miss", "message": "Open the posts again before choosing a gift. " + IMPORT_HELP}
         if len(_cache) >= 64:
             del _cache[min(_cache, key=lambda key: _cache[key][0])]
         result = _lookup(username, token)

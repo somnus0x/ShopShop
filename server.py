@@ -25,9 +25,9 @@ from instagram import instagram_posts
 from public_instagram import PRESENTATION_TTL, profile_log_id
 from story_data import PRODUCTS, ROOT, apply_live_catalog, build_story, instagram_handle, post_permalink, resolve_profile_query
 
-URI = "ui://shopshop/profile-gifts-v13.html"
+URI = "ui://shopshop/profile-gifts-v14.html"
 LEGACY_URIS = ("ui://shopshop/profile-gifts.html", *(
-    f"ui://shopshop/profile-gifts-v{version}.html" for version in range(7, 13)
+    f"ui://shopshop/profile-gifts-v{version}.html" for version in range(7, 14)
 ))
 PRESENTATION_AVATARS = {
     "johnmayer": "presentation-johnmayer.webp",
@@ -221,7 +221,7 @@ async def source_gifts(profile_url: str = "", posts: Annotated[list[Post], Field
             if feed["status"] == "ready":
                 result = {"status": "needs_caption_selection", "posts": feed["posts"],
                           "avatar_enabled": feed["avatar_enabled"],
-                          "message": "พบโพสต์แล้ว กำลังเลือกโพสต์ที่ใช้แนะนำของขวัญ"}
+                          "message": "Posts found. Choosing the best ones for your gift picks…"}
             else:
                 result = {**feed, "status": "need_post"}
             return CallToolResult(structuredContent=result,
@@ -249,7 +249,7 @@ async def source_gifts(profile_url: str = "", posts: Annotated[list[Post], Field
     if imported and result["status"] == "ready":
         result["from_instagram"] = True
         if presentation_cached:
-            result["network"] = "Instagram · โพสต์ที่แคชไว้"
+            result["network"] = "Instagram · Cached posts"
     username = instagram_handle(profile_url)
     prepared = prepared_avatar(username)
     if result["status"] == "ready" and not demo and username and (prepared or avatar.enabled(ASSET_ORIGIN)):
@@ -268,8 +268,14 @@ async def source_gifts(profile_url: str = "", posts: Annotated[list[Post], Field
             "endpoint": f"{ASSET_ORIGIN}/widget-avatar-job",
             "grant": f"{payload}:{signature}",
         }
-    if result["status"] == "ready" and buyer_inquiry.configured():
-        result["merchant_demo"] = True
+    if result["status"] == "ready" and not demo and ASSET_ORIGIN and buyer_inquiry.rest_origin():
+        request_id = str(uuid4())
+        result["demo_inquiry"] = True
+        metadata["inquiry_control"] = {
+            "endpoint": f"{ASSET_ORIGIN}/widget-inquiry",
+            "request_id": request_id,
+            "grant": buyer_inquiry.widget_grant(request_id),
+        }
     if result["status"] == "ready" and not demo and not use_prepared_card:
         await load_merchant_gifts(result, budget_thb)
     images = {}
@@ -293,6 +299,28 @@ async def source_gifts(profile_url: str = "", posts: Annotated[list[Post], Field
 @app.custom_route("/healthz", methods=["GET"], include_in_schema=False)
 async def health(_request):
     return JSONResponse({"status": "ok"})
+
+
+@app.custom_route("/widget-inquiry", methods=["POST"], include_in_schema=False)
+async def widget_inquiry(request):
+    body = bytearray()
+    try:
+        async for chunk in request.stream():
+            if len(body) + len(chunk) > 1024:
+                raise ValueError("Inquiry payload too large")
+            body.extend(chunk)
+        data = json.loads(body)
+        action = data["action"]
+        if action == "submit":
+            result = await buyer_inquiry.submit_widget(data["request_id"], data["grant"])
+        elif action == "status":
+            result = await buyer_inquiry.refresh(data["ticket"])
+        else:
+            raise ValueError("Unknown inquiry action")
+    except (ValueError, TypeError, KeyError):
+        return JSONResponse({"status": "denied"}, status_code=400, headers=AVATAR_RESPONSE_HEADERS)
+    logger.info("merchant.widget action=%s status=%s", action, result["status"])
+    return JSONResponse(result, headers=AVATAR_RESPONSE_HEADERS)
 
 
 def catalog_product(product_id):

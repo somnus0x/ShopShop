@@ -12,7 +12,7 @@ Open `index.html` for a standalone design preview. To see the card inside a conv
 
 ### Try the mock gift flow
 
-Paste a public profile into `@shopshop`. Review real source posts, pick one of the three gifts in the overview or an individual post, add a note, and select **ยืนยันของขวัญตัวอย่าง**. The confirmation stays in the widget and uses the demo catalog. If the relevant items all cost more than the stated budget, the card shows the closest match and its overage. ChatGPT is instructed to show the interactive card without a duplicate text recap.
+Paste a public profile into `@shopshop`. Review the source posts, choose one of the three gifts, and write a gift note. The standalone preview saves the gift for the current session. The ChatGPT widget can also send a demo inquiry to Supason. If every option exceeds the budget, the card shows the closest matches and their exact overage.
 
 ### Generate a profile character
 
@@ -36,7 +36,7 @@ For example, set the post limit to `100` and the cap to `0.30`. The charge cap, 
 
 The Railway image defaults to the base URL in [the buyer handoff](operator-server/docs/handoff.md). Override `SHOPSHOP_BUYER_REST_URL` on Railway if the temporary tunnel changes. Use the HTTPS base URL without `/api` or `/mcp`. ShopShop calls the REST catalog from its backend and uses the merchant photos and listed THB prices in live profile cards. If every priced option exceeds the budget, the card shows the nearest options with the overage. If the catalog is unreachable, the labeled sample catalog is used.
 
-The inquiry panel appears on the profile overview when the buyer bridge is configured. It submits the separate Supason demo product `demo-supasonk`; the Clover remains a visual gift recommendation. The operator uses the existing shopping queue to send and record the reply. The widget refreshes the original inquiry using a signed ticket and reuses its request ID if the initial button click needs retrying.
+After choosing a gift, click **Send demo inquiry** to ask Supason about the demo item. The widget sends a signed request to ShopShop, which calls `POST /api/inquiries` with `{request_id, product_id: "demo-supasonk"}`. The gift note stays in the widget. The receipt animates after the API accepts the request, then the widget checks for a reply every two seconds. Retries reuse the same request ID.
 
 | Railway variable | Value |
 | --- | --- |
@@ -47,7 +47,7 @@ The inquiry panel appears on the profile overview when the buyer bridge is confi
 | `SHOPSHOP_BUYER_DEMO_CODE` | Separate high-entropy demo code to enter in the widget before sending |
 | `SHOPSHOP_QR_ORIGIN` | HTTPS origin of the operator-approved sample QR host, if testing QR replies |
 
-The REST connection supports catalog browsing with the base URL alone. Set `SHOPSHOP_INQUIRY_SECRET` and `SHOPSHOP_BUYER_DEMO_CODE` to enable the demo inquiry. The older authenticated MCP settings apply when the REST base URL is absent. Call `merchant_bridge_status` to verify the active connection before submitting a demo inquiry.
+The REST connection supports the signed widget inquiry with the base URL alone. `SHOPSHOP_INQUIRY_SECRET` can keep receipt tickets valid across restarts. The demo code applies to the legacy inquiry tool. Call `merchant_bridge_status` to check the active connection.
 
 ## Connect a private demo to ChatGPT
 
@@ -78,7 +78,7 @@ The REST connection supports catalog browsing with the base URL alone. Set `SHOP
 
    Paste the public profile URL in the same message.
 
-   Expect a recap and gift recommendation for the handle you supplied. Tap a graph entry to read the supporting post. Choose **ใส่ช่องของขวัญ**, edit the note, then press **ยืนยันของขวัญตัวอย่าง** to confirm your mock selection. **แชร์การ์ดนี้** opens the phone’s share sheet or a saveable 1080 × 1350 PNG.
+   Expect a recap and gift recommendation for the handle you supplied. Tap a graph entry to read the supporting post. Choose **Choose this gift**, edit the note, then use **Send demo inquiry** to try the Supason flow. **Share this card** opens the phone’s share sheet or a saveable 1080 × 1350 PNG.
 
 For a hosted connection, run `.venv/bin/python server.py` with the HTTP transport and expose its `/mcp` route through your HTTPS ingress. The local default is `http://127.0.0.1:8000/mcp`. The process accepts `HOST` and `PORT` from the environment. In step 4 choose **Server URL** and enter your reachable HTTPS URL including `/mcp`. GitHub hosts the source files. A running MCP endpoint or tunnel is required for interactive ChatGPT use. After changing the tool schema or UI resource, restart the server, choose **Refresh** in the ChatGPT plugin, and start a new conversation. [Connect and test a plugin](https://developers.openai.com/plugins/deploy/connect-chatgpt)
 

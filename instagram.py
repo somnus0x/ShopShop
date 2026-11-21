@@ -7,7 +7,7 @@ import httpx
 from story_data import instagram_handle, post_permalink
 
 GRAPH_URL = "https://graph.instagram.com/v27.0"
-IMPORT_HELP = "ส่งแคปชันหรือภาพหน้าจอของโพสต์ในแชตเพื่อให้ shopshop ใช้เป็นหลักฐานได้"
+IMPORT_HELP = "Share post captions or screenshots in chat to help ShopShop choose a gift."
 
 
 def preview_image(media):
@@ -27,7 +27,7 @@ def preview_image(media):
 def instagram_posts(profile_url, *, cached_only=False):
     username = instagram_handle(profile_url)
     if not username:
-        return {"status": "need_instagram_profile", "message": "ใช้ลิงก์หน้าโปรไฟล์ Instagram " + IMPORT_HELP}
+        return {"status": "need_instagram_profile", "message": "Use a link to an Instagram profile. " + IMPORT_HELP}
     apify_token = os.getenv("APIFY_TOKEN")
     if apify_token:
         from public_instagram import public_posts
@@ -36,17 +36,17 @@ def instagram_posts(profile_url, *, cached_only=False):
     token = os.getenv("SHOPSHOP_IG_ACCESS_TOKEN", "")
     if not token or not account_id.isascii() or not account_id.isdecimal():
         return {"status": "need_posts", "reason": "apify_not_configured",
-                "message": "ยังไม่ได้ตั้ง APIFY_TOKEN บนเซิร์ฟเวอร์ ShopShop " + IMPORT_HELP}
+                "message": "Instagram lookup is unavailable. " + IMPORT_HELP}
     fields = "caption,permalink,media_type,media_url,thumbnail_url,children{media_type,media_url,thumbnail_url}"
     try:
         with httpx.Client(base_url=GRAPH_URL, headers={"Authorization": f"Bearer {token}"}, timeout=5.0) as client:
             account = client.get(f"/{account_id}", params={"fields": "username"}).raise_for_status().json()
             if account.get("username", "").lower() != username:
-                return {"status": "need_posts", "message": "โปรไฟล์นี้ยังไม่ได้เชื่อมกับ shopshop " + IMPORT_HELP}
+                return {"status": "need_posts", "message": "This Instagram profile isn’t connected to ShopShop. " + IMPORT_HELP}
             feed = client.get(f"/{account_id}/media", params={"fields": fields, "limit": 6}).raise_for_status().json()
     except (httpx.HTTPError, ValueError):
         # The provider response can contain signed URLs or credential details.
-        return {"status": "instagram_unavailable", "message": "เปิดโพสต์จาก Instagram ไม่สำเร็จในตอนนี้ " + IMPORT_HELP}
+        return {"status": "instagram_unavailable", "message": "Couldn’t open Instagram posts right now. " + IMPORT_HELP}
 
     posts = []
     for item in feed.get("data", [])[:6]:
@@ -55,5 +55,5 @@ def instagram_posts(profile_url, *, cached_only=False):
         if caption and permalink:
             posts.append({"caption": caption, "source_url": permalink, "image_url": preview_image(item)})
     if not posts:
-        return {"status": "need_posts", "message": "ยังไม่พบโพสต์ที่มีแคปชันให้ใช้ " + IMPORT_HELP}
+        return {"status": "need_posts", "message": "No captioned posts were found. " + IMPORT_HELP}
     return {"status": "ready", "posts": posts}

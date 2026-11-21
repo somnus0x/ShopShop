@@ -1,51 +1,56 @@
-<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>shopshop · ของที่เห็นแล้วนึกถึงเธอ</title><style>/* STORY_STYLE */</style></head>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>shopshop · This made me think of you</title><style>/* STORY_STYLE */</style></head>
 <body><main id="app" data-phase="inline">
-<header><b class="logo"><img class="brandmark" src="CI_MARK" alt="">shopshop</b><span id="meta">ของขวัญจากโปรไฟล์</span></header>
-<section id="waiting"><h1>ของที่เห็นแล้วนึกถึงเธอ</h1><p id="message" role="status">กำลังเปิดในแชต…</p></section>
+<header><b class="logo"><img class="brandmark" src="CI_MARK" alt="">shopshop</b><span id="meta">Gifts from a profile</span></header>
+<section id="waiting"><h1>This made me think of you</h1><p id="message" role="status">Opening ShopShop…</p></section>
 <div id="ready" hidden>
-<div id="profileTop"><section id="portrait" aria-label="โมเดลสไตล์ตัวอย่าง หมุนได้"><img crossorigin="anonymous" id="avatarSheet" src="CI_AVATAR" alt="" hidden><p id="avatarEmpty" role="status" hidden>สร้างตัวละครจากรูปโปรไฟล์</p><canvas id="scene" aria-label="ตัวละครสไตล์สมมติ"></canvas><span id="pin">สไตล์ของจูน</span><div class="spin"><button id="prev" aria-label="หมุนซ้าย">←</button><span id="spinlabel">ลากเพื่อหมุน</span><button id="next" aria-label="หมุนขวา">→</button></div></section>
-<section class="story" aria-label="โพสต์ที่มาของไอเดีย">
-<div class="segments" id="segments" aria-label="เลือกโพสต์"></div>
+<div id="profileTop"><section id="portrait" aria-label="Rotatable style avatar"><img crossorigin="anonymous" id="avatarSheet" src="CI_AVATAR" alt="" hidden><p id="avatarEmpty" role="status" hidden>Create an avatar from the profile photo</p><canvas id="scene" aria-label="Style avatar"></canvas><span id="pin">June’s style</span><div class="spin"><button id="prev" aria-label="Rotate left">←</button><span id="spinlabel">Drag to rotate</span><button id="next" aria-label="Rotate right">→</button></div></section>
+<section class="story" aria-label="Source posts">
+<div class="segments" id="segments" aria-label="Select a post"></div>
 <div class="by"><span id="handle"></span><span id="counter"></span></div>
 <figure id="sourceMedia" hidden><img id="postPhoto" alt=""><figcaption id="photoCredit"></figcaption></figure>
-<button id="surface" aria-label="ดูโพสต์ถัดไป"><span class="sticker" id="sticker" aria-hidden="true"></span><span id="quote"></span></button>
+<button id="surface" aria-label="View next post"><span class="sticker" id="sticker" aria-hidden="true"></span><span id="quote"></span></button>
 <section id="vibe" aria-labelledby="vibeTitle" hidden>
-  <h2 id="vibeTitle">Vibe จากโพสต์</h2>
+  <h2 id="vibeTitle">Profile vibe</h2>
   <p id="vibeSummary"></p>
 </section>
 <div id="breakdown" hidden>
-  <h2>หัวข้อจากโพสต์</h2><div id="mixLegend"></div>
+  <h2>Topics in the posts</h2><div id="mixLegend"></div>
   <button id="recapDetail" hidden></button>
-  <label id="avatarLookLabel" for="avatarLook" hidden>สไตล์สำรองเมื่อไม่มีรูปโปรไฟล์</label>
-  <select id="avatarLook" hidden><option value="neutral">กลาง ๆ</option><option value="masculine">มาสคิวลิน</option><option value="feminine">เฟมินีน</option></select>
-  <button id="generateAvatar" type="button" hidden>สร้างตัวละครจาก Vibe ↗</button>
+  <label id="avatarLookLabel" for="avatarLook" hidden>Style if the profile photo is unavailable</label>
+  <select id="avatarLook" hidden><option value="neutral">Neutral</option><option value="masculine">Masculine</option><option value="feminine">Feminine</option></select>
+  <button id="generateAvatar" type="button" hidden>Create avatar ↗</button>
   <p id="avatarStatus" role="status" hidden></p>
-  <button id="shareCard" type="button">แชร์การ์ดนี้ ↗</button>
+  <button id="shareCard" type="button">Share this card ↗</button>
 </div>
-<div id="mediaActions" hidden><button type="button" id="attachPhoto">เพิ่มภาพของโพสต์นี้ ＋</button><input id="photoInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/avif" hidden><a id="sourceLink" target="_blank" rel="noopener noreferrer" hidden>เปิดโพสต์ต้นฉบับ ↗</a><small role="status" id="photoStatus"></small></div>
-<div class="storyfoot"><span id="cue"></span><div><button id="back" aria-label="โพสต์ก่อนหน้า">←</button><button id="forward" aria-label="โพสต์ถัดไป">→</button></div></div></section></div>
-<button class="plain" id="overviewBack" hidden>← กลับไปดูภาพรวม</button><button class="cta" id="open">เห็นโพสต์นี้แล้ว ให้อะไรดี? <b>↗</b></button>
-<section id="expanded" aria-label="ของขวัญที่เลือกให้" hidden>
-<div id="giftOptions" aria-label="ตัวเลือกของขวัญสามชิ้น" hidden></div>
+<div id="mediaActions" hidden><button type="button" id="attachPhoto">Add post photo ＋</button><input id="photoInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/avif" hidden><a id="sourceLink" target="_blank" rel="noopener noreferrer" hidden>Open original post ↗</a><small role="status" id="photoStatus"></small></div>
+<div class="storyfoot"><span id="cue"></span><div><button id="back" aria-label="Previous post">←</button><button id="forward" aria-label="Next post">→</button></div></div></section></div>
+<button class="plain" id="overviewBack" hidden>← Back to overview</button><button class="cta" id="open">What gift fits this post? <b>↗</b></button>
+<section id="expanded" aria-label="Gift pick" hidden>
+<div id="giftOptions" aria-label="Gift options" hidden></div>
 <div class="gift-layout" id="giftLayout">
-<figure id="giftVisual" hidden><img id="liveGiftArt" hidden alt=""><img crossorigin="anonymous" id="cloverArt" src="CI_CLOVER" alt="ภาพจำลองแท็กกระเป๋าหนังทรงโคลเวอร์"><img id="cloverContext" src="CI_ON_BAG" alt="ภาพจำลองโคลเวอร์เมื่อห้อยกับซิปเป้"><figcaption id="giftPhotoCredit">ภาพจำลอง · เมื่อห้อยกับเป้</figcaption></figure>
-<div class="gift"><span id="giftLabel" hidden>ของขวัญที่เลือกให้</span><span id="brand"></span><h1 id="product"></h1><strong id="price"></strong><p id="shortReason" hidden></p><details id="reasonDetail"><summary>ทำไมถึงเลือกชิ้นนี้</summary><p id="reason"></p><div id="citations" aria-label="โพสต์ที่ใช้เลือกของ"></div></details><button class="cta" id="equip">ใส่ช่องของขวัญ ＋</button></div></div>
-<button id="makeGiftImage" type="button" class="plain" hidden>ขอให้ ChatGPT ทำภาพการ์ดของขวัญ ↗</button>
-<section id="notePanel" hidden><label for="note">ตอนยื่นให้ อยากบอกว่า…</label><textarea id="note" rows="2" maxlength="240"></textarea><button class="cta" id="save">ส่งของที่เลือกกับโน้ตเข้าแชต ↗</button></section>
-<button class="plain" id="close">← กลับไปดูโพสต์</button></section>
-<section id="sharing" hidden><p id="shareStatus" role="status"></p><figure id="sharePreview" hidden><img id="saveImage" alt="การ์ดสรุปสำหรับบันทึก"><figcaption>กดค้างหรือคลิกขวาที่รูปเพื่อบันทึก</figcaption><a id="downloadCard" download="shopshop-gift-mix.png">ดาวน์โหลด PNG ↓</a></figure></section>
-<section id="summary" hidden><h2 id="likesTitle">ความสนใจในโพสต์</h2><div id="likes"></div><h2 id="whereTitle">พิกัดที่เธอพูดถึง</h2><div id="places"></div></section>
-<img id="juneArt" src="CI_JUNE" alt="" hidden><section id="merchantDemo" hidden>
-  <h2>ทดสอบสอบถามร้านค้า</h2>
-  <p>สินค้าเดโมจาก Supason</p>
-  <form id="merchantForm">
-    <label for="merchantCode">รหัสทดสอบ</label>
-    <input id="merchantCode" type="password" maxlength="256" required autocomplete="off">
-    <button type="submit" class="cta">ถามร้านเรื่องสินค้าและราคา ↗</button>
-  </form>
-  <button id="merchantRefresh" type="button" class="plain" hidden>ตรวจคำตอบจากร้าน</button>
-  <p id="merchantStatus" role="status"></p>
-  <div id="merchantReplies"></div>
+<figure id="giftVisual" hidden><img id="liveGiftArt" hidden alt=""><img crossorigin="anonymous" id="cloverArt" src="CI_CLOVER" alt="Mockup of a clover-shaped leather bag tag"><img id="cloverContext" src="CI_ON_BAG" alt="Mockup of the clover tag on a backpack zipper"><figcaption id="giftPhotoCredit">Mockup · On a backpack</figcaption></figure>
+<div class="gift"><span id="giftLabel" hidden>Gift pick</span><span id="brand"></span><h1 id="product"></h1><strong id="price"></strong><p id="shortReason" hidden></p><details id="reasonDetail"><summary>Why this gift?</summary><p id="reason"></p><div id="citations" aria-label="Posts behind this pick"></div></details><button class="cta" id="equip">Choose this gift ＋</button></div></div>
+<button id="makeGiftImage" type="button" class="plain" hidden>Create a gift card image in ChatGPT ↗</button>
+<section id="notePanel" hidden>
+  <label for="note">What would you write on the gift?</label>
+  <textarea id="note" rows="2" maxlength="240"></textarea>
+  <p id="inquiryDetails" hidden>Asks Supason about the demo item. Your gift note stays here.</p>
+  <button class="cta" id="save" type="button">Send demo inquiry <span aria-hidden="true">↗</span></button>
+  <p id="inquiryFeedback" role="status" hidden></p>
+  <section id="inquiryReceipt" aria-labelledby="inquiryTitle" hidden>
+    <span class="inquiry-stamp" aria-hidden="true">✓</span>
+    <div class="inquiry-spark" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <div>
+      <h2 id="inquiryTitle" role="status">Inquiry queued</h2>
+      <p id="inquiryMessage">We’ll show the reply here when Supason responds.</p>
+      <div id="inquiryReplies"></div>
+      <button type="button" id="inquiryRefresh" class="plain">Check for a reply</button>
+    </div>
+  </section>
 </section>
+<button class="plain" id="close">← Back to post</button></section>
+<section id="sharing" hidden><p id="shareStatus" role="status"></p><figure id="sharePreview" hidden><img id="saveImage" alt="Shareable recap card"><figcaption>Press and hold or right-click to save the image</figcaption><a id="downloadCard" download="shopshop-gift-mix.png">Download PNG ↓</a></figure></section>
+<section id="summary" hidden><h2 id="likesTitle">Interests in the posts</h2><div id="likes"></div><h2 id="whereTitle">Places mentioned</h2><div id="places"></div></section>
+<img id="juneArt" src="CI_JUNE" alt="" hidden>
 <p class="status" id="status" role="status"></p></div></main>
 <script>/* RECAP */</script><script>const fixture="DEMO_FIXTURE";/* STORY_APP */</script><script>/* TURNTABLE */</script></body></html>

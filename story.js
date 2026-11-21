@@ -1,8 +1,8 @@
 const $ = id => document.getElementById(id);
 const embedded = window.parent !== window;
-let output = null, index = 0, expanded = false, equipped = false, sending = false;
+let output = null, index = 0, expanded = false, equipped = false;
 let drafts = {}, sent = {}, signature = '';
-let inquiry = {}, inquiryPending = false;
+let inquiry = {}, inquiryControl = null, inquiryPending = false, inquiryTimer;
 let avatarJob = {}, avatarControl = null, avatarPolling = false, giftChoice = 0;
 const sampleAvatarSource = $('avatarSheet').src;
 const pending = new Map();
@@ -83,25 +83,25 @@ async function showPostPhoto(){
   $('sourceLink').hidden=!link;
   if(link)$('sourceLink').href=link;else $('sourceLink').removeAttribute('href');
   if(summary){
-    if(remotePhoto)displayPhoto(remotePhoto,'ภาพจากโพสต์ Instagram');
+    if(remotePhoto)displayPhoto(remotePhoto,'Photo from Instagram');
     return;
   }
-  $('attachPhoto').textContent=local || ref || remotePhoto?'เปลี่ยนภาพของโพสต์นี้':'เพิ่มภาพของโพสต์นี้ ＋';
-  if(local){displayPhoto(local.url,'ภาพที่แนบกับโพสต์ '+(index+1));return;}
+  $('attachPhoto').textContent=local || ref || remotePhoto?'Replace post photo':'Add post photo ＋';
+  if(local){displayPhoto(local.url,'Photo attached to post '+(index+1));return;}
   if(ref && window.openai?.getFileDownloadUrl){
     try{
       const result=await window.openai.getFileDownloadUrl({fileId:ref});
       if(token!==photoRequest)return;
       const raw=typeof result==='string'?result:result?.downloadUrl;
       if(new URL(raw).protocol!=='https:')throw new Error();
-      displayPhoto(raw,'ภาพต้นทางจากไฟล์ที่แชร์ในแชต');return;
-    }catch{if(token===photoRequest)$('photoStatus').textContent='เปิดภาพจากแชตไม่ได้ แนบภาพของโพสต์นี้ได้';}
-  }else if(remotePhoto)displayPhoto(remotePhoto,'ภาพจากโพสต์ Instagram');
-  else if(output.demo && index===0)displayPhoto($('juneArt').src,'ภาพประกอบโปรไฟล์สมมติของจูน');
+      displayPhoto(raw,'Photo shared in chat');return;
+    }catch{if(token===photoRequest)$('photoStatus').textContent='We couldn’t open the chat photo. You can attach it here.';}
+  }else if(remotePhoto)displayPhoto(remotePhoto,'Photo from Instagram');
+  else if(output.demo && index===0)displayPhoto($('juneArt').src,'Illustration for June’s demo profile');
 }
 $('postPhoto').onerror=()=>{
   if(!$('sourceMedia').hidden){
-    $('sourceMedia').hidden=true;$('photoStatus').textContent='แสดงภาพไม่ได้ ลองแนบภาพของโพสต์นี้อีกครั้ง';
+    $('sourceMedia').hidden=true;$('photoStatus').textContent='We couldn’t display this photo. Try attaching it again.';
   }
 };
 $('attachPhoto').onclick=()=>$('photoInput').click();
@@ -110,7 +110,7 @@ $('photoInput').onchange=async()=>{
   if(!file)return;
   const selected=index, data=output;
   if(!['image/png','image/webp','image/jpeg','image/avif','image/gif'].includes(file.type)||file.size>12*1024*1024){
-    $('photoStatus').textContent='เลือกรูป PNG, JPG, WebP, GIF หรือ AVIF ขนาดไม่เกิน 12 MB';return;
+    $('photoStatus').textContent='Choose a PNG, JPEG, WebP, GIF, or AVIF under 12 MB.';return;
   }
   const reader=new FileReader();
   reader.onload=()=>{
@@ -119,7 +119,7 @@ $('photoInput').onchange=async()=>{
     localPhotos.set(selected,{url:reader.result,version:(previous?.version||0)+1});
     if(index===selected)showPostPhoto();
   };
-  reader.onerror=()=>{if(output===data && index===selected)$('photoStatus').textContent='อ่านไฟล์ไม่ได้ กรุณาเลือกรูปอีกครั้ง';};
+  reader.onerror=()=>{if(output===data && index===selected)$('photoStatus').textContent='We couldn’t read this file. Choose another image.';};
   reader.readAsDataURL(file);
 };
 $('sourceLink').onclick=e=>{
@@ -130,7 +130,9 @@ function receive(data,meta){
   const key=JSON.stringify(data);
   const refs=hostImages(meta);
   const control=meta?.avatar_control ?? toolMetadata(meta)?.avatar_control;
+  const inquiryMeta=meta?.inquiry_control ?? toolMetadata(meta)?.inquiry_control;
   if(key===signature){
+    if(inquiryMeta){inquiryControl=inquiryMeta;renderInquiry();}
     if(control){
       avatarControl=control;
       if(control.job && !avatarPolling && avatarJob.status!=='ready'){
@@ -146,6 +148,10 @@ function receive(data,meta){
   imageRefs=refs||{};localPhotos.clear();showingPhoto='';photoRequest++;
   signature=key;output=data;index=data.overview?-1:0;expanded=false;equipped=false;drafts={};sent={};inquiry={};avatarJob={};avatarPolling=false;giftChoice=0;
   avatarControl=control;
+  inquiryControl=inquiryMeta;
+  inquiryPending=false;clearTimeout(inquiryTimer);
+  $('inquiryReceipt').removeAttribute('data-celebrate');
+  inquiryFeedback('');
   const state=window.openai?.widgetState;
   if(state?.signature===key && (data.stories?.[state.index] || (data.overview && state.index===-1))){
     index=state.index;expanded=!!state.expanded;equipped=!!state.equipped;drafts=state.drafts||{};sent=state.sent||{};inquiry=state.inquiry||{};avatarJob=state.avatarJob||{};giftChoice=state.giftChoice||0;
@@ -155,13 +161,12 @@ function receive(data,meta){
     avatarJob=initialJob;
   }
   $('ready').hidden=data.status!=='ready';$('waiting').hidden=!$('ready').hidden;
-  $('merchantStatus').textContent='';
-  $('merchantReplies').replaceChildren();
   clearShare();$('shareCard').disabled=true;
   if($('ready').hidden){$('message').textContent=data.message;return;}
   render();
+  if(inquiry.ticket)scheduleInquiryCheck();
   if(avatarJob.status==='pending')updateAvatar(true);
-  if(data.overview)preparePoster(data).catch(()=>{$('shareStatus').textContent='สร้างภาพแชร์ไม่ได้ในอุปกรณ์นี้';});
+  if(data.overview)preparePoster(data).catch(()=>{$('shareStatus').textContent='This device couldn’t create the share image.';});
 }
 function giftOptions(){
   const context=index===-1?output.overview:output.stories[index];
@@ -186,8 +191,8 @@ function renderGiftOptions(show){
     const name=document.createElement('strong');
     name.textContent=gift.product;
     const price=document.createElement('span');
-    const detail=gift.over_budget_thb?' · เกินงบ ฿'+gift.over_budget_thb:(gift.catalog_fallback?' · ตัวเลือกจากแคตตาล็อก':'');
-    price.textContent='฿'+gift.price.toLocaleString('th-TH')+detail;
+    const detail=gift.over_budget_thb?' · Over budget by ฿'+gift.over_budget_thb:(gift.catalog_fallback?' · Catalog option':'');
+    price.textContent='฿'+gift.price.toLocaleString('en-TH')+detail;
     button.append(name,price);
     button.onclick=()=>{
       if(sending || giftChoice===option)return;
@@ -210,11 +215,10 @@ function evidenceButton(label, indices){
 function render(){
   const overview=output.overview, summary=index===-1, total=output.stories.length;
   const s=activePick(), source=output.stories[index];
-  renderInquiry();
   showPostPhoto();
-  $('meta').textContent=output.demo?'โปรไฟล์สมมติ · เดโม':(output.from_instagram?'จากโพสต์ Instagram':'จากโพสต์ที่แชร์ในแชต');
+  $('meta').textContent=output.demo?'Demo profile':(output.from_instagram?'From Instagram posts':'From posts shared in chat');
   $('handle').textContent=(output.profile.startsWith('@') || output.demo ? output.profile+' · ' : '')+output.network;
-  $('counter').textContent=summary?'ภาพรวม · '+total+' โพสต์':(index+1)+' / '+total;
+  $('counter').textContent=summary?'Overview · '+total+' posts':(index+1)+' / '+total;
   $('segments').replaceChildren(...output.stories.map((_,i)=>{const bar=document.createElement('i');if(summary||i<=index)bar.className='on';return bar;}));
   $('quote').textContent=summary?overview.headline:source.caption;
   $('vibe').hidden=!summary || !overview?.vibe_summary;
@@ -223,15 +227,15 @@ function render(){
   $('sticker').hidden=summary;
   $('sticker').textContent=summary?'':source.glyph;
   $('surface').setAttribute('aria-labelledby',summary?'quote cue':'quote');
-  $('cue').textContent=summary?'แตะเพื่อดูโพสต์ที่มา':source.title;
-  $('handle').textContent=summary?'ภาพรวมของ '+output.profile:$('handle').textContent;
+  $('cue').textContent=summary?'View the source posts':source.title;
+  $('handle').textContent=summary?'Overview for '+output.profile:$('handle').textContent;
   const story=document.querySelector('.story');story.dataset.tone=summary?'summary':String(index%3);
   $('summary').hidden=!summary;$('overviewBack').hidden=summary||!overview;
   if(summary){
     $('likes').replaceChildren(...overview.likes.map(like=>{
       const button=evidenceButton(like.label,like.posts);
       const count=document.createElement('small');
-      count.textContent=like.posts.length+' / '+total+' โพสต์';
+      count.textContent=like.posts.length+' / '+total+' posts';
       const bar=document.createElement('span');bar.className='post-meter';
       bar.style.setProperty('--count',total);
       for(let i=0;i<total;i++){
@@ -270,19 +274,19 @@ function render(){
     $('places').replaceChildren(...overview.places.map(place=>{
       const button=evidenceButton(place.name,place.posts);
       const tag=document.createElement('small');
-      tag.textContent=placeLabels[place.relation]+' · '+place.posts.length+' โพสต์ ↗';
+      tag.textContent=placeLabels[place.relation]+' · '+place.posts.length+' posts ↗';
       const tile=document.createElement('div');tile.className='place-tile';
-      if(place.name==='เชียงใหม่')tile.classList.add('chiangmai');
+      if(['Chiang Mai','เชียงใหม่'].includes(place.name))tile.classList.add('chiangmai');
       button.textContent=place.name;button.append(tag);
       const map=document.createElement('a');
       map.href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(place.name);
-      map.target='_blank';map.rel='noopener noreferrer';map.textContent='เปิดแผนที่ ↗';
+      map.target='_blank';map.rel='noopener noreferrer';map.textContent='Open map ↗';
       map.onclick=e=>{if(embedded && window.openai?.openExternal){e.preventDefault();window.openai.openExternal({href:map.href});}};
       tile.append(button,map);return tile;
     }));
   }
   const hasGift=!!s?.product;
-  $('open').textContent=hasGift?'เห็นโพสต์นี้แล้ว ให้อะไรดี? ↗':(summary?'ยังไม่มีของที่เข้ากับโพสต์และงบนี้':'โพสต์นี้ให้เบาะแสเรื่องสถานที่');
+  $('open').textContent=hasGift?'What gift fits this post? ↗':(summary?'No gifts found for these posts and budget.':'This post mentions a place.');
   $('open').disabled=!hasGift;
   const showGift=hasGift && (expanded || summary);
   renderGiftOptions(showGift);
@@ -294,12 +298,12 @@ function render(){
   giftPhoto.hidden=!livePhoto;
   if(livePhoto){giftPhoto.src=livePhoto;giftPhoto.alt=s.product;}else giftPhoto.removeAttribute('src');
   $('cloverArt').hidden=!clover;$('cloverContext').hidden=!clover;
-  $('giftPhotoCredit').textContent=livePhoto?'ภาพจากแคตตาล็อกของร้าน':'ภาพจำลอง · เมื่อห้อยกับเป้';
+  $('giftPhotoCredit').textContent=livePhoto?'Merchant photo':'Mockup · On a backpack';
   $('open').hidden=showGift;$('expanded').hidden=!showGift;
   $('expanded').classList.toggle('featured',summary);
   $('close').hidden=summary;
   $('giftLabel').hidden=!summary && !output.mock_gifts;
-  $('giftLabel').textContent=s?.over_budget_thb?'ตัวเลือกที่ใกล้งบที่สุด':s?.catalog_fallback?'ตัวเลือกใกล้เคียงจากแคตตาล็อก':(output.mock_gifts?'ของขวัญตัวอย่าง':'ของขวัญที่เลือกให้');
+  $('giftLabel').textContent=s?.over_budget_thb?'Closest to your budget':s?.catalog_fallback?'Closest catalog option':(output.mock_gifts?'Sample gift':'Gift pick');
   $('shortReason').hidden=!summary;
   $('shortReason').textContent=summary && s ? s.short_reason : '';
   if($('reasonDetail').dataset.pick!==String(index)){
@@ -309,29 +313,28 @@ function render(){
   renderAvatar();
   $('profileTop').classList.toggle('with-model',summary);
   if(!hasGift){$('expanded').hidden=true;$('notePanel').hidden=true;$('status').textContent='';return;}
-  $('brand').textContent=s.brand;$('product').textContent=s.product;$('price').textContent='฿'+s.price.toLocaleString('th-TH')+(output.mock_gifts?' · ราคาตัวอย่าง':' · ราคาในแคตตาล็อก');
-  $('citations').replaceChildren(...(s.evidence||[]).map(i=>evidenceButton('โพสต์ '+(i+1),[i])));
-  $('reason').textContent=s.reason;$('equip').disabled=!s.eligible;
-  $('equip').textContent=s.eligible?(equipped?'✓ อยู่ในช่องของขวัญ · แก้โน้ต':'ใส่ช่องของขวัญ ＋'):'เกินงบ ฿'+(s.price-output.budget).toLocaleString('th-TH');
+  $('brand').textContent=s.brand;$('product').textContent=s.product;$('price').textContent='฿'+s.price.toLocaleString('en-TH')+(output.mock_gifts?' · Sample price':' · Listed price');
+  $('citations').replaceChildren(...(s.evidence||[]).map(i=>evidenceButton('Post '+(i+1),[i])));
+  const demoInquiry=embedded && output.demo_inquiry;
+  const overage=s.eligible?'':'Over budget by ฿'+(s.price-output.budget).toLocaleString('en-TH');
+  if(overage)$('price').textContent+=' · '+overage;
+  $('reason').textContent=s.reason;$('equip').disabled=!s.eligible && !demoInquiry;
+  $('equip').textContent=s.eligible?(equipped?'✓ Gift selected · Edit note':'Choose this gift ＋'):(demoInquiry?'Try demo inquiry ↗':overage);
   $('notePanel').hidden=!equipped||!showGift;$('note').value=drafts[giftSlot()]??s.note;
-  $('save').disabled=sending||!!sent[giftSlot()];
-  $('save').textContent=sent[giftSlot()]?'✓ เก็บแล้ว':saveLabel();
-  const confirmation=output.mock_gifts
-    ? '✓ เลือก '+s.product+' แล้วในโหมดทดลอง'
-    : (embedded?'ส่งตัวเลือกนี้เข้าแชตแล้ว':'ตัวอย่างข้อความในแชต · '+sent[giftSlot()]);
-  $('status').textContent=sent[giftSlot()]?confirmation:'';
+  renderInquiry();
+  $('status').textContent=sent[giftSlot()]?'Gift saved for this session.':'';
 }
 const avatarMessages = {
-  pending: 'กำลังสร้างตัวละคร · ดูโพสต์และเลือกของขวัญต่อได้',
-  ready: 'ลากหรือกดลูกศรเพื่อหมุน',
-  failed: 'สร้างตัวละครไม่สำเร็จ',
-  expired: 'ภาพนี้หมดอายุแล้ว ลองสร้างตัวละครอีกครั้ง',
-  unavailable: 'ยังใช้การสร้างตัวละครไม่ได้',
-  busy: 'กำลังสร้างภาพอื่นอยู่ ลองอีกครั้งในอีกสักครู่',
-  limit_reached: 'ถึงโควตาสร้างตัวละครของรอบเดโมแล้ว',
-  grant_expired: 'ลิงก์สร้างตัวละครหมดอายุ เปิดการ์ด ShopShop ใหม่อีกครั้ง',
-  disconnected: 'ยังเช็กสถานะไม่ได้ กดเพื่อเช็กอีกครั้ง',
-  image_unavailable: 'เปิดภาพตัวละครไม่ได้ ลองโหลดอีกครั้ง',
+  pending: 'Creating the avatar. You can keep browsing gifts.',
+  ready: 'Drag or use the arrows to rotate',
+  failed: 'Couldn’t create the avatar.',
+  expired: 'This image expired. Create the avatar again.',
+  unavailable: 'Avatar generation is unavailable.',
+  busy: 'Another avatar is generating. Try again in a moment.',
+  limit_reached: 'The demo has reached its avatar limit.',
+  grant_expired: 'This avatar link expired. Open a new ShopShop card.',
+  disconnected: 'Couldn’t check the avatar. Try again.',
+  image_unavailable: 'Couldn’t load the avatar. Try again.',
 };
 function renderAvatar(){
   const live=embedded && !!output?.avatar_enabled;
@@ -343,14 +346,14 @@ function renderAvatar(){
   $('avatarLookLabel').hidden=!available || finished || pending;
   $('avatarLook').disabled=avatarPolling;
   $('avatarEmpty').hidden=!live || finished;
-  $('avatarEmpty').textContent=pending?'กำลังสร้างตัวละครจากโปรไฟล์…':avatarMessages[avatarJob.status] || 'สร้างตัวละครจากรูปโปรไฟล์';
+  $('avatarEmpty').textContent=pending?'Creating the profile avatar…':avatarMessages[avatarJob.status] || 'Create an avatar from the profile photo';
   $('scene').hidden=live && !finished;
   $('prev').parentElement?.toggleAttribute('hidden',live && !finished);
   $('generateAvatar').disabled=avatarPolling;
-  $('generateAvatar').textContent=avatarJob.job_id && !finished?'เช็กสถานะตัวละคร ↗':'สร้างตัวละครจาก Vibe ↗';
+  $('generateAvatar').textContent=avatarJob.job_id && !finished?'Check avatar status ↗':'Create avatar ↗';
   $('avatarStatus').hidden=!available || !avatarJob.status;
   $('avatarStatus').textContent=avatarMessages[avatarJob.status]||'';
-  $('pin').textContent=finished?(avatarJob.reference==='profile_photo'?'ตัวละครจากรูปโปรไฟล์ · AI':'ตัวละครจาก Vibe · AI'):(output.demo?'สไตล์ของจูน':(live?'ตัวละครของ '+output.profile:'โมเดลสไตล์ตัวอย่าง'));
+  $('pin').textContent=finished?(avatarJob.reference==='profile_photo'?'AI avatar · Profile photo':'AI avatar · Profile vibe'):(output.demo?'June’s style':(live?'Avatar for '+output.profile:'Sample avatar'));
   const sheet=$('avatarSheet');
   const src=finished?avatarJob.image_url:sampleAvatarSource;
   if(src && sheet.src!==src)sheet.src=src;
@@ -413,69 +416,97 @@ async function updateAvatar(resume=false){
   }
 }
 $('generateAvatar').onclick=()=>updateAvatar(!!avatarJob.job_id && ['pending','disconnected','image_unavailable'].includes(avatarJob.status));
-function saveLabel(){
-  return output?.mock_gifts?'ยืนยันของขวัญตัวอย่าง':'ส่งของที่เลือกกับโน้ตเข้าแชต ↗';
-}
+const inquiryStates = {
+  queued: ['Inquiry queued', 'We’ll show the reply here when Supason responds.'],
+  claimed: ['Inquiry in progress', 'The demo operator is preparing the message.'],
+  sent: ['Inquiry sent', 'Waiting for Supason to reply.'],
+  needs_attention: ['Inquiry needs attention', 'The demo operator needs to check this request.'],
+};
+const inquiryErrors = {
+  expired: 'This inquiry link has expired. Open a new ShopShop card to try again.',
+  denied: 'This inquiry could not be authorized. Open a new ShopShop card to try again.',
+  unavailable: 'We couldn’t confirm the inquiry. Try again to check the same request.',
+};
 function renderInquiry(){
-  $('merchantDemo').hidden=!(embedded && output?.merchant_demo && index===-1);
-  $('merchantForm').hidden=!!inquiry.ticket;
-  $('merchantRefresh').hidden=!inquiry.ticket;
+  const demo=embedded && !!output?.demo_inquiry;
+  const save=$('save');
+  $('inquiryDetails').hidden=!demo;
+  save.hidden=demo && !!inquiry.ticket;
+  save.disabled=inquiryPending || (demo ? !inquiryControl : embedded || !!sent[giftSlot()]);
+  save.textContent=demo?(inquiryPending?'Sending inquiry…':'Send demo inquiry ↗'):(sent[giftSlot()]?'✓ Saved':(embedded?'Inquiry unavailable':'Save gift'));
+  const receipt=$('inquiryReceipt');
+  receipt.hidden=!demo || !inquiry.ticket;
+  if(receipt.hidden)return;
+  const replies=inquiry.replies||[];
+  const [title,message]=inquiryStates[inquiry.status]||inquiryStates.queued;
+  $('inquiryTitle').textContent=replies.length?'Supason replied':title;
+  $('inquiryMessage').textContent=replies.length?'':message;
+  $('inquiryRefresh').hidden=!!replies.length || inquiry.status==='needs_attention';
+  $('inquiryRefresh').disabled=inquiryPending;
+  $('inquiryReplies').replaceChildren(...replies.map(reply=>{
+    const element=document.createElement('div');
+    const message=document.createElement('p');
+    message.textContent=reply.text;
+    element.append(message);
+    if(reply.qr_image_url){
+      const qr=document.createElement('img');
+      qr.src=reply.qr_image_url;qr.alt='QR code from Supason';
+      element.append(qr);
+    }
+    return element;
+  }));
 }
-const merchantStatus = {
-  queued:'รอร้านตอบ',claimed:'กำลังดำเนินการ',sent:'ส่งคำถามแล้ว · รอร้านตอบ',
-  needs_attention:'ให้ผู้ดูแลตรวจสอบ',expired:'ลิงก์ทดสอบหมดอายุ',
-  denied:'รหัสทดสอบไม่ถูกต้อง',unavailable:'เชื่อมต่อคิวร้านไม่ได้ ลองอีกครั้ง'
-};
-async function callInquiryTool(name, args){
-  if(inquiryPending)return;
-  inquiryPending=true;
+function inquiryFeedback(message){
+  const feedback=$('inquiryFeedback');
+  feedback.textContent=message;
+  feedback.hidden=!message;
+}
+function scheduleInquiryCheck(){
+  clearTimeout(inquiryTimer);
+  if(!inquiry.ticket || inquiry.replies?.length || inquiry.status==='needs_attention' || (inquiry.checks||0)>=30)return;
+  inquiryTimer=setTimeout(()=>{inquiry.checks=(inquiry.checks||0)+1;sendInquiry('status',true);},2000);
+}
+async function sendInquiry(action, automatic=false){
+  if(inquiryPending || !inquiryControl?.endpoint)return;
   const current=inquiry;
-  $('merchantStatus').textContent='กำลังเชื่อมต่อร้าน…';
+  const control=current.control ||= inquiryControl;
+  const body=action==='submit'
+    ? {action,request_id:control.request_id,grant:control.grant}
+    : {action,ticket:current.ticket};
+  inquiryPending=true;renderInquiry();persist();
+  if(!automatic)inquiryFeedback(action==='submit'?'Sending your demo inquiry…':'Checking for a reply…');
   try{
-    const response=window.openai?.callTool
-      ? await window.openai.callTool(name,args)
-      : await request('tools/call',{name,arguments:args});
+    const response=await fetch(control.endpoint,{
+      method:'POST',body:JSON.stringify(body),credentials:'omit',signal:AbortSignal.timeout(12000),
+    });
+    const result=await response.json();
     if(current!==inquiry)return;
-    const result=response?.structuredContent;
-    if(response?.isError || !result?.status)throw new Error('Missing inquiry status');
-    if(result.ticket){inquiry.ticket=result.ticket;persist();}
-    const replies=result.replies||[];
-    $('merchantStatus').textContent=replies.length?'ร้านตอบแล้ว':(merchantStatus[result.status]||result.status);
-    $('merchantReplies').replaceChildren(...replies.map(reply=>{
-      const card=document.createElement('div');
-      const message=document.createElement('p');
-      message.textContent=reply.text;
-      card.append(message);
-      if(reply.qr_image_url){
-        const qr=document.createElement('img');
-        qr.src=reply.qr_image_url;qr.alt='ตัวอย่าง QR จากร้าน';
-        card.append(qr);
-      }
-      return card;
-    }));
-    renderInquiry();
+    if(!response.ok || inquiryErrors[result.status]){
+      if(!automatic)inquiryFeedback(inquiryErrors[result.status]||inquiryErrors.unavailable);
+      if(result.status==='expired')clearTimeout(inquiryTimer);
+      else if(action==='status')scheduleInquiryCheck();
+      return;
+    }
+    if(action==='submit' && !result.ticket)throw new Error('Missing inquiry ticket');
+    const accepted=action==='submit' && !current.ticket;
+    if(result.ticket)current.ticket=result.ticket;
+    current.status=result.status;current.replies=result.replies||[];
+    renderInquiry();persist();
+    if(accepted)$('inquiryReceipt').setAttribute('data-celebrate','');
+    if(action==='submit')inquiryFeedback('');
+    else if(!automatic || current.replies.length)inquiryFeedback(current.replies.length?'Supason replied.':'No reply yet.');
+    scheduleInquiryCheck();
   }catch{
-    if(current===inquiry)$('merchantStatus').textContent=merchantStatus.unavailable;
-  }finally{inquiryPending=false;}
+    if(current===inquiry){
+      if(!automatic)inquiryFeedback(inquiryErrors.unavailable);
+      if(action==='status')scheduleInquiryCheck();
+    }
+  }finally{
+    if(current===inquiry){inquiryPending=false;renderInquiry();}
+  }
 }
-$('merchantForm').onsubmit=event=>{
-  event.preventDefault();
-  if(inquiryPending || inquiry.ticket || !output?.merchant_demo)return;
-  inquiry.requestId ||= crypto.randomUUID();
-  persist();
-  const code=$('merchantCode').value;
-  $('merchantCode').value='';
-  callInquiryTool('start_demo_inquiry',{request_id:inquiry.requestId,demo_code:code});
-};
-$('merchantRefresh').onclick=()=>{if(inquiry.ticket)callInquiryTool('refresh_demo_inquiry',{ticket:inquiry.ticket});};
-function move(by){
-  if(sending)return;
-  const length=output.stories.length+(output.overview?1:0);
-  const offset=output.overview?1:0;
-  jump((index+offset+by+length)%length-offset);
-  const story=document.querySelector('.story');story.classList.remove('pulse');void story.offsetWidth;story.classList.add('pulse');
-}
-$('overviewBack').onclick=()=>jump(-1);
+$('inquiryRefresh').onclick=()=>sendInquiry('status');
+
 $('back').onclick=()=>move(-1);$('forward').onclick=$('surface').onclick=()=>move(1);
 $('surface').onkeydown=e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();move(e.key==='ArrowLeft'?-1:1);}};
 $('open').onclick=()=>{
@@ -491,32 +522,30 @@ $('makeGiftImage').onclick=async()=>{
   if(!embedded || !gift?.product)return;
   const button=$('makeGiftImage');
   button.disabled=true;
-  const prompt='ช่วยสร้างภาพการ์ดของขวัญแนวตั้ง โทนเขียวหยกและลาเวนเดอร์ ได้แรงบันดาลใจจาก '+gift.product+' ของ '+gift.brand+' ใช้ภาพประกอบแบบคอนเซปต์ ไม่ใช้ภาพบุคคลหรือข้อความจากโพสต์';
+  const prompt='Create a vertical gift card image in jade and lavender inspired by '+gift.product+' by '+gift.brand+'. Use an original product illustration. Keep the card focused on the gift.';
   try{
     if(window.openai?.sendFollowUpMessage)await window.openai.sendFollowUpMessage({prompt});
     else{
       const reply=await request('ui/message',{role:'user',content:[{type:'text',text:prompt}]});
       if(reply?.isError)throw new Error('Host declined');
     }
-  }catch{$('status').textContent='ส่งคำขอไม่ได้ ลองขอให้ ChatGPT สร้างภาพการ์ดในแชต';}
+  }catch{$('status').textContent='Couldn’t open the image request. Try asking ChatGPT in the conversation.';}
   finally{button.disabled=false;}
 };
 $('equip').onclick=()=>{equipped=true;render();persist();$('note').focus();};
-$('note').oninput=()=>{drafts[giftSlot()]=$('note').value;delete sent[giftSlot()];$('save').disabled=sending;$('save').textContent=saveLabel();$('status').textContent='';persist();};
-$('save').onclick=async()=>{
-  if(sending || sent[giftSlot()] || !activePick()?.eligible)return;
-  const s=activePick(), note=$('note').value.trim(), current=signature, selected=giftSlot();
-  const citations=(s.evidence || (index===-1?[]:[index])).map(i=>'“'+output.stories[i].caption+'”').join(' · ');
-  const message='เลือก '+s.product+' จาก '+s.brand+' (฿'+s.price+') '+s.reason+(citations?'\nจากโพสต์ '+citations:'')+(note?'\nโน้ตที่จะให้: '+note:'');
-  sending=true;$('save').disabled=true;$('note').disabled=true;
-  try{
-    if(embedded && !output.mock_gifts){
-      const reply=await request('ui/message',{role:'user',content:[{type:'text',text:message}]});
-      if(reply?.isError)throw new Error('Host declined');
-    }
-    if(signature===current)sent[selected]=message;
-  }catch{if(signature===current)$('status').textContent='ยังยืนยันการส่งไม่ได้ เช็กข้อความในแชตก่อนลองใหม่';}
-  finally{sending=false;$('note').disabled=false;if(signature===current && sent[selected]){render();persist();}else $('save').disabled=false;}
+$('note').oninput=()=>{
+  drafts[giftSlot()]=$('note').value;
+  if(sent[giftSlot()])delete sent[giftSlot()];
+  $('status').textContent='';renderInquiry();persist();
+};
+$('save').onclick=()=>{
+  if(inquiryPending || (!activePick()?.eligible && !output?.demo_inquiry))return;
+  if(embedded){
+    if(!inquiry.ticket)return sendInquiry('submit');
+    return;
+  }
+  sent[giftSlot()]=$('note').value.trim() || true;
+  render();persist();
 };
 if(embedded){
   window.addEventListener('message',e=>{
@@ -528,6 +557,6 @@ if(embedded){
   window.addEventListener('openai:set_globals',e=>receive(e.detail?.globals?.toolOutput??window.openai?.toolOutput,e.detail?.globals?.toolResponseMetadata??window.openai?.toolResponseMetadata));
   request('ui/initialize',{appInfo:{name:'shopshop',version:'0.1.0'},appCapabilities:{},protocolVersion:'2026-01-26'})
     .then(()=>{notify('ui/notifications/initialized',{});new ResizeObserver(()=>notify('ui/notifications/size-changed',{height:$('app').offsetHeight})).observe($('app'));})
-    .catch(()=>{if(!output)$('message').textContent='เปิด shopshop จากคำตอบใน ChatGPT อีกครั้ง';});
+    .catch(()=>{if(!output)$('message').textContent='Open ShopShop from its response in ChatGPT.';});
   receive(window.openai?.toolOutput,window.openai?.toolResponseMetadata);
 }else receive(fixture);
