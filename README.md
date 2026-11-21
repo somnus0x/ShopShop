@@ -8,7 +8,7 @@ Open `index.html` for a standalone design preview. To see the card inside a conv
 
 1. In Railway, choose **New Project → Deploy from GitHub repo → somnus0x/ShopShop**. The repository root contains the Dockerfile and `railway.toml`. Railway injects `PORT`, and `/healthz` checks startup. In the service settings, generate a public domain. With the CLI, run `railway up` from the application directory, then `railway domain`. [Railway deployment](https://docs.railway.com/cli/up) · [Railway domains](https://docs.railway.com/cli/domain)
 2. In [ChatGPT Plugins](https://chatgpt.com/plugins), choose **+ → Add custom MCP server**. Enter the Railway HTTPS URL with `/mcp` appended, name it **ShopShop**, and use **No authentication** for the demo server. Create and install the plugin. [OpenAI connection guide](https://developers.openai.com/plugins/deploy/connect-chatgpt)
-3. Add `APIFY_TOKEN` in Railway Variables. In a new conversation, mention `@shopshop`, then paste the actual public Instagram profile URL you want to test and ask for a gift under ฿600. Check that the overview shows the pasted handle, that its post images match the originals, and that the gift explanation cites the posts. The scraper requests up to 30 recent public posts per lookup with a $0.10 Apify charge cap. ChatGPT selects up to six supporting posts for the gift. Successful and empty results are cached for five minutes in the server process. Set a usage limit in Apify for the demo. Private or unreadable profiles prompt for screenshots. [Apify Actor](https://apify.com/gatherworks/instagram-profile-scraper) · [Apify API](https://docs.apify.com/api/v2/actor-run-sync-get-dataset-items)
+3. Add `APIFY_TOKEN` in Railway Variables. In a new conversation, mention `@shopshop`, then paste the actual public Instagram profile URL you want to test and ask for a gift under ฿600. Check that the overview shows the pasted handle, that its post images match the originals, and that the gift explanation cites the posts. The scraper requests up to 30 recent public posts per lookup with a $0.10 Apify charge cap. ChatGPT selects up to six supporting posts for the gift. Successful and empty results are cached for five minutes in the server process. Set a usage limit in Apify for the demo. Private or unreadable profiles prompt for screenshots. [Apify Actor](https://apify.com/apify/instagram-post-scraper) · [Apify API](https://docs.apify.com/api/v2/actor-run-sync-get-dataset-items)
 
 ### Adjust the Instagram scan
 
@@ -19,7 +19,7 @@ Set either variable in Railway and deploy the changes. Every lookup uses the con
 | `SHOPSHOP_APIFY_POST_LIMIT` | `30` | Recent posts requested per public profile. Accepts 1 through 2,000. |
 | `SHOPSHOP_APIFY_MAX_CHARGE_USD` | `0.10` | Positive USD spending cap per Apify run. Increase it alongside the post limit to retrieve more rows. |
 
-For example, set the post limit to `100` and the cap to `0.30`. The charge cap, the scraper timeout, and the number of available public posts can reduce the returned count. [Apify Actor limits and pricing](https://apify.com/gatherworks/instagram-profile-scraper)
+For example, set the post limit to `100` and the cap to `0.30`. The charge cap, the scraper timeout, and the number of available public posts can reduce the returned count. [Apify Post Scraper pricing](https://apify.com/apify/instagram-post-scraper)
 
 ### Connect the merchant inquiry demo
 

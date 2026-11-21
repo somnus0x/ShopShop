@@ -10,7 +10,7 @@ import httpx
 from instagram import IMPORT_HELP, preview_image
 from story_data import post_permalink
 
-ACTOR_URL = "https://api.apify.com/v2/actors/gatherworks~instagram-profile-scraper/run-sync-get-dataset-items"
+ACTOR_URL = "https://api.apify.com/v2/actors/apify~instagram-post-scraper/run-sync-get-dataset-items"
 CACHE_TTL = 300
 logger = logging.getLogger(__name__)
 _cache = {}
@@ -29,14 +29,14 @@ def _lookup(username, token):
         return {"status": "instagram_unavailable", "reason": "invalid_scan_config",
                 "message": "ค่าจำนวนโพสต์หรืองบ Apify บนเซิร์ฟเวอร์ไม่ถูกต้อง " + IMPORT_HELP}
 
-    # The Actor returns one account row in addition to the requested posts.
-    row_limit = post_limit + 1
     try:
         response = httpx.post(
             ACTOR_URL,
             headers={"Authorization": f"Bearer {token}"},
-            params={"timeout": 25, "maxTotalChargeUsd": charge_limit, "limit": row_limit},
-            json={"usernames": [username], "includePosts": True, "maxPostsPerAccount": post_limit},
+            params={"timeout": 25, "maxTotalChargeUsd": charge_limit, "limit": post_limit,
+                    "fields": "ownerUsername,url,caption,displayUrl,images,isPrivate,error,errorDescription"},
+            json={"username": [f"https://www.instagram.com/{username}/"],
+                  "resultsLimit": post_limit, "skipPinnedPosts": True},
             timeout=30,
         )
         rows = response.raise_for_status().json()
@@ -62,32 +62,38 @@ def _lookup(username, token):
     if not isinstance(rows, list):
         return {"status": "instagram_unavailable", "reason": "apify_unexpected_response",
                 "message": "รูปแบบผลจาก Apify ไม่ตรงกับที่ ShopShop ใช้ " + IMPORT_HELP}
-    rows = [row for row in rows[:row_limit] if isinstance(row, dict)]
-    account = next((row for row in rows if row.get("rowType") == "account"
-                    and str(row.get("handle", "")).lower() == username), None)
-    if account and account.get("isPrivate") is True:
-        return {"status": "need_posts", "reason": "private_profile",
-                "message": "บัญชี Instagram นี้เป็นแบบส่วนตัว " + IMPORT_HELP}
-    if not account:
-        logger.info("Apify did not return a verified public account row")
-        return {"status": "need_posts", "reason": "no_public_account_row",
-                "message": "Apify ไม่ส่งข้อมูลโปรไฟล์สาธารณะกลับมา " + IMPORT_HELP}
     posts = []
-    for row in rows:
-        if row.get("rowType") != "post" or str(row.get("accountHandle", "")).lower() != username:
+    seen = set()
+    matching_posts = 0
+    for row in rows[:post_limit]:
+        if not isinstance(row, dict):
             continue
-        url = post_permalink(str(row.get("postUrl") or ""), "Instagram")
-        caption = str(row.get("postCaption") or "").strip()[:480]
-        if not (url and caption):
+        if row.get("isPrivate") is True:
+            return {"status": "need_posts", "reason": "private_profile",
+                    "message": "บัญชี Instagram นี้เป็นแบบส่วนตัว " + IMPORT_HELP}
+        if str(row.get("ownerUsername") or "").lower() != username:
             continue
-        photos = row.get("imageUrls") or row.get("images")
-        first_photo = photos[0] if isinstance(photos, list) and photos else None
-        image = row.get("thumbnailUrl") or row.get("displayUrl") or row.get("imageUrl") or first_photo
-        posts.append({"caption": caption, "source_url": url, "image_url": preview_image({"media_url": image})})
+        url = post_permalink(str(row.get("url") or ""), "Instagram")
+        if not url or url in seen:
+            continue
+        seen.add(url)
+        matching_posts += 1
+        caption = row.get("caption")
+        if not isinstance(caption, str) or not caption.strip():
+            continue
+        images = row.get("images")
+        first_photo = images[0] if isinstance(images, list) and images else None
+        image = preview_image({"media_url": row.get("displayUrl")}) or preview_image({"media_url": first_photo})
+        posts.append({"caption": caption.strip()[:480], "source_url": url, "image_url": image})
+    logger.info("Apify Post Scraper returned %d rows, %d matching posts and %d usable captions",
+                len(rows), matching_posts, len(posts))
     if posts:
-        return {"status": "ready", "posts": posts[:post_limit]}
-    return {"status": "need_posts", "reason": "no_captioned_posts",
-            "message": "Apify พบโปรไฟล์ แต่ไม่มีโพสต์พร้อมแคปชันให้ใช้ " + IMPORT_HELP}
+        return {"status": "ready", "posts": posts}
+    if matching_posts:
+        return {"status": "need_posts", "reason": "no_captioned_posts",
+                "message": "Apify พบโพสต์ แต่ไม่มีแคปชันให้ใช้ " + IMPORT_HELP}
+    return {"status": "need_posts", "reason": "no_public_posts",
+            "message": "Apify ไม่พบโพสต์สาธารณะจากโปรไฟล์นี้ " + IMPORT_HELP}
 
 
 def public_posts(username, token, *, cached_only=False):
